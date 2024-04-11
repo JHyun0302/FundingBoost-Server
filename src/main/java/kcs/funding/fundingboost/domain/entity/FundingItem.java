@@ -13,6 +13,8 @@ import jakarta.validation.constraints.NotNull;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 
 @Entity
 @Getter
@@ -29,10 +31,12 @@ public class FundingItem {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "funding_id")
+    @OnDelete(action = OnDeleteAction.CASCADE)
     private Funding funding;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "item_id")
+    @OnDelete(action = OnDeleteAction.CASCADE)
     private Item item;
 
     @NotNull
