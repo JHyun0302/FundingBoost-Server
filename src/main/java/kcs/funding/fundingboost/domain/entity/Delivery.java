@@ -20,7 +20,6 @@ import org.hibernate.annotations.OnDeleteAction;
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@DynamicUpdate
 @Table(name = "delivery")
 public class Delivery {
     @Id
