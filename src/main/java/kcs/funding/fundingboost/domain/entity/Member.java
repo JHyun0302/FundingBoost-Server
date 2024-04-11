@@ -13,11 +13,11 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.ColumnDefault;
 
+@Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@Entity
 @Table(
-        name = "member"
+    name = "member"
 )
 public class Member {
 
@@ -41,5 +41,4 @@ public class Member {
     @ColumnDefault("0")
     @NotNull
     private int point;
-
 }
