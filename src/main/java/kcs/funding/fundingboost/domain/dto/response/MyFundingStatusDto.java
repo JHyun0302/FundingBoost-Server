@@ -7,13 +7,11 @@ import lombok.Builder;
 
 @Builder
 public record MyFundingStatusDto(Long fundingId,
-                                 int fundingPercent,
                                  String deadline) {
 
-    public static MyFundingStatusDto fromEntity(Funding funding, int currentPercent, String deadline) {
+    public static MyFundingStatusDto fromEntity(Funding funding, String deadline) {
         return MyFundingStatusDto.builder()
             .fundingId(funding.getFundingId())
-            .fundingPercent(currentPercent)
             .deadline(deadline)
             .build();
     }
