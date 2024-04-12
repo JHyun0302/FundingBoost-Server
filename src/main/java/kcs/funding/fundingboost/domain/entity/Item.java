@@ -19,7 +19,6 @@ import lombok.NoArgsConstructor;
 @Table(name = "item")
 public class Item extends BaseTimeEntity {
     @Id
-    @NotNull
     @Column(name = "item_id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long itemId;
@@ -46,4 +45,19 @@ public class Item extends BaseTimeEntity {
 
     @Column(name = "option_name", length = 100)
     private String optionName;
+
+    private Item(String itemName, int itemPrice, String itemImageUrl, String brandName, String category,
+                 String optionName) {
+        this.itemName = itemName;
+        this.itemPrice = itemPrice;
+        this.itemImageUrl = itemImageUrl;
+        this.brandName = brandName;
+        this.category = category;
+        this.optionName = optionName;
+    }
+
+    public static Item createItem(String itemName, int itemPrice, String itemImageUrl, String brandName,
+                                  String category, String optionName) {
+        return new Item(itemName, itemPrice, itemImageUrl, brandName, category, optionName);
+    }
 }
