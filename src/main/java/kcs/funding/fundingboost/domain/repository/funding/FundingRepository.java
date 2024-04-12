@@ -1,4 +1,4 @@
-package kcs.funding.fundingboost.domain.repository;
+package kcs.funding.fundingboost.domain.repository.funding;
 
 import kcs.funding.fundingboost.domain.entity.Funding;
 import org.springframework.data.jpa.repository.JpaRepository;
