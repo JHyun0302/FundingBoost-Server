@@ -4,18 +4,16 @@ import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
-import kcs.funding.fundingboost.domain.dto.response.FriendFundingDto;
-import kcs.funding.fundingboost.domain.dto.response.MemberDto;
-import kcs.funding.fundingboost.domain.dto.response.MyFundingItemDto;
-import kcs.funding.fundingboost.domain.dto.response.MyFundingStatusDto;
-import kcs.funding.fundingboost.domain.dto.response.ViewItemDto;
-import kcs.funding.fundingboost.domain.dto.response.ViewMainDto;
+import kcs.funding.fundingboost.domain.dto.response.HomeFriendFundingDto;
+import kcs.funding.fundingboost.domain.dto.response.HomeMemberInfoDto;
+import kcs.funding.fundingboost.domain.dto.response.HomeMyFundingItemDto;
+import kcs.funding.fundingboost.domain.dto.response.HomeMyFundingStatusDto;
+import kcs.funding.fundingboost.domain.dto.response.ItemDto;
+import kcs.funding.fundingboost.domain.dto.response.HomeViewDto;
 import kcs.funding.fundingboost.domain.entity.Funding;
 import kcs.funding.fundingboost.domain.entity.FundingItem;
-import kcs.funding.fundingboost.domain.entity.Item;
 import kcs.funding.fundingboost.domain.entity.Member;
 import kcs.funding.fundingboost.domain.repository.ItemRepository;
-import kcs.funding.fundingboost.domain.repository.MemberRepository;
 import kcs.funding.fundingboost.domain.repository.funding.FundingRepository;
 import kcs.funding.fundingboost.domain.repository.relationship.RelationshipRepositoryRepository;
 import lombok.RequiredArgsConstructor;
@@ -30,28 +28,33 @@ public class HomeService {
     private final ItemRepository itemRepository;
 
 
-    public ViewMainDto getMainView(Long memberId) {
+    public HomeViewDto getMainView(Long memberId) {
         Funding funding = fundingRepository.findFundingInfo(memberId);
 
-        MemberDto memberDto = MemberDto.fromEntity(funding.getMember());
+        // 사용자 정보: 이름, 프로필 이미지
+        HomeMemberInfoDto homeMemberInfoDto = HomeMemberInfoDto.fromEntity(funding.getMember());
 
-        MyFundingStatusDto myFundingStatus = getMyFundingStatus(funding);
+        // 사용자 펀딩 내용: 펀딩 이름, 완료일
+        HomeMyFundingStatusDto myFundingStatus = getMyFundingStatus(funding);
 
-        List<MyFundingItemDto> myFundingItemList = getMyFundingItems(funding);
+        // 사용자 펀딩 상세: 펀딩 상품 이미지, 펀딩 진행률
+        List<HomeMyFundingItemDto> homeMyFundingItemList = getMyFundingItems(funding);
 
-        List<FriendFundingDto> friendFundingList = getFriendFundingList(memberId, funding);
+        // 친구 펀딩: 이름, 프로필 이미지, 펀딩Id, 현재 펀딩 진행중인 상품 이미지, 펀딩 진행률, 펀딩 마감일
+        List<HomeFriendFundingDto> homeFriendFundingList = getFriendFundingList(memberId, funding);
 
-        List<ViewItemDto> items = itemRepository.findAll().stream()
-            .map(ViewItemDto::fromEntity)
+        // 상품 목록: 상품Id, 이름, 가격, 이미지, 브랜드명
+        List<ItemDto> itemList = itemRepository.findAll().stream()
+            .map(ItemDto::fromEntity)
             .toList();
 
-        return ViewMainDto.fromEntity(memberDto, myFundingStatus, myFundingItemList,
-            friendFundingList, items);
+        return HomeViewDto.fromEntity(homeMemberInfoDto, myFundingStatus, homeMyFundingItemList,
+            homeFriendFundingList, itemList);
     }
 
-    private List<FriendFundingDto> getFriendFundingList(Long memberId, Funding funding) {
+    private List<HomeFriendFundingDto> getFriendFundingList(Long memberId, Funding funding) {
         List<Member> friends = relationshipRepository.findFriendByMemberId(memberId);
-        List<FriendFundingDto> friendFundingListDto = new ArrayList<>();
+        List<HomeFriendFundingDto> friendFundingDtoList = new ArrayList<>();
 
         for (Member friend : friends) {
             Funding friendFunding = fundingRepository.findFundingInfo(friend.getMemberId());
@@ -70,19 +73,19 @@ public class HomeService {
                 int leftDate = (int) ChronoUnit.DAYS.between(LocalDate.now(), friendFunding.getDeadline());
                 String deadline = "D-" + leftDate;
 
-                FriendFundingDto friendFundingDto = FriendFundingDto.fromEntity(friendFunding,
+                HomeFriendFundingDto homeFriendFundingDto = HomeFriendFundingDto.fromEntity(friendFunding,
                     nowFundingItemImageUrl, percent,
                     deadline);
-                friendFundingListDto.add(friendFundingDto);
+                friendFundingDtoList.add(homeFriendFundingDto);
             }
         }
-        return friendFundingListDto;
+        return friendFundingDtoList;
     }
 
-    private static List<MyFundingItemDto> getMyFundingItems(Funding funding) {
+    private static List<HomeMyFundingItemDto> getMyFundingItems(Funding funding) {
         int collectPrice = funding.getCollectPrice();
         List<FundingItem> myFundingItems = funding.getFundingItems();
-        List<MyFundingItemDto> myFundingItemListDto = new ArrayList<>();
+        List<HomeMyFundingItemDto> myFundingItemDtoList = new ArrayList<>();
         for (FundingItem myFundingItem : myFundingItems) {
             int itemPrice = myFundingItem.getItem().getItemPrice();
             int percent;
@@ -92,15 +95,15 @@ public class HomeService {
             } else {
                 percent = (int) collectPrice / itemPrice;
             }
-            MyFundingItemDto myFundingItemDto = MyFundingItemDto.fromEntity(myFundingItem, percent);
-            myFundingItemListDto.add(myFundingItemDto);
+            HomeMyFundingItemDto homeMyFundingItemDto = HomeMyFundingItemDto.fromEntity(myFundingItem, percent);
+            myFundingItemDtoList.add(homeMyFundingItemDto);
         }
-        return myFundingItemListDto;
+        return myFundingItemDtoList;
     }
 
-    private MyFundingStatusDto getMyFundingStatus(Funding funding) {
+    private HomeMyFundingStatusDto getMyFundingStatus(Funding funding) {
         int leftDate = (int) ChronoUnit.DAYS.between(LocalDate.now(), funding.getDeadline());
         String deadline = "D-" + leftDate;
-        return MyFundingStatusDto.fromEntity(funding, deadline);
+        return HomeMyFundingStatusDto.fromEntity(funding, deadline);
     }
 }
