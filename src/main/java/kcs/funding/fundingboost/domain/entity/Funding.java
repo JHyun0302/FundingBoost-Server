@@ -5,6 +5,8 @@ import static jakarta.persistence.CascadeType.*;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -47,8 +49,8 @@ public class Funding extends BaseTimeEntity {
     @Column(length = 50)
     private String message;
 
-    @Column(length = 10)
-    private String tag;
+    @Enumerated(EnumType.STRING)
+    private Tag tag;
 
     @NotNull
     @Column(name = "total_price")
