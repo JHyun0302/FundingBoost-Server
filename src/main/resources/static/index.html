@@ -48,6 +48,8 @@
 <!--      <a href="/authorize?scope=friends,talk_message">-->
 <!--        <h2>친구목록 조회와 메세지 발송 권한 획득</h2> </a-->
 <!--      ><br />-->
+      <button onclick="REST_Call('/send/me')">나에게 카톡 알림보내기</button>
+      <button onclick="REST_Call('/send/friends')">친구에게 카톡 알림보내기</button><br />
       <button onclick="REST_Call('/friends')">친구목록 조회</button>
       <button onclick="REST_Call('/logout')">로그아웃</button><br />
     </div>
