@@ -41,14 +41,12 @@ public class Member extends BaseTimeEntity {
     @NotNull
     private int point;
 
-    private Member(String nickName, String email, String profileImgUrl, int point) {
-        this.nickName = nickName;
-        this.email = email;
-        this.profileImgUrl = profileImgUrl;
-        this.point = point;
-    }
-
     public static Member createMember(String nickName, String email, String profileImgUrl, int point) {
-        return new Member(nickName, email, profileImgUrl, point);
+        Member member = new Member();
+        member.nickName = nickName;
+        member.email = email;
+        member.profileImgUrl = profileImgUrl;
+        member.point = point;
+        return member;
     }
 }
