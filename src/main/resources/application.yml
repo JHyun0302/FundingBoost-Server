@@ -9,6 +9,9 @@ spring:
         default_batch_fetch_size: 3
     database-platform: org.hibernate.dialect.H2Dialect
 
+  profiles:
+    include: api
+
   h2:
     console:
       enabled: true
