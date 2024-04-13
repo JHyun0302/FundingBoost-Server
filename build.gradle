@@ -39,6 +39,11 @@ dependencies {
     // Swagger
     implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.2.0'
 
+    //json
+    implementation group: 'org.json', name: 'json', version: '20210307'
+    //gson
+    implementation group: 'com.google.code.gson', name: 'gson', version: '2.8.0'
+
     //Querydsl 추가
     implementation 'com.querydsl:querydsl-jpa:5.0.0:jakarta'
     annotationProcessor "com.querydsl:querydsl-apt:${dependencyManagement.importedProperties['querydsl.version']}:jakarta"
