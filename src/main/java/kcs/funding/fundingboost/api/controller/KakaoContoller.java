@@ -1,5 +1,6 @@
 package kcs.funding.fundingboost.api.controller;
 
+import kcs.funding.fundingboost.api.service.CustomMessageService;
 import kcs.funding.fundingboost.api.service.KakaoService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -13,6 +14,8 @@ import org.springframework.web.servlet.view.RedirectView;
 public class KakaoContoller {
 
     private final KakaoService kakaoService;
+
+    private final CustomMessageService customMessageService;
 
     @RequestMapping("/login")
     public RedirectView goKakaoOAuth() {
@@ -37,5 +40,15 @@ public class KakaoContoller {
     @RequestMapping("/logout")
     public String logout() {
         return kakaoService.logout();
+    }
+
+    @GetMapping("/send/me")
+    public void sendMyMessage() {
+        customMessageService.sendReminderMessage();
+    }
+
+    @GetMapping("/send/friends")
+    public void sendMessageToFriends() {
+        customMessageService.sendMessageToFriends();
     }
 }

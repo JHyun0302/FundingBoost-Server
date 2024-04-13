@@ -14,8 +14,7 @@ import org.springframework.web.servlet.view.RedirectView;
 public class KakaoService {
 
     private final HttpSession httpSession;
-
-
+    
     private final HttpCallService httpCallService;
 
     public static String token;
@@ -51,7 +50,7 @@ public class KakaoService {
         String param = "grant_type=authorization_code&client_id=" + REST_API_KEY + "&redirect_uri=" + REDIRECT_URI
                 + "&client_secret=" + CLIENT_SECRET + "&code=" + code;
         String rtn = httpCallService.Call(Const.POST, TOKEN_URI, Const.EMPTY, param);
-        token = Trans.token(rtn, new JsonParser()); //access token???
+        token = Trans.token(rtn, new JsonParser());
         httpSession.setAttribute("token", token);
 
         return new RedirectView("/index.html");
