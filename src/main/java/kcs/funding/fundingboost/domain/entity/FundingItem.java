@@ -46,4 +46,13 @@ public class FundingItem {
     @NotNull
     @Column(name = "item_status")
     private boolean itemStatus;
+
+    public static FundingItem createFundgindItem(Funding funding, Item item, int itemSequence) {
+        FundingItem fundingItem = new FundingItem();
+        fundingItem.funding = funding;
+        fundingItem.item = item;
+        fundingItem.itemSequence = itemSequence;
+        fundingItem.itemStatus = funding.isFundingStatus();
+        return fundingItem;
+    }
 }

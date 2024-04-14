@@ -41,4 +41,13 @@ public class Member {
     @ColumnDefault("0")
     @NotNull
     private int point;
+
+    public static Member createMember(String nickName, String email, String profileImgUrl, int point) {
+        Member member = new Member();
+        member.nickName = nickName;
+        member.email = email;
+        member.profileImgUrl = profileImgUrl;
+        member.point = point;
+        return member;
+    }
 }

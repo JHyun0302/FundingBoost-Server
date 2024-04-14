@@ -11,7 +11,6 @@ import jakarta.validation.constraints.NotNull;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.hibernate.annotations.DynamicUpdate;
 
 @Entity
 @Getter
@@ -19,7 +18,6 @@ import org.hibernate.annotations.DynamicUpdate;
 @Table(name = "item")
 public class Item {
     @Id
-    @NotNull
     @Column(name = "item_id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long itemId;
@@ -46,4 +44,16 @@ public class Item {
 
     @Column(name = "option_name", length = 100)
     private String optionName;
+
+    public static Item createItem(String itemName, int itemPrice, String itemImageUrl,
+                           String brandName, String category, String optionName) {
+        Item item = new Item();
+        item.itemName = itemName;
+        item.itemPrice = itemPrice;
+        item.itemImageUrl = itemImageUrl;
+        item.brandName = brandName;
+        item.category = category;
+        item.optionName = optionName;
+        return item;
+    };
 }

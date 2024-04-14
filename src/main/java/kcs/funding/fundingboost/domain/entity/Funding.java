@@ -1,14 +1,6 @@
 package kcs.funding.fundingboost.domain.entity;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import java.time.LocalDate;
 import lombok.AccessLevel;
@@ -40,7 +32,8 @@ public class Funding {
     private String message;
 
     @Column(length = 10)
-    private String tag;
+    @Enumerated(EnumType.STRING)
+    private Tag tag;
 
     @NotNull
     @Column(name = "total_price")
@@ -57,4 +50,17 @@ public class Funding {
     @NotNull
     @Column(name = "funding_status")
     private boolean fundingStatus;
+
+    public static Funding createFunding(Member member, String message, Tag tag, int totalPrice,
+                                        int collectPrice, LocalDate deadline, boolean fundingStatus) {
+        Funding funding = new Funding();
+        funding.member = member;
+        funding.message = message;
+        funding.tag = tag;
+        funding.totalPrice = totalPrice;
+        funding.collectPrice = collectPrice;
+        funding.deadline = deadline;
+        funding.fundingStatus = fundingStatus;
+        return funding;
+    }
 }
