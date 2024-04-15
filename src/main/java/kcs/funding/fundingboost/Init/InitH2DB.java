@@ -11,6 +11,14 @@ import org.springframework.stereotype.Component;
 import java.io.Console;
 import java.time.LocalDate;
 
+import kcs.funding.fundingboost.domain.entity.GiftHubItem;
+import kcs.funding.fundingboost.domain.entity.Item;
+import kcs.funding.fundingboost.domain.entity.Member;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
+
 
 @Component
 @RequiredArgsConstructor
@@ -31,10 +39,8 @@ public class InitH2DB {
         private final EntityManager em;
 
         public void init() {
-
-            Member member = Member.createMember("nickname", "email@gmail.com", "url");
-            em.persist(member);
-
+            Member member1 = Member.createMember("nickname", "email@gmail.com", "url");
+            em.persist(member1);
 
             Item item1 = Item.createItem("그릭요거트 딸기 생크림 피스 + 아메리카노 (R)", 10700,
                     "https://gift.kakao.com/product/5543372", "투썸플레이스",
@@ -42,6 +48,18 @@ public class InitH2DB {
             Item item2 = Item.createItem("[예스24] 양수인간 : 삶의 격을 높이는 내면 변화 심리학", 17820
                     , "https://gift.kakao.com/product/9443715", "인문",
                     "책", "");
+
+            Member member2 = Member.createMemberWithPoint("nickname", "email@gmail.com", "url", 20000);
+            em.persist(member2);
+
+            Item item1 = Item.createItem("그릭요거트 딸기 생크림 피스 + 아메리카노 (R)", 10700,
+                    "https://gift.kakao.com/product/5543372", "투썸플레이스",
+                    "카페", "");
+
+            Item item2 = Item.createItem("[예스24] 양수인간 : 삶의 격을 높이는 내면 변화 심리학", 17820
+                    , "https://gift.kakao.com/product/9443715", "인문",
+                    "책", "");
+
             Item item3 = Item.createItem(
                     "[각인/선물포장] NEW 디올 어딕트 립스틱", 57000,
                     "https://gift.kakao.com/product/4418907", "디올",
@@ -50,9 +68,8 @@ public class InitH2DB {
             em.persist(item2);
             em.persist(item3);
 
-
-            Order order1 = Order.createOrder(1, 10700, item1, member);
-            Order order2 = Order.createOrder(1, 17820, item2, member);
+            Order order1 = Order.createOrder(1, 10700, item1, member2);
+            Order order2 = Order.createOrder(1, 17820, item2, member2);
             em.persist(order1);
             em.persist(order2);
 
@@ -69,7 +86,10 @@ public class InitH2DB {
             FundingItem fundingItem = FundingItem.createFundgindItem(funding,item3,1);
             em.persist(fundingItem);
 
-
+            GiftHubItem giftHubItem1 = GiftHubItem.createGiftHubItem(1, item1, member);
+            GiftHubItem giftHubItem2 = GiftHubItem.createGiftHubItem(1, item2, member);
+            em.persist(giftHubItem1);
+            em.persist(giftHubItem2);
         }
     }
 }
