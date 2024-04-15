@@ -6,10 +6,7 @@ import kcs.funding.fundingboost.domain.dto.request.RegisterFundingDto;
 import kcs.funding.fundingboost.domain.dto.response.FundingRegistrationItemDto;
 import kcs.funding.fundingboost.domain.service.FundingService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -21,7 +18,7 @@ public class FundingController {
 
     @GetMapping("/api/v1/funding")
     public ResponseDto<List<FundingRegistrationItemDto>> viewFundingRegistration(
-            Long memberId,
+            @RequestParam(name = "memberId") Long memberId,
             @RequestBody List<Long> itemList
     ){
         return ResponseDto.ok(fundingService.getFundingRegister(itemList));
@@ -29,7 +26,7 @@ public class FundingController {
 
     @PostMapping("/api/v1/funding")
     public ResponseDto<CommonSuccessDto> registerFunding(
-            Long memberId,
+            @RequestParam(name = "memberId") Long memberId,
             @RequestBody RegisterFundingDto registerFundingDto
     ){
 
