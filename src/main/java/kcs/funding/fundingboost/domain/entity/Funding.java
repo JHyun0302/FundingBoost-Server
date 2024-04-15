@@ -1,8 +1,23 @@
 package kcs.funding.fundingboost.domain.entity;
 
-import jakarta.persistence.*;
+import static jakarta.persistence.CascadeType.ALL;
+
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 import kcs.funding.fundingboost.domain.entity.common.BaseTimeEntity;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -27,6 +42,9 @@ public class Funding extends BaseTimeEntity {
     @OnDelete(action = OnDeleteAction.CASCADE)
     private Member member;
 
+    @OneToMany(mappedBy = "funding", cascade = ALL)
+    private List<FundingItem> fundingItems = new ArrayList<>();
+
     @Column(length = 50)
     private String message;
 
@@ -49,7 +67,7 @@ public class Funding extends BaseTimeEntity {
     @Column(name = "funding_status")
     private boolean fundingStatus;
 
-    public static Funding createFunding(Member member, String message, Tag tag, int totalPrice, LocalDateTime deadline){
+    public static Funding createFunding(Member member, String message, Tag tag, int totalPrice, LocalDateTime deadline) {
         Funding funding = new Funding();
         funding.member = member;
         funding.message = message;
