@@ -32,7 +32,7 @@ public class InitH2DB {
 
         public void init() {
 
-            Member member = Member.createMember("nickname", "email@gmail.com", "url", 20000);
+            Member member = Member.createMember("nickname", "email@gmail.com", "url");
             em.persist(member);
 
 
@@ -63,7 +63,7 @@ public class InitH2DB {
             em.persist(delivery2);
 
 
-            Funding funding = Funding.createFunding(member, "Thanks", Tag.BIRTHDAY, 57000, 35000, LocalDate.of(2023,12,27),true);
+            Funding funding = Funding.createFunding(member, "Thanks", Tag.BIRTHDAY, 57000, LocalDate.of(2023,12,27));
             em.persist(funding);
 
             FundingItem fundingItem = FundingItem.createFundgindItem(funding,item3,1);

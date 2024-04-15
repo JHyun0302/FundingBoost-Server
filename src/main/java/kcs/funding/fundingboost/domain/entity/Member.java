@@ -42,12 +42,12 @@ public class Member {
     @NotNull
     private int point;
 
-    public static Member createMember(String nickName, String email, String profileImgUrl, int point) {
+    public static Member createMember(String nickName, String email, String profileImgUrl) {
         Member member = new Member();
         member.nickName = nickName;
         member.email = email;
         member.profileImgUrl = profileImgUrl;
-        member.point = point;
+        member.point = 0;
         return member;
     }
 }

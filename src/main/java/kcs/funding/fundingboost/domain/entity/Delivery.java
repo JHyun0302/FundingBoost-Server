@@ -43,8 +43,6 @@ public class Delivery {
     @OnDelete(action = OnDeleteAction.CASCADE)
     private Item item;
 
-    
-    //테스트용 생성자
     public static Delivery createDelivery(String address, String phoneNumber, String customerName, Member member, Item item) {
         Delivery delivery = new Delivery();
         delivery.address = address;

@@ -52,7 +52,7 @@ public class FundingItem {
         fundingItem.funding = funding;
         fundingItem.item = item;
         fundingItem.itemSequence = itemSequence;
-        fundingItem.itemStatus = funding.isFundingStatus();
+        fundingItem.itemStatus = true;
         return fundingItem;
     }
 }

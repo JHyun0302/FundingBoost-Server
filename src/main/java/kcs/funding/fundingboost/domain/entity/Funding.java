@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import java.time.LocalDate;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.ColumnDefault;
@@ -51,16 +52,16 @@ public class Funding {
     @Column(name = "funding_status")
     private boolean fundingStatus;
 
-    public static Funding createFunding(Member member, String message, Tag tag, int totalPrice,
-                                        int collectPrice, LocalDate deadline, boolean fundingStatus) {
+    public static Funding createFunding(Member member, String message, Tag tag,
+                                        int totalPrice, LocalDate deadline) {
         Funding funding = new Funding();
         funding.member = member;
         funding.message = message;
         funding.tag = tag;
         funding.totalPrice = totalPrice;
-        funding.collectPrice = collectPrice;
+        funding.collectPrice = 0;
         funding.deadline = deadline;
-        funding.fundingStatus = fundingStatus;
+        funding.fundingStatus = true;
         return funding;
     }
 }
