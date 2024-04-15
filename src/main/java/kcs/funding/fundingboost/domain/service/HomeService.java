@@ -8,18 +8,22 @@ import kcs.funding.fundingboost.domain.dto.response.HomeFriendFundingDto;
 import kcs.funding.fundingboost.domain.dto.response.HomeMemberInfoDto;
 import kcs.funding.fundingboost.domain.dto.response.HomeMyFundingItemDto;
 import kcs.funding.fundingboost.domain.dto.response.HomeMyFundingStatusDto;
-import kcs.funding.fundingboost.domain.dto.response.ItemDto;
 import kcs.funding.fundingboost.domain.dto.response.HomeViewDto;
+import kcs.funding.fundingboost.domain.dto.response.ItemDto;
 import kcs.funding.fundingboost.domain.entity.Funding;
 import kcs.funding.fundingboost.domain.entity.FundingItem;
-import kcs.funding.fundingboost.domain.entity.Member;
+import kcs.funding.fundingboost.domain.entity.Relationship;
 import kcs.funding.fundingboost.domain.repository.ItemRepository;
 import kcs.funding.fundingboost.domain.repository.funding.FundingRepository;
 import kcs.funding.fundingboost.domain.repository.relationship.RelationshipRepositoryRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+@Slf4j
 @Service
+@Transactional(readOnly = true)
 @RequiredArgsConstructor
 public class HomeService {
 
@@ -53,11 +57,13 @@ public class HomeService {
     }
 
     private List<HomeFriendFundingDto> getFriendFundingList(Long memberId, Funding funding) {
-        List<Member> friends = relationshipRepository.findFriendByMemberId(memberId);
+        List<Relationship> relationshipList = relationshipRepository.findFriendByMemberId(memberId);
         List<HomeFriendFundingDto> friendFundingDtoList = new ArrayList<>();
 
-        for (Member friend : friends) {
-            Funding friendFunding = fundingRepository.findFundingInfo(friend.getMemberId());
+        for (Relationship relationship : relationshipList) {
+            System.out.println("friend id = " + relationship.getFriend().getMemberId());
+            Funding friendFunding = fundingRepository.findFundingInfo(
+                relationship.getFriend().getMemberId());
             int collectPrice = friendFunding.getCollectPrice();
             int percent = collectPrice / funding.getTotalPrice();
             List<FundingItem> fundingItems = friendFunding.getFundingItems();
@@ -70,10 +76,12 @@ public class HomeService {
                     nowFundingItemImageUrl = fundingItem.getItem().getItemImageUrl();
                 }
 
-                int leftDate = (int) ChronoUnit.DAYS.between(LocalDate.now(), friendFunding.getDeadline());
+                int leftDate = (int) ChronoUnit.DAYS.between(LocalDate.now(),
+                    friendFunding.getDeadline());
                 String deadline = "D-" + leftDate;
 
-                HomeFriendFundingDto homeFriendFundingDto = HomeFriendFundingDto.fromEntity(friendFunding,
+                HomeFriendFundingDto homeFriendFundingDto = HomeFriendFundingDto.fromEntity(
+                    friendFunding,
                     nowFundingItemImageUrl, percent,
                     deadline);
                 friendFundingDtoList.add(homeFriendFundingDto);
@@ -95,7 +103,8 @@ public class HomeService {
             } else {
                 percent = (int) collectPrice / itemPrice;
             }
-            HomeMyFundingItemDto homeMyFundingItemDto = HomeMyFundingItemDto.fromEntity(myFundingItem, percent);
+            HomeMyFundingItemDto homeMyFundingItemDto = HomeMyFundingItemDto.fromEntity(
+                myFundingItem, percent);
             myFundingItemDtoList.add(homeMyFundingItemDto);
         }
         return myFundingItemDtoList;

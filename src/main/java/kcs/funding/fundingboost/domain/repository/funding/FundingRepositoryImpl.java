@@ -2,17 +2,17 @@ package kcs.funding.fundingboost.domain.repository.funding;
 
 import static kcs.funding.fundingboost.domain.entity.QFunding.funding;
 import static kcs.funding.fundingboost.domain.entity.QFundingItem.fundingItem;
-import static kcs.funding.fundingboost.domain.entity.QItem.*;
+import static kcs.funding.fundingboost.domain.entity.QItem.item;
 import static kcs.funding.fundingboost.domain.entity.QMember.member;
 
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import java.util.List;
 import kcs.funding.fundingboost.domain.entity.Funding;
-import kcs.funding.fundingboost.domain.entity.QFundingItem;
-import kcs.funding.fundingboost.domain.entity.QItem;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Repository;
 
+@Slf4j
 @Repository
 @RequiredArgsConstructor
 public class FundingRepositoryImpl implements FundingRepositoryCustom {
@@ -20,6 +20,7 @@ public class FundingRepositoryImpl implements FundingRepositoryCustom {
     private final JPAQueryFactory queryFactory;
 
     public List<Funding> findAllByMemberIn(List<Long> memberIds) {
+        log.info("FundingRepositoryImpl findAllByMemberIn called");
         return queryFactory
             .selectFrom(funding)
             .leftJoin(funding.member, member).fetchJoin()
@@ -31,11 +32,13 @@ public class FundingRepositoryImpl implements FundingRepositoryCustom {
 
     @Override
     public Funding findFundingInfo(Long memberId) {
+//        log.info("FundingRepositoryImpl findFundingInfo called");
+        System.out.println("FundingRepositoryImpl findFundingInfo called");
         return queryFactory
             .selectFrom(funding)
-            .leftJoin(funding.fundingItems, fundingItem)
-            .leftJoin(fundingItem.item, item).fetchJoin()
-            .join(member).fetchJoin()
+            .join(funding.fundingItems, fundingItem)
+            .join(fundingItem.item, item)
+            .join(funding.member, member).fetchJoin()
             .where(funding.member.memberId.eq(memberId))
             .fetchOne();
     }
