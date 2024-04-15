@@ -1,5 +1,6 @@
 package kcs.funding.fundingboost.domain.controller;
 
+import kcs.funding.fundingboost.domain.dto.global.ResponseDto;
 import kcs.funding.fundingboost.domain.dto.response.HomeViewDto;
 import kcs.funding.fundingboost.domain.service.HomeService;
 import lombok.RequiredArgsConstructor;
@@ -18,7 +19,7 @@ public class HomeController {
     private final HomeService homeService;
 
     @GetMapping("/home")
-    public HomeViewDto home(@RequestParam("memberId") Long memberId) {
-        return homeService.getMainView(memberId);
+    public ResponseDto<HomeViewDto> home(@RequestParam("memberId") Long memberId) {
+        return ResponseDto.ok(homeService.getMainView(memberId));
     }
 }
