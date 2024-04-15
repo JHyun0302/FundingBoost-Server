@@ -19,7 +19,6 @@ import org.hibernate.annotations.DynamicUpdate;
 @Table(name = "item")
 public class Item {
     @Id
-    @NotNull
     @Column(name = "item_id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long itemId;
