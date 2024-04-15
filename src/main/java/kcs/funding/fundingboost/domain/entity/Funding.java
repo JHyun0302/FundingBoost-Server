@@ -1,8 +1,7 @@
 package kcs.funding.fundingboost.domain.entity;
 
-import static jakarta.persistence.CascadeType.*;
+import static jakarta.persistence.CascadeType.ALL;
 
-import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -16,7 +15,7 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import kcs.funding.fundingboost.domain.entity.common.BaseTimeEntity;
@@ -62,14 +61,14 @@ public class Funding extends BaseTimeEntity {
     private int collectPrice;
 
     @NotNull
-    private LocalDate deadline;
+    private LocalDateTime deadline;
 
     @NotNull
     @Column(name = "funding_status")
     private boolean fundingStatus;
 
     public static Funding createFunding(Member member,
-        String message, Tag tag, int totalPrice, LocalDate deadline) {
+        String message, Tag tag, int totalPrice, LocalDateTime deadline) {
         Funding funding = new Funding();
         funding.member = member;
         funding.message = message;
