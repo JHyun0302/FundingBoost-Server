@@ -1,5 +1,7 @@
 package kcs.funding.fundingboost.domain.controller;
 
+import kcs.funding.fundingboost.domain.dto.common.CommonSuccessDto;
+import kcs.funding.fundingboost.domain.dto.global.ResponseDto;
 import kcs.funding.fundingboost.domain.dto.request.RegisterFundingDto;
 import kcs.funding.fundingboost.domain.dto.response.FundingRegistrationItemDto;
 import kcs.funding.fundingboost.domain.service.FundingService;
@@ -18,19 +20,19 @@ public class FundingController {
     private final FundingService fundingService;
 
     @GetMapping("/api/v1/funding")
-    public List<FundingRegistrationItemDto> viewFundingRegistration(
+    public ResponseDto<List<FundingRegistrationItemDto>> viewFundingRegistration(
             Long memberId,
             @RequestBody List<Long> itemList
     ){
-        return fundingService.getFundingRegister(itemList);
+        return ResponseDto.ok(fundingService.getFundingRegister(itemList));
     }
 
     @PostMapping("/api/v1/funding")
-    public void registerFunding(
+    public ResponseDto<CommonSuccessDto> registerFunding(
             Long memberId,
             @RequestBody RegisterFundingDto registerFundingDto
     ){
-        fundingService.putFundingAndFundingItem(memberId, registerFundingDto);
 
+        return ResponseDto.created(fundingService.putFundingAndFundingItem(memberId, registerFundingDto));
     }
 }

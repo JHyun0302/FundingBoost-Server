@@ -1,6 +1,7 @@
 package kcs.funding.fundingboost.domain.service;
 
 import jakarta.transaction.Transactional;
+import kcs.funding.fundingboost.domain.dto.common.CommonSuccessDto;
 import kcs.funding.fundingboost.domain.dto.request.RegisterFundingDto;
 import kcs.funding.fundingboost.domain.dto.request.RegisterFundingItemDto;
 import kcs.funding.fundingboost.domain.dto.response.FundingRegistrationItemDto;
@@ -8,7 +9,6 @@ import kcs.funding.fundingboost.domain.entity.Funding;
 import kcs.funding.fundingboost.domain.entity.FundingItem;
 import kcs.funding.fundingboost.domain.entity.Item;
 import kcs.funding.fundingboost.domain.entity.Tag;
-import kcs.funding.fundingboost.domain.exception.CommonException;
 import kcs.funding.fundingboost.domain.repository.FundingItemRepository;
 import kcs.funding.fundingboost.domain.repository.FundingRepository;
 import kcs.funding.fundingboost.domain.repository.ItemRepository;
@@ -38,7 +38,7 @@ public class FundingService {
     }
 
     @Transactional
-    public void putFundingAndFundingItem(Long memberId, RegisterFundingDto registerFundingDto){
+    public CommonSuccessDto putFundingAndFundingItem(Long memberId, RegisterFundingDto registerFundingDto){
 
         List<RegisterFundingItemDto> registerFundingItemDtoList = registerFundingDto.registerFundingItemDtoList();
 
@@ -57,5 +57,6 @@ public class FundingService {
             fundingItemRepository.save(fundingItem);
         }
         // CommonSuccessDto return
+        return CommonSuccessDto.fromEntity(true);
     }
 }

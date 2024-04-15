@@ -4,7 +4,8 @@ import static kcs.funding.fundingboost.domain.dto.response.GiftHubDto.createGift
 
 import java.util.List;
 import java.util.stream.Collectors;
-import kcs.funding.fundingboost.domain.dto.common.commonSuccessDto;
+
+import kcs.funding.fundingboost.domain.dto.common.CommonSuccessDto;
 import kcs.funding.fundingboost.domain.dto.request.AddGiftHubDto;
 import kcs.funding.fundingboost.domain.dto.response.GiftHubDto;
 import kcs.funding.fundingboost.domain.entity.GiftHubItem;
@@ -42,7 +43,7 @@ public class GiftHubItemService {
     }
 
     @Transactional
-    public commonSuccessDto addGiftHub(Long itemId, AddGiftHubDto addGiftHubDto) {
+    public CommonSuccessDto addGiftHub(Long itemId, AddGiftHubDto addGiftHubDto) {
         Item item = itemRepository.findById(itemId)
                 .orElseThrow(() -> new RuntimeException("Item not found"));
 
@@ -53,7 +54,7 @@ public class GiftHubItemService {
         GiftHubItem saveGiftHubItem = giftHubItemRepository.save(giftHubItem);
 
         if (saveGiftHubItem != null) {
-            return commonSuccessDto.fromEntity(true);
+            return CommonSuccessDto.fromEntity(true);
         } else {
             throw new RuntimeException("Saving GiftHubItem failed");
         }
