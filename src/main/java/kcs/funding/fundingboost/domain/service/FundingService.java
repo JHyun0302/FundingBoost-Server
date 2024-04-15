@@ -33,8 +33,7 @@ public class FundingService {
     public List<FundingRegistrationItemDto> getFundingRegister(List<Long> itemList){
 
         return IntStream.range(0, itemList.size())
-                .mapToObj(i -> FundingRegistrationItemDto.createFundingRegistrationItemDto(itemRepository.getReferenceById(itemList.get(i)), (long) i + 1))
-                .toList();
+                .mapToObj(i -> FundingRegistrationItemDto.createFundingRegistrationItemDto(itemRepository.findById(itemList.get(i)).orElseThrow(()-> new RuntimeException("Item not found")), (long) i + 1)).toList();
     }
 
     @Transactional
@@ -43,20 +42,20 @@ public class FundingService {
         List<RegisterFundingItemDto> registerFundingItemDtoList = registerFundingDto.registerFundingItemDtoList();
 
         List<Item> itemList = registerFundingItemDtoList.stream()
-                .map(registerFundingItemDto -> itemRepository.getReferenceById(registerFundingItemDto.itemId()))
+                .map(registerFundingItemDto -> itemRepository.findById(registerFundingItemDto.itemId()).orElseThrow(()-> new RuntimeException("Item Not Found")))
                 .toList();
 
         int sum = 0;
         for(Item item : itemList){
             sum += item.getItemPrice();
         }
-        Funding funding = Funding.createFunding(memberRepository.getReferenceById(memberId), registerFundingDto.fundingMessage(), Tag.getTag(registerFundingDto.tag()), sum, registerFundingDto.deadline());
+        Funding funding = Funding.createFunding(memberRepository.findById(memberId).orElseThrow(()-> new RuntimeException("Member Not Found")), registerFundingDto.fundingMessage(), Tag.getTag(registerFundingDto.tag()), sum, registerFundingDto.deadline());
         fundingRepository.save(funding);
         for(int i=0; i<registerFundingItemDtoList.size(); i++){
-            FundingItem fundingItem = FundingItem.createFundingItem(funding, itemRepository.getReferenceById(registerFundingItemDtoList.get(i).itemId()), i+1);
+            FundingItem fundingItem = FundingItem.createFundingItem(funding, itemRepository.findById(registerFundingItemDtoList.get(i).itemId()).orElseThrow(()-> new RuntimeException("Item Not Found")), i+1);
             fundingItemRepository.save(fundingItem);
         }
-        // CommonSuccessDto return
+
         return CommonSuccessDto.fromEntity(true);
     }
 }

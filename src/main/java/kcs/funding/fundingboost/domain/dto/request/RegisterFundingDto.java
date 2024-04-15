@@ -9,7 +9,6 @@ public record RegisterFundingDto(
         List<RegisterFundingItemDto> registerFundingItemDtoList,
         String fundingMessage,
         String tag,
-        int fundingTotalPrice,
         LocalDateTime deadline
 ) {
 
