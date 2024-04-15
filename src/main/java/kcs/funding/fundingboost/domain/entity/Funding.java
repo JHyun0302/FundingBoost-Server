@@ -67,8 +67,7 @@ public class Funding extends BaseTimeEntity {
     @Column(name = "funding_status")
     private boolean fundingStatus;
 
-    public static Funding createFunding(Member member,
-        String message, Tag tag, int totalPrice, LocalDateTime deadline) {
+    public static Funding createFunding(Member member, String message, Tag tag, int totalPrice, LocalDateTime deadline) {
         Funding funding = new Funding();
         funding.member = member;
         funding.message = message;

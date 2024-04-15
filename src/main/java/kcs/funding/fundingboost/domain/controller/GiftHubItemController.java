@@ -2,7 +2,8 @@ package kcs.funding.fundingboost.domain.controller;
 
 
 import java.util.List;
-import kcs.funding.fundingboost.domain.dto.common.commonSuccessDto;
+
+import kcs.funding.fundingboost.domain.dto.common.CommonSuccessDto;
 import kcs.funding.fundingboost.domain.dto.global.ResponseDto;
 import kcs.funding.fundingboost.domain.dto.request.AddGiftHubDto;
 import kcs.funding.fundingboost.domain.dto.response.GiftHubDto;
@@ -31,7 +32,7 @@ public class GiftHubItemController {
     }
 
     @PostMapping("/cart/{itemId}")
-    public ResponseDto<commonSuccessDto> addGiftHub(@PathVariable(name = "itemId") Long itemId,
+    public ResponseDto<CommonSuccessDto> addGiftHub(@PathVariable(name = "itemId") Long itemId,
                                                     @RequestBody AddGiftHubDto addGiftHubDto) {
         return ResponseDto.created(giftHubItemService.addGiftHub(itemId, addGiftHubDto));
     }
