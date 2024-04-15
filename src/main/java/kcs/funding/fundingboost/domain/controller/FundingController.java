@@ -11,12 +11,13 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
+@RequestMapping("/api/v1/funding")
 @RequiredArgsConstructor
 public class FundingController {
 
     private final FundingService fundingService;
 
-    @GetMapping("/api/v1/funding")
+    @GetMapping("")
     public ResponseDto<List<FundingRegistrationItemDto>> viewFundingRegistration(
             @RequestParam(name = "memberId") Long memberId,
             @RequestBody List<Long> itemList
@@ -24,7 +25,7 @@ public class FundingController {
         return ResponseDto.ok(fundingService.getFundingRegister(itemList));
     }
 
-    @PostMapping("/api/v1/funding")
+    @PostMapping("")
     public ResponseDto<CommonSuccessDto> registerFunding(
             @RequestParam(name = "memberId") Long memberId,
             @RequestBody RegisterFundingDto registerFundingDto

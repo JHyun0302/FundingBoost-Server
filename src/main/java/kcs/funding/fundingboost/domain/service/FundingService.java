@@ -1,6 +1,5 @@
 package kcs.funding.fundingboost.domain.service;
 
-import jakarta.transaction.Transactional;
 import kcs.funding.fundingboost.domain.dto.common.CommonSuccessDto;
 import kcs.funding.fundingboost.domain.dto.request.RegisterFundingDto;
 import kcs.funding.fundingboost.domain.dto.request.RegisterFundingItemDto;
@@ -16,6 +15,7 @@ import kcs.funding.fundingboost.domain.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -23,6 +23,7 @@ import java.util.stream.IntStream;
 
 @Slf4j
 @Service
+@Transactional(readOnly = true)
 @RequiredArgsConstructor
 public class FundingService {
 
@@ -34,7 +35,10 @@ public class FundingService {
     public List<FundingRegistrationItemDto> getFundingRegister(List<Long> itemList){
 
         return IntStream.range(0, itemList.size())
-                .mapToObj(i -> FundingRegistrationItemDto.createFundingRegistrationItemDto(itemRepository.findById(itemList.get(i)).orElseThrow(()-> new RuntimeException("Item not found")), (long) i + 1)).toList();
+                .mapToObj(i -> FundingRegistrationItemDto.createFundingRegistrationItemDto(
+                        itemRepository.findById(itemList.get(i))
+                                .orElseThrow(()-> new RuntimeException("Item not found")),
+                        (long) i + 1)).toList();
     }
 
     @Transactional
@@ -43,17 +47,29 @@ public class FundingService {
         List<RegisterFundingItemDto> registerFundingItemDtoList = registerFundingDto.registerFundingItemDtoList();
 
         List<Item> itemList = registerFundingItemDtoList.stream()
-                .map(registerFundingItemDto -> itemRepository.findById(registerFundingItemDto.itemId()).orElseThrow(()-> new RuntimeException("Item Not Found")))
-                .toList();
+                .map(registerFundingItemDto -> itemRepository.findById(registerFundingItemDto.itemId())
+                        .orElseThrow(()-> new RuntimeException("Item Not Found"))).toList();
 
         int sum = 0;
         for(Item item : itemList){
             sum += item.getItemPrice();
         }
-        Funding funding = Funding.createFunding(memberRepository.findById(memberId).orElseThrow(()-> new RuntimeException("Member Not Found")), registerFundingDto.fundingMessage(), Tag.getTag(registerFundingDto.tag()), sum, registerFundingDto.deadline());
+
+        Funding funding = Funding.createFunding(memberRepository.findById(memberId)
+                .orElseThrow(()-> new RuntimeException("Member Not Found")),
+                registerFundingDto.fundingMessage(),
+                Tag.getTag(registerFundingDto.tag()),
+                sum,
+                registerFundingDto.deadline());
+
         fundingRepository.save(funding);
+
         for(int i=0; i<registerFundingItemDtoList.size(); i++){
-            FundingItem fundingItem = FundingItem.createFundingItem(funding, itemRepository.findById(registerFundingItemDtoList.get(i).itemId()).orElseThrow(()-> new RuntimeException("Item Not Found")), i+1);
+            FundingItem fundingItem = FundingItem.createFundingItem(
+                    funding,
+                    itemRepository.findById(registerFundingItemDtoList.get(i).itemId())
+                            .orElseThrow(()-> new RuntimeException("Item Not Found")),
+                    i+1);
             fundingItemRepository.save(fundingItem);
         }
 
