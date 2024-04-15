@@ -9,9 +9,9 @@ import kcs.funding.fundingboost.domain.entity.FundingItem;
 import kcs.funding.fundingboost.domain.entity.Item;
 import kcs.funding.fundingboost.domain.entity.Tag;
 import kcs.funding.fundingboost.domain.repository.FundingItemRepository;
-import kcs.funding.fundingboost.domain.repository.FundingRepository;
 import kcs.funding.fundingboost.domain.repository.ItemRepository;
 import kcs.funding.fundingboost.domain.repository.MemberRepository;
+import kcs.funding.fundingboost.domain.repository.funding.FundingRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -42,21 +42,21 @@ public class FundingService {
     }
 
     @Transactional
-    public CommonSuccessDto putFundingAndFundingItem(Long memberId, RegisterFundingDto registerFundingDto){
+    public CommonSuccessDto putFundingAndFundingItem(Long memberId, RegisterFundingDto registerFundingDto) {
 
         List<RegisterFundingItemDto> registerFundingItemDtoList = registerFundingDto.registerFundingItemDtoList();
 
         List<Item> itemList = registerFundingItemDtoList.stream()
                 .map(registerFundingItemDto -> itemRepository.findById(registerFundingItemDto.itemId())
-                        .orElseThrow(()-> new RuntimeException("Item Not Found"))).toList();
+                        .orElseThrow(() -> new RuntimeException("Item Not Found"))).toList();
 
         int sum = 0;
-        for(Item item : itemList){
+        for (Item item : itemList) {
             sum += item.getItemPrice();
         }
 
         Funding funding = Funding.createFunding(memberRepository.findById(memberId)
-                .orElseThrow(()-> new RuntimeException("Member Not Found")),
+                        .orElseThrow(() -> new RuntimeException("Member Not Found")),
                 registerFundingDto.fundingMessage(),
                 Tag.getTag(registerFundingDto.tag()),
                 sum,
@@ -64,20 +64,21 @@ public class FundingService {
 
         fundingRepository.save(funding);
 
-        for(int i=0; i<registerFundingItemDtoList.size(); i++){
+        for (int i = 0; i < registerFundingItemDtoList.size(); i++) {
             FundingItem fundingItem = FundingItem.createFundingItem(
                     funding,
                     itemRepository.findById(registerFundingItemDtoList.get(i).itemId())
-                            .orElseThrow(()-> new RuntimeException("Item Not Found")),
-                    i+1);
+                            .orElseThrow(() -> new RuntimeException("Item Not Found")),
+                    i + 1);
             fundingItemRepository.save(fundingItem);
         }
 
         return CommonSuccessDto.fromEntity(true);
-      
-      public commonSuccessDto terminateFunding(Long fundingId) {
-        Funding funding = fundingRepository.findById(fundingId)
-            .orElseThrow(() -> new RuntimeException("Funding not found"));
-        funding.terminate();
-        return commonSuccessDto.fromEntity(true);
+    }
+      public CommonSuccessDto terminateFunding(Long fundingId) {
+          Funding funding = fundingRepository.findById(fundingId)
+                  .orElseThrow(() -> new RuntimeException("Funding not found"));
+          funding.terminate();
+          return CommonSuccessDto.fromEntity(true);
+      }
 }

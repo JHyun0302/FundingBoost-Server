@@ -29,12 +29,12 @@ public class FundingController {
     public ResponseDto<CommonSuccessDto> registerFunding(
             @RequestParam(name = "memberId") Long memberId,
             @RequestBody RegisterFundingDto registerFundingDto
-    ){
+    ) {
 
         return ResponseDto.created(fundingService.putFundingAndFundingItem(memberId, registerFundingDto));
-      
-    @PostMapping("/funding/close/{fundingId}")
-    public commonSuccessDto closeFunding(@PathVariable("fundingId") Long fundingId) {
+    }
+    @PostMapping("/close/{fundingId}")
+    public CommonSuccessDto closeFunding(@PathVariable("fundingId") Long fundingId) {
         return fundingService.terminateFunding(fundingId);
 
     }

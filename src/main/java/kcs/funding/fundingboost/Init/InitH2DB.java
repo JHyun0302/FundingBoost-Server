@@ -34,10 +34,10 @@ public class InitH2DB {
         private final EntityManager em;
 
         public void init() {
-            Member member1 = Member.createMember("nickname", "email@gmail.com", "url");
+            Member member1 = Member.createMember("nickname1", "email@gmail.com", "url");
             em.persist(member1);
 
-            Member member2 = Member.createMemberWithPoint("nickname", "email@gmail.com", "url", 20000);
+            Member member2 = Member.createMemberWithPoint("nickname2", "email2@gmail.com", "url", 20000);
             em.persist(member2);
 
             Item item1 = Item.createItem("그릭요거트 딸기 생크림 피스 + 아메리카노 (R)", 10700,
@@ -57,7 +57,7 @@ public class InitH2DB {
             em.persist(item2);
             em.persist(item3);
 
-            Order order1 = Order.createOrder(1, 10700, item1, member2);
+            Order order1 = Order.createOrder(1, 10700, item1, member1);
             Order order2 = Order.createOrder(1, 17820, item2, member2);
             em.persist(order1);
             em.persist(order2);
