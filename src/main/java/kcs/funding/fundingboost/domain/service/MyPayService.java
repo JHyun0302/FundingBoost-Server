@@ -8,9 +8,8 @@ import kcs.funding.fundingboost.domain.entity.Funding;
 import kcs.funding.fundingboost.domain.entity.Order;
 import kcs.funding.fundingboost.domain.repository.DeliveryRepository;
 import kcs.funding.fundingboost.domain.repository.FundingItemRepository;
-import kcs.funding.fundingboost.domain.repository.FundingRepository;
 import kcs.funding.fundingboost.domain.repository.OrderRepository;
-import lombok.NoArgsConstructor;
+import kcs.funding.fundingboost.domain.repository.funding.FundingRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 

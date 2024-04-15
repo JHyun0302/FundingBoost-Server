@@ -46,12 +46,12 @@ public class FundingItem extends BaseTimeEntity {
     @Column(name = "item_status")
     private boolean itemStatus;
 
-    public static FundingItem createFundgindItem(Funding funding, Item item, int itemSequence) {
+    public static FundingItem createFundingItem(Funding funding, Item item, int itemSequence) {
         FundingItem fundingItem = new FundingItem();
         fundingItem.funding = funding;
         fundingItem.item = item;
         fundingItem.itemSequence = itemSequence;
-        fundingItem.itemStatus = true;
+        fundingItem.itemStatus = false;
         return fundingItem;
     }
 }

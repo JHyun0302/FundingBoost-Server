@@ -29,6 +29,4 @@ public record ItemDto(String itemThumnailImageUrl,
                 .quantity(1)
                 .build();
     }
-
-
 }
