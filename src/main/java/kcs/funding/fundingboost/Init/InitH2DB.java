@@ -21,8 +21,8 @@ public class InitH2DB {
 
     @PostConstruct
     public void init() {
-//        initService.init();
-        initService.mainPageTestInit();
+        initService.init();
+//        initService.mainPageTestInit();
     }
 
     @Component
@@ -64,7 +64,7 @@ public class InitH2DB {
 
 
             Delivery delivery1  = Delivery.createDelivery("서울시 가산 디지털단지", "010-1111-1111", "nickname1", member1, item1);
-            Delivery delivery2  = Delivery.createDelivery("경기도 오산시", "010-2222-2222", "nickname2", member1, item2);
+            Delivery delivery2  = Delivery.createDelivery("경기도 오산시", "010-2222-2222", "nickname2", member2, item2);
             em.persist(delivery1);
             em.persist(delivery2);
 

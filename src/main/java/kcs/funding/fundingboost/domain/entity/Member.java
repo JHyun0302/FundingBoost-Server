@@ -58,4 +58,8 @@ public class Member extends BaseTimeEntity {
         member.point = point;
         return member;
     }
+
+    public void minusPoint(int usingPoint) {
+        point -= usingPoint;
+    }
 }

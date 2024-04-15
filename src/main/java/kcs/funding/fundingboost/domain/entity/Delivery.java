@@ -42,6 +42,9 @@ public class Delivery extends BaseTimeEntity {
     @OnDelete(action = OnDeleteAction.CASCADE)
     private Item item;
 
+    @Column(name = "order_status")
+    private boolean orderStatus;
+
     public static Delivery createDelivery(String address, String phoneNumber, String customerName, Member member, Item item) {
         Delivery delivery = new Delivery();
         delivery.address = address;
@@ -49,6 +52,11 @@ public class Delivery extends BaseTimeEntity {
         delivery.customerName = customerName;
         delivery.member = member;
         delivery.item = item;
+        delivery.orderStatus = true;
         return delivery;
+    }
+
+    public void successDelivery() {
+        orderStatus = false;
     }
 }
