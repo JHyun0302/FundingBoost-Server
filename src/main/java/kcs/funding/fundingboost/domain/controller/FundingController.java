@@ -32,5 +32,10 @@ public class FundingController {
     ){
 
         return ResponseDto.created(fundingService.putFundingAndFundingItem(memberId, registerFundingDto));
+      
+    @PostMapping("/funding/close/{fundingId}")
+    public commonSuccessDto closeFunding(@PathVariable("fundingId") Long fundingId) {
+        return fundingService.terminateFunding(fundingId);
+
     }
 }

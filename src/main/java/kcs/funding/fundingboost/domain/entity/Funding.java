@@ -78,4 +78,8 @@ public class Funding extends BaseTimeEntity {
         funding.fundingStatus = true;
         return funding;
     }
+
+    public void terminate() {
+        this.fundingStatus = false;
+    }
 }
