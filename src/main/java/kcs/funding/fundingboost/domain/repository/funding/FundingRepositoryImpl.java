@@ -19,6 +19,7 @@ public class FundingRepositoryImpl implements FundingRepositoryCustom {
 
     private final JPAQueryFactory queryFactory;
 
+    @Override
     public List<Funding> findAllByMemberIn(List<Long> memberIds) {
         log.info("FundingRepositoryImpl findAllByMemberIn called");
         return queryFactory
@@ -32,8 +33,6 @@ public class FundingRepositoryImpl implements FundingRepositoryCustom {
 
     @Override
     public Funding findFundingInfo(Long memberId) {
-//        log.info("FundingRepositoryImpl findFundingInfo called");
-        System.out.println("FundingRepositoryImpl findFundingInfo called");
         return queryFactory
             .selectFrom(funding)
             .join(funding.fundingItems, fundingItem)

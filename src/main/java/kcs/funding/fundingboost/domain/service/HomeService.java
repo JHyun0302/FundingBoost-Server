@@ -61,7 +61,6 @@ public class HomeService {
         List<HomeFriendFundingDto> friendFundingDtoList = new ArrayList<>();
 
         for (Relationship relationship : relationshipList) {
-            System.out.println("friend id = " + relationship.getFriend().getMemberId());
             Funding friendFunding = fundingRepository.findFundingInfo(
                 relationship.getFriend().getMemberId());
             int collectPrice = friendFunding.getCollectPrice();
