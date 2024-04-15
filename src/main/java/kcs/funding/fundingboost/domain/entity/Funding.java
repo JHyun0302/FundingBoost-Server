@@ -6,6 +6,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 import kcs.funding.fundingboost.domain.entity.common.BaseTimeEntity;
+import kcs.funding.fundingboost.domain.entity.common.BaseTimeEntity;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;

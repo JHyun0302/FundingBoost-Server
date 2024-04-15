@@ -1,20 +1,27 @@
 package kcs.funding.fundingboost.domain.entity;
 
-import jakarta.persistence.*;
+import static jakarta.persistence.FetchType.LAZY;
+import static jakarta.persistence.GenerationType.IDENTITY;
+
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Table;
+import kcs.funding.fundingboost.domain.entity.common.BaseTimeEntity;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 
-import static jakarta.persistence.FetchType.*;
-import static jakarta.persistence.GenerationType.*;
-
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Table(name = "bookmark")
-public class Bookmark {
+public class Bookmark extends BaseTimeEntity {
 
     @Id
     @GeneratedValue(strategy = IDENTITY)
@@ -27,6 +34,6 @@ public class Bookmark {
     private Member member;
 
     @ManyToOne(fetch = LAZY)
-    @JoinColumn(name="item_id")
+    @JoinColumn(name = "item_id")
     private Item item;
 }
