@@ -41,4 +41,14 @@ public class Delivery extends BaseTimeEntity {
     @JoinColumn(name = "item_id", nullable = false)
     @OnDelete(action = OnDeleteAction.CASCADE)
     private Item item;
+
+    public static Delivery createDelivery(String address, String phoneNumber, String customerName, Member member, Item item) {
+        Delivery delivery = new Delivery();
+        delivery.address = address;
+        delivery.phoneNumber = phoneNumber;
+        delivery.customerName = customerName;
+        delivery.member = member;
+        delivery.item = item;
+        return delivery;
+    }
 }

@@ -48,6 +48,7 @@ public class Funding extends BaseTimeEntity {
     @Column(length = 50)
     private String message;
 
+    @Column(length = 10)
     @Enumerated(EnumType.STRING)
     private Tag tag;
 

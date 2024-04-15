@@ -1,22 +1,32 @@
 package kcs.funding.fundingboost.domain.dto.response;
 
-import kcs.funding.fundingboost.domain.entity.Item;
+import kcs.funding.fundingboost.domain.entity.FundingItem;
+import kcs.funding.fundingboost.domain.entity.Order;
 import lombok.Builder;
 
 @Builder
-public record ItemDto(Long itemId,
-                      String itemName,
-                      int price,
-                      String itemImageUrl,
-                      String brandName) {
+public record ItemDto(String itemThumnailImageUrl,
+                          String itemName,
+                          String itemOption,
+                          int itemPrice,
+                          int quantity) {
 
-    public static ItemDto fromEntity(Item item) {
+    public static ItemDto fromEntity(Order order) {
         return ItemDto.builder()
-            .itemId(item.getItemId())
-            .itemName(item.getItemName())
-            .price(item.getItemPrice())
-            .itemImageUrl(item.getItemImageUrl())
-            .brandName(item.getBrandName())
-            .build();
+                .itemThumnailImageUrl(order.getItem().getItemImageUrl())
+                .itemName(order.getItem().getItemName())
+                .itemOption(order.getItem().getOptionName())
+                .itemPrice(order.getItem().getItemPrice())
+                .quantity(order.getQuantity())
+                .build();
+    }
+    public static ItemDto fromEntity(FundingItem fundingItem) {
+        return ItemDto.builder()
+                .itemThumnailImageUrl(fundingItem.getItem().getItemImageUrl())
+                .itemName(fundingItem.getItem().getItemName())
+                .itemOption(fundingItem.getItem().getOptionName())
+                .itemPrice(fundingItem.getItem().getItemPrice())
+                .quantity(1)
+                .build();
     }
 }

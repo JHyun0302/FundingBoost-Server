@@ -43,4 +43,13 @@ public class Order {
     @JoinColumn(name = "memeber_id")
     @OnDelete(action = OnDeleteAction.CASCADE)
     private Member member;
+
+    public static Order createOrder(int quantity, int price, Item item, Member member) {
+        Order order = new Order();
+        order.quantity = quantity;
+        order.price = price;
+        order.item = item;
+        order.member = member;
+        return order;
+    }
 }

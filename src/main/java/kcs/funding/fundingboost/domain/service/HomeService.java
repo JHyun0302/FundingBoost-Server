@@ -9,7 +9,7 @@ import kcs.funding.fundingboost.domain.dto.response.HomeMemberInfoDto;
 import kcs.funding.fundingboost.domain.dto.response.HomeMyFundingItemDto;
 import kcs.funding.fundingboost.domain.dto.response.HomeMyFundingStatusDto;
 import kcs.funding.fundingboost.domain.dto.response.HomeViewDto;
-import kcs.funding.fundingboost.domain.dto.response.ItemDto;
+import kcs.funding.fundingboost.domain.dto.response.HomeItemDto;
 import kcs.funding.fundingboost.domain.entity.Funding;
 import kcs.funding.fundingboost.domain.entity.FundingItem;
 import kcs.funding.fundingboost.domain.entity.Relationship;
@@ -48,8 +48,8 @@ public class HomeService {
         List<HomeFriendFundingDto> homeFriendFundingList = getFriendFundingList(memberId, funding);
 
         // 상품 목록: 상품Id, 이름, 가격, 이미지, 브랜드명
-        List<ItemDto> itemList = itemRepository.findAll().stream()
-            .map(ItemDto::fromEntity)
+        List<HomeItemDto> itemList = itemRepository.findAll().stream()
+            .map(HomeItemDto::fromEntity)
             .toList();
 
         return HomeViewDto.fromEntity(homeMemberInfoDto, myFundingStatus, homeMyFundingItemList,

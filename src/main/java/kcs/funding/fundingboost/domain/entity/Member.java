@@ -41,7 +41,16 @@ public class Member extends BaseTimeEntity {
     @NotNull
     private int point;
 
-    public static Member createMember(String nickName, String email, String profileImgUrl, int point) {
+    public static Member createMember(String nickName, String email, String profileImgUrl) {
+        Member member = new Member();
+        member.nickName = nickName;
+        member.email = email;
+        member.profileImgUrl = profileImgUrl;
+        return member;
+    }
+  
+  //init(포인트 포함)
+      public static Member createMemberWithPoint(String nickName, String email, String profileImgUrl, int point) {
         Member member = new Member();
         member.nickName = nickName;
         member.email = email;
