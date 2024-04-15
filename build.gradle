@@ -44,14 +44,35 @@ dependencies {
     annotationProcessor "com.querydsl:querydsl-apt:${dependencyManagement.importedProperties['querydsl.version']}:jakarta"
     annotationProcessor "jakarta.annotation:jakarta.annotation-api"
     annotationProcessor "jakarta.persistence:jakarta.persistence-api"
-    sourceSets {
-        main {
-            java {
-                srcDirs = ["$projectDir/src/main/java", "$projectDir/build/generated"]
-            }
-        }
-    }
+//    sourceSets {
+//        main {
+//            java {
+//                srcDirs = ["$projectDir/src/main/java", "$projectDir/build/generated"]
+//            }
+//        }
+//    }
 
+}
+
+def generated = 'src/main/generated'
+
+sourceSets {
+    main.java.srcDir generated // for generated files
+}
+
+configurations {
+    compileOnly {
+        extendsFrom annotationProcessor
+    }
+    querydsl.extendsFrom compileClasspath
+}
+
+tasks.withType(JavaCompile).configureEach {
+    options.compilerArgs << '-parameters'
+}
+
+clean {
+    delete file('src/main/generated')
 }
 
 tasks.named('test') {
