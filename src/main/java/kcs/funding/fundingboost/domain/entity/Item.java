@@ -32,7 +32,7 @@ public class Item extends BaseTimeEntity {
     private int itemPrice;
 
     @NotEmpty
-    @Column(name = "item_image_url", length = 100)
+    @Column(name = "item_image_url")
     private String itemImageUrl;
 
     @NotEmpty
@@ -47,7 +47,7 @@ public class Item extends BaseTimeEntity {
     private String optionName;
 
     public static Item createItem(String itemName, int itemPrice, String itemImageUrl,
-                           String brandName, String category, String optionName) {
+                                  String brandName, String category, String optionName) {
 
         Item item = new Item();
         item.itemName = itemName;
