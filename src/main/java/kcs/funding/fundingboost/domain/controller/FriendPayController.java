@@ -33,7 +33,7 @@ public class FriendPayController {
         @RequestParam("memberId") Long memberId,
         @PathVariable("fundingId") Long fundingId,
         @RequestBody FriendPayProcessDto friendPayProcessDto) {
-        return ResponseDto.created(
+        return ResponseDto.ok(
             friendPayService.payFund(memberId, fundingId, friendPayProcessDto));
     }
 }
