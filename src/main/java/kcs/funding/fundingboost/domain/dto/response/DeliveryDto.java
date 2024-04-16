@@ -13,5 +13,4 @@ public record DeliveryDto(String customerName,
                 delivery.getAddress(),
                 delivery.getPhoneNumber());
     }
-    //
 }
