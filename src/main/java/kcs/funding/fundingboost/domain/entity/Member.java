@@ -78,4 +78,8 @@ public class Member extends BaseTimeEntity {
     public void minusPoint(int usingPoint) {
         point -= usingPoint;
     }
+
+    public void plusPoint(int exchangePoint) {
+        point += exchangePoint;
+    }
 }
