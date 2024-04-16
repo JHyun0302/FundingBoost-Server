@@ -23,9 +23,13 @@ public class PaymentService {
                 .orElseThrow(()->new RuntimeException("Delivery not found"));
         delivery.successDelivery();
 
-        Member findMember = memberRepository.findById(memberId).orElseThrow();
-        findMember.minusPoint(paymentDto.usingPoint());
 
+        Member findMember = memberRepository.findById(memberId).orElseThrow();
+        if (findMember.getPoint() - paymentDto.usingPoint() >= 0) {
+            findMember.minusPoint(paymentDto.usingPoint());
+        } else{
+            throw new RuntimeException("Point가 음수가 돼 버렸네용~");
+        }
 
         return CommonSuccessDto.fromEntity(true);
 
