@@ -21,8 +21,8 @@ public class InitH2DB {
 
     @PostConstruct
     public void init() {
-//        initService.init();
-        initService.mainPageTestInit();
+        initService.init();
+//        initService.mainPageTestInit();
     }
 
     @Component
