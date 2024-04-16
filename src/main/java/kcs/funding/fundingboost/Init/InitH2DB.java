@@ -61,8 +61,9 @@ public class InitH2DB {
             Item item2 = items.get(1);
             Member member1 = members.get(0);
 
-            Delivery delivery1 = Delivery.createDelivery("서울시 가산 디지털단지", "010-1111-1111", "nickname1", member1, item1);
-            Delivery delivery2 = Delivery.createDelivery("경기도 오산시", "010-2222-2222", "nickname2", member1, item2);
+
+            Delivery delivery1  = Delivery.createDelivery("서울시 가산 디지털단지", "010-1111-1111", "nickname1", member1);
+            Delivery delivery2  = Delivery.createDelivery("경기도 오산시", "010-2222-2222", "nickname2", member2);
             em.persist(delivery1);
             em.persist(delivery2);
         }

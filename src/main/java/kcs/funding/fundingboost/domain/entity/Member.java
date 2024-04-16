@@ -74,4 +74,8 @@ public class Member extends BaseTimeEntity {
         member.kakaoUuid = kakaoUuid;
         return member;
     }
+
+    public void minusPoint(int usingPoint) {
+        point -= usingPoint;
+    }
 }
