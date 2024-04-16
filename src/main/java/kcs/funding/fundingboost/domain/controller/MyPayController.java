@@ -13,7 +13,7 @@ public class MyPayController {
 
     private final MyPayService myPayService;
     @GetMapping("/order")
-    public ResponseDto<MyPayViewDto> myOrdePayView(@RequestParam(name = "memberId") Long memberId) {
+    public ResponseDto<MyPayViewDto> myOrderPayView(@RequestParam(name = "memberId") Long memberId) {
         return ResponseDto.ok(myPayService.viewOrder(memberId));
     }
 
