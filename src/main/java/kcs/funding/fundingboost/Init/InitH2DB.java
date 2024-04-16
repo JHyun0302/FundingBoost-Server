@@ -31,7 +31,7 @@ public class InitH2DB {
         List<Member> members = initService.initMember();
         List<Item> items = initService.initBeauty();
         initService.initOrders(members, items);
-        initService.initDelivery(members, items);
+        initService.initDelivery(members);
         initService.initFunding(members, items);
         initService.initRelationships(members);
     }
@@ -56,13 +56,11 @@ public class InitH2DB {
             em.persist(order2);
         }
 
-        public void initDelivery(List<Member> members, List<Item> items) {
-            Item item1 = items.get(0);
-            Item item2 = items.get(1);
+        public void initDelivery(List<Member> members) {
             Member member1 = members.get(0);
 
-            Delivery delivery1 = Delivery.createDelivery("서울시 가산 디지털단지", "010-1111-1111", "nickname1", member1, item1);
-            Delivery delivery2 = Delivery.createDelivery("경기도 오산시", "010-2222-2222", "nickname2", member1, item2);
+            Delivery delivery1 = Delivery.createDelivery("서울시 가산 디지털단지", "010-1111-1111", "nickname1", member1);
+            Delivery delivery2 = Delivery.createDelivery("경기도 오산시", "010-2222-2222", "nickname2", member1);
             em.persist(delivery1);
             em.persist(delivery2);
         }
@@ -86,15 +84,28 @@ public class InitH2DB {
                     LocalDateTime.now().plusDays(7));
             em.persist(funding2);
 
+            Funding funding3 = Funding.createFundingWithCollectPrice(member1, "생일 축하~", Tag.BIRTHDAY, 100000,
+                    10000, LocalDateTime.now().plusDays(14));
+            em.persist(funding3);
+
+            Funding funding4 = Funding.createFundingWithCollectPrice(member2, "드디어 졸업 성공~~", Tag.GRADUATE, 200000,
+                    110000, LocalDateTime.now().plusDays(7));
+            em.persist(funding4);
+
             FundingItem fundingItem1 = FundingItem.createFundingItem(funding1, item1, 1);
             FundingItem fundingItem2 = FundingItem.createFundingItem(funding1, item2, 2);
             em.persist(fundingItem1);
             em.persist(fundingItem2);
 
-            FundingItem fundingItem3 = FundingItem.createFundingItem(funding2, item1, 1);
-            FundingItem fundingItem4 = FundingItem.createFundingItem(funding2, item2, 2);
+            FundingItem fundingItem3 = FundingItem.createFundingItem(funding3, item1, 1);
+            FundingItem fundingItem4 = FundingItem.createFundingItem(funding3, item2, 2);
             em.persist(fundingItem3);
             em.persist(fundingItem4);
+
+            FundingItem fundingItem5 = FundingItem.createFundingItem(funding4, item1, 1);
+            FundingItem fundingItem6 = FundingItem.createFundingItem(funding4, item2, 2);
+            em.persist(fundingItem5);
+            em.persist(fundingItem6);
         }
 
         public void initRelationships(List<Member> members) {
