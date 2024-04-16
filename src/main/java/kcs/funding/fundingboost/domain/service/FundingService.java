@@ -1,6 +1,7 @@
 package kcs.funding.fundingboost.domain.service;
 
 import kcs.funding.fundingboost.domain.dto.common.CommonSuccessDto;
+import kcs.funding.fundingboost.domain.dto.request.RegisterFundingBringItemDto;
 import kcs.funding.fundingboost.domain.dto.request.RegisterFundingDto;
 import kcs.funding.fundingboost.domain.dto.request.RegisterFundingItemDto;
 import kcs.funding.fundingboost.domain.dto.response.FundingRegistrationItemDto;
@@ -8,6 +9,8 @@ import kcs.funding.fundingboost.domain.entity.Funding;
 import kcs.funding.fundingboost.domain.entity.FundingItem;
 import kcs.funding.fundingboost.domain.entity.Item;
 import kcs.funding.fundingboost.domain.entity.Tag;
+import kcs.funding.fundingboost.domain.exception.CommonException;
+import kcs.funding.fundingboost.domain.exception.ErrorCode;
 import kcs.funding.fundingboost.domain.repository.FundingItemRepository;
 import kcs.funding.fundingboost.domain.repository.ItemRepository;
 import kcs.funding.fundingboost.domain.repository.MemberRepository;
@@ -32,11 +35,18 @@ public class FundingService {
     private final FundingRepository fundingRepository;
     private final FundingItemRepository fundingItemRepository;
 
-    public List<FundingRegistrationItemDto> getFundingRegister(List<Long> itemList){
+    public List<FundingRegistrationItemDto> getFundingRegister(List<Long> registerFundingBringItemDto, Long memberId){
 
-        return IntStream.range(0, itemList.size())
+        Funding funding = fundingRepository.findByMemberAndFundingStatusIsTrue(memberRepository.findById(memberId)
+                .orElseThrow(() -> new RuntimeException("Member Not Found")));
+
+        if(funding != null){
+            throw new CommonException(ErrorCode.ALREADY_EXIST_FUNDING);
+        }
+
+        return IntStream.range(0, registerFundingBringItemDto.size())
                 .mapToObj(i -> FundingRegistrationItemDto.createFundingRegistrationItemDto(
-                        itemRepository.findById(itemList.get(i))
+                        itemRepository.findById(registerFundingBringItemDto.get(i))
                                 .orElseThrow(()-> new RuntimeException("Item not found")),
                         (long) i + 1)).toList();
     }
@@ -44,10 +54,10 @@ public class FundingService {
     @Transactional
     public CommonSuccessDto putFundingAndFundingItem(Long memberId, RegisterFundingDto registerFundingDto) {
 
-        List<RegisterFundingItemDto> registerFundingItemDtoList = registerFundingDto.registerFundingItemDtoList();
+        List<Long> registerFundingItemList = registerFundingDto.itemIdList();
 
-        List<Item> itemList = registerFundingItemDtoList.stream()
-                .map(registerFundingItemDto -> itemRepository.findById(registerFundingItemDto.itemId())
+        List<Item> itemList = registerFundingItemList.stream()
+                .map(itemIdList -> itemRepository.findById(itemIdList)
                         .orElseThrow(() -> new RuntimeException("Item Not Found"))).toList();
 
         int sum = 0;
@@ -64,10 +74,10 @@ public class FundingService {
 
         fundingRepository.save(funding);
 
-        for (int i = 0; i < registerFundingItemDtoList.size(); i++) {
+        for (int i = 0; i < registerFundingItemList.size(); i++) {
             FundingItem fundingItem = FundingItem.createFundingItem(
                     funding,
-                    itemRepository.findById(registerFundingItemDtoList.get(i).itemId())
+                    itemRepository.findById(registerFundingItemList.get(i))
                             .orElseThrow(() -> new RuntimeException("Item Not Found")),
                     i + 1);
             fundingItemRepository.save(fundingItem);
