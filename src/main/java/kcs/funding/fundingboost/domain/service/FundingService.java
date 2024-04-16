@@ -3,12 +3,13 @@ package kcs.funding.fundingboost.domain.service;
 import kcs.funding.fundingboost.domain.dto.common.CommonSuccessDto;
 import kcs.funding.fundingboost.domain.dto.request.RegisterFundingDto;
 import kcs.funding.fundingboost.domain.dto.request.RegisterFundingItemDto;
+import kcs.funding.fundingboost.domain.dto.response.ContributorDto;
+import kcs.funding.fundingboost.domain.dto.response.FriendFundingDetailDto;
+import kcs.funding.fundingboost.domain.dto.response.FriendFundingItemDto;
 import kcs.funding.fundingboost.domain.dto.response.FundingRegistrationItemDto;
-import kcs.funding.fundingboost.domain.entity.Funding;
-import kcs.funding.fundingboost.domain.entity.FundingItem;
-import kcs.funding.fundingboost.domain.entity.Item;
-import kcs.funding.fundingboost.domain.entity.Tag;
-import kcs.funding.fundingboost.domain.repository.FundingItemRepository;
+import kcs.funding.fundingboost.domain.entity.*;
+import kcs.funding.fundingboost.domain.repository.ContributorRepository;
+import kcs.funding.fundingboost.domain.repository.funding.FundingItemRepository;
 import kcs.funding.fundingboost.domain.repository.ItemRepository;
 import kcs.funding.fundingboost.domain.repository.MemberRepository;
 import kcs.funding.fundingboost.domain.repository.funding.FundingRepository;
@@ -17,7 +18,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.IntStream;
 
@@ -31,6 +32,7 @@ public class FundingService {
     private final MemberRepository memberRepository;
     private final FundingRepository fundingRepository;
     private final FundingItemRepository fundingItemRepository;
+    private final ContributorRepository contributorRepository;
 
     public List<FundingRegistrationItemDto> getFundingRegister(List<Long> itemList){
 
@@ -75,10 +77,46 @@ public class FundingService {
 
         return CommonSuccessDto.fromEntity(true);
     }
-      public CommonSuccessDto terminateFunding(Long fundingId) {
+
+    public CommonSuccessDto terminateFunding(Long fundingId) {
           Funding funding = fundingRepository.findById(fundingId)
                   .orElseThrow(() -> new RuntimeException("Funding not found"));
           funding.terminate();
           return CommonSuccessDto.fromEntity(true);
-      }
+    }
+
+    public FriendFundingDetailDto viewFreindsFundingDetail(Long fundingId, Long memberId) {
+
+        List<FriendFundingItemDto> friendFundingItemList = fundingItemRepository.findAllByFundingId(fundingId)
+                .stream()
+                .map(fi -> FriendFundingItemDto.fromEntity(fi))
+                .toList();
+
+        List<ContributorDto> contributorList = contributorRepository.findByFundingId(fundingId)
+                .stream()
+                .map(c -> ContributorDto.fromEntity(c))
+                .toList();
+
+        Member friend = memberRepository.findById(memberId).orElseThrow(() -> new RuntimeException("member not found"));
+        String friendName = friend.getNickName();
+        String friendProfile = friend.getProfileImgUrl();
+
+
+        Funding funding = fundingRepository.findById(fundingId).orElseThrow(() -> new RuntimeException("funding not found"));
+        LocalDateTime deadline = funding.getDeadline();
+        int totalPrice = funding.getTotalPrice();
+        int collectPrice = funding.getCollectPrice();
+        Tag fundingTag = funding.getTag();
+        String fundingMessage = funding.getMessage();
+
+        int contributedPercent = 0;
+        if (totalPrice > 0) {
+            contributedPercent = collectPrice / totalPrice * 100;
+        } else {
+            throw new RuntimeException("펀딩에 담긴 상품이 없거나, 상품의 가격이 이상합니다.");
+        }
+
+        return FriendFundingDetailDto.fromEntity(friendFundingItemList, contributorList, friendName,friendProfile, deadline, contributedPercent, fundingTag, fundingMessage);
+
+    }
 }

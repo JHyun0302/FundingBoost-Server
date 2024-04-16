@@ -41,4 +41,12 @@ public class Contributor extends BaseTimeEntity {
     @NotNull
     @Column(name = "contributor_price")
     private int contributorPrice;
+
+    public static Contributor createContributor(int contributorPrice, Member member, Funding funding) {
+        Contributor contributor = new Contributor();
+        contributor.contributorPrice = contributorPrice;
+        contributor.member = member;
+        contributor.funding = funding;
+        return contributor;
+    }
 }
