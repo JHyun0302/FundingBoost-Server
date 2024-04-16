@@ -1,5 +1,6 @@
 package kcs.funding.fundingboost.domain.controller;
 
+import kcs.funding.fundingboost.domain.dto.global.ResponseDto;
 import kcs.funding.fundingboost.domain.dto.response.FriendFundingPayingDto;
 import kcs.funding.fundingboost.domain.service.FriendPayService;
 import lombok.RequiredArgsConstructor;
@@ -17,8 +18,8 @@ public class FriendPayController {
     private final FriendPayService friendPayService;
 
     @GetMapping("/{fundingId}")
-    public FriendFundingPayingDto friendPayView(@RequestParam("memberId") Long memberId,
+    public ResponseDto<FriendFundingPayingDto> friendPayView(@RequestParam("memberId") Long memberId,
         @PathVariable("fundingId") Long fundingId) {
-        return friendPayService.findFriendFundingPay(fundingId, memberId);
+        return ResponseDto.ok(friendPayService.findFriendFundingPay(fundingId, memberId));
     }
 }
