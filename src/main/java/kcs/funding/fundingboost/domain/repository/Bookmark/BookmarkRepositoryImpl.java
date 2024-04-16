@@ -1,11 +1,11 @@
 package kcs.funding.fundingboost.domain.repository.Bookmark;
 
 import static kcs.funding.fundingboost.domain.entity.QBookmark.bookmark;
+import static kcs.funding.fundingboost.domain.entity.QItem.item;
+import static kcs.funding.fundingboost.domain.entity.QMember.member;
 
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import kcs.funding.fundingboost.domain.entity.Bookmark;
-import kcs.funding.fundingboost.domain.entity.QItem;
-import kcs.funding.fundingboost.domain.entity.QMember;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 
@@ -19,8 +19,8 @@ public class BookmarkRepositoryImpl implements BookmarkRepositoryCustom {
     public Bookmark findBookmarkByMemberAndItem(Long memberId, Long itemId) {
         return queryFactory
                 .selectFrom(bookmark)
-                .join(bookmark.item, QItem.item).fetchJoin()
-                .join(bookmark.member, QMember.member).fetchJoin()
+                .join(bookmark.item, item).fetchJoin()
+                .join(bookmark.member, member).fetchJoin()
                 .where(bookmark.member.memberId.eq(memberId)
                         .and(bookmark.item.itemId.eq(itemId)))
                 .fetchOne();
