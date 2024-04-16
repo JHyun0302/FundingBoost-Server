@@ -1,5 +1,6 @@
 package kcs.funding.fundingboost.domain.controller;
 
+import kcs.funding.fundingboost.domain.dto.global.ResponseDto;
 import kcs.funding.fundingboost.domain.dto.response.MyPayViewDto;
 import kcs.funding.fundingboost.domain.service.MyPayService;
 import lombok.RequiredArgsConstructor;
@@ -12,13 +13,13 @@ public class MyPayController {
 
     private final MyPayService myPayService;
     @GetMapping("/order")
-    public MyPayViewDto myOrdePayView( @RequestParam(name = "memberId") Long memberId) {
-        return myPayService.viewOrder(memberId);
+    public ResponseDto<MyPayViewDto> myOrderPayView(@RequestParam(name = "memberId") Long memberId) {
+        return ResponseDto.ok(myPayService.viewOrder(memberId));
     }
 
     @GetMapping("/funding")
-    public MyPayViewDto myFundingPayView( @RequestParam(name = "memberId") Long memberId){
-        return myPayService.viewFunding(memberId);
+    public ResponseDto<MyPayViewDto> myFundingPayView( @RequestParam(name = "memberId") Long memberId){
+        return ResponseDto.ok(myPayService.viewFunding(memberId));
     }
 
 }
