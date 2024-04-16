@@ -68,6 +68,10 @@ public class Funding extends BaseTimeEntity {
     @Column(name = "funding_status")
     private boolean fundingStatus;
 
+    public void terminate() {
+        this.fundingStatus = false;
+    }
+
     public static Funding createFunding(Member member, String message, Tag tag, int totalPrice, LocalDateTime deadline) {
         Funding funding = new Funding();
         funding.member = member;
@@ -80,7 +84,17 @@ public class Funding extends BaseTimeEntity {
         return funding;
     }
 
-    public void terminate() {
-        this.fundingStatus = false;
+    public static Funding createFundingWithCollectPrice(Member member, String message, Tag tag,
+        int totalPrice, int collectPrice, LocalDateTime deadline) {
+        Funding funding = new Funding();
+        funding.member = member;
+        funding.message = message;
+        funding.tag = tag;
+        funding.totalPrice = totalPrice;
+        funding.collectPrice = collectPrice;
+        funding.deadline = deadline;
+        funding.fundingStatus = true;
+        return funding;
     }
+
 }
