@@ -3,7 +3,6 @@ package kcs.funding.fundingboost.Init;
 import jakarta.annotation.PostConstruct;
 import jakarta.persistence.EntityManager;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -22,7 +21,8 @@ public class InitH2DB {
     @PostConstruct
     public void init() {
 //        initService.init();
-        initService.mainPageTestInit();
+//        initService.mainPageTestInit();
+        initService.friendFundingPayView();
     }
 
     @Component
@@ -35,9 +35,8 @@ public class InitH2DB {
 
         public void init() {
             Member member1 = Member.createMember("nickname1", "email@gmail.com", "url");
-            em.persist(member1);
-
             Member member2 = Member.createMemberWithPoint("nickname2", "email2@gmail.com", "url", 20000);
+            em.persist(member1);
             em.persist(member2);
 
             Item item1 = Item.createItem("그릭요거트 딸기 생크림 피스 + 아메리카노 (R)", 10700,
@@ -62,14 +61,13 @@ public class InitH2DB {
             em.persist(order1);
             em.persist(order2);
 
-
             Delivery delivery1  = Delivery.createDelivery("서울시 가산 디지털단지", "010-1111-1111", "nickname1", member1, item1);
             Delivery delivery2  = Delivery.createDelivery("경기도 오산시", "010-2222-2222", "nickname2", member1, item2);
             em.persist(delivery1);
             em.persist(delivery2);
 
 
-            Funding funding = Funding.createFunding(member1, "Thanks", Tag.BIRTHDAY, 57000, LocalDateTime.of(2023,12,27,0,0,0));
+            Funding funding = Funding.createFundingWithCollectPrice(member1, "Thanks", Tag.BIRTHDAY, 57000, 12000, LocalDateTime.of(2023,12,27,0,0,0));
             em.persist(funding);
 
             FundingItem fundingItem = FundingItem.createFundingItem(funding,item3,1);
@@ -131,6 +129,20 @@ public class InitH2DB {
             FundingItem friendFundingItem1 = FundingItem.createFundingItem(friend1Funding, item3,
                 1);
             em.persist(friendFundingItem1);
+        }
+        
+        public void friendFundingPayView() {
+            Member member1 = Member.createMemberWithPoint("nickname", "email@gmail.com", "url", 100000);
+            Member member2 = Member.createMember("friend1", "email2@gmail.com", "url2");
+            Member member3 = Member.createMember("friend2", "email3@gmail.com", "url3");
+            em.persist(member1);
+            em.persist(member2);
+            em.persist(member3);
+
+            // 친구 펀딩 추가
+            Funding friendFunding = Funding.createFunding(member2, "생일축하해줘", Tag.BIRTHDAY, 12341234,
+                LocalDateTime.now().plusDays(14));
+            em.persist(friendFunding);
         }
     }
 }
