@@ -15,5 +15,4 @@ public record DeliveryDto(Long deliveryId,
                 delivery.getAddress(),
                 delivery.getPhoneNumber());
     }
-    //
 }
