@@ -26,7 +26,7 @@ public class MyPayService {
 
     public MyPayViewDto viewFunding(Long memberId){
         Funding funding = fundingRepository.findByMemberIdAndStatus(memberId, true);
-        List<ItemDto> itemDtoList = fundingItemRepository.findAllByFunding(funding)
+        List<ItemDto> itemDtoList = fundingItemRepository.findAllByFundingId(funding.getFundingId())
                 .stream()
                 .map(f -> ItemDto.fromEntity(f))
                 .toList();
