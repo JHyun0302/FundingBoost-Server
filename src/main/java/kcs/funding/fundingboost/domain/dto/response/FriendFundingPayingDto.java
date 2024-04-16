@@ -8,7 +8,6 @@ public record FriendFundingPayingDto(String friendName,
                                      String friendProfile,
                                      int totalPrice,
                                      int presentPrice,
-                                     int price,
                                      int myPoint) {
 
     public static FriendFundingPayingDto fromEntity(Funding funding, int myPoint) {
