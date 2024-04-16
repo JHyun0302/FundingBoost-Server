@@ -19,12 +19,12 @@ public class MyPayController {
     private final PaymentService paymentService;
 
     @GetMapping("/order")
-    public ResponseDto<MyPayViewDto> myOrderPayView(@RequestParam(name = "memberId") Long memberId) {
+    public ResponseDto<MyPayViewDto> viewMyOrderPay(@RequestParam(name = "memberId") Long memberId) {
         return ResponseDto.ok(myPayService.viewOrder(memberId));
     }
 
     @GetMapping("/funding")
-    public ResponseDto<MyPayViewDto> myFundingPayView( @RequestParam(name = "memberId") Long memberId){
+    public ResponseDto<MyPayViewDto> viewMyFundingPay( @RequestParam(name = "memberId") Long memberId){
         return ResponseDto.ok(myPayService.viewFunding(memberId));
     }
 
