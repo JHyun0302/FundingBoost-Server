@@ -1,14 +1,12 @@
 package kcs.funding.fundingboost.domain.service;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 import kcs.funding.fundingboost.domain.dto.response.ItemDetailDto;
 import kcs.funding.fundingboost.domain.dto.response.ShopDto;
 import kcs.funding.fundingboost.domain.entity.Bookmark;
 import kcs.funding.fundingboost.domain.entity.Item;
-import kcs.funding.fundingboost.domain.entity.Member;
-import kcs.funding.fundingboost.domain.repository.BookmarkRepository;
+import kcs.funding.fundingboost.domain.repository.Bookmark.BookmarkRepository;
 import kcs.funding.fundingboost.domain.repository.ItemRepository;
 import kcs.funding.fundingboost.domain.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
@@ -36,16 +34,14 @@ public class ItemService {
     }
 
     public ItemDetailDto getItemDetail(Long memberId, Long itemId) {
-        Item item = itemRepository.findById(itemId)
-                .orElseThrow(() -> new RuntimeException("Item Not Found"));
 
-        Member member = memberRepository.findById(memberId)
-                .orElseThrow(() -> new RuntimeException("Member not found"));
-
-        Optional<Bookmark> bookmark = bookmarkRepository.findBookmarkByMemberAndItem(member, item);
-        if (bookmark.isPresent()) {
-            return ItemDetailDto.fromEntity(item, true);
+        Bookmark bookmark = bookmarkRepository.findBookmarkByMemberAndItem(memberId, itemId);
+        if (bookmark != null) {
+            return ItemDetailDto.fromEntity(bookmark.getItem(), true);
         } else {
+            Item item = itemRepository.findById(itemId)
+                    .orElseThrow(() -> new RuntimeException("Item Not Found"));
+
             return ItemDetailDto.fromEntity(item, false);
         }
     }
