@@ -38,8 +38,8 @@ public class Delivery extends BaseTimeEntity {
     private Member member;
 
 
-    @Column(name = "order_status")
-    private boolean orderStatus;
+    @Column(name = "delivery_status")
+    private boolean deliveryStatus;
 
     public static Delivery createDelivery(String address, String phoneNumber, String customerName, Member member) {
         Delivery delivery = new Delivery();
@@ -47,11 +47,11 @@ public class Delivery extends BaseTimeEntity {
         delivery.phoneNumber = phoneNumber;
         delivery.customerName = customerName;
         delivery.member = member;
-        delivery.orderStatus = true;
+        delivery.deliveryStatus = true;
         return delivery;
     }
 
     public void successDelivery() {
-        orderStatus = false;
+        deliveryStatus = false;
     }
 }
