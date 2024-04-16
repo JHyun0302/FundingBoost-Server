@@ -37,21 +37,16 @@ public class Delivery extends BaseTimeEntity {
     @OnDelete(action = OnDeleteAction.CASCADE)
     private Member member;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "item_id", nullable = false)
-    @OnDelete(action = OnDeleteAction.CASCADE)
-    private Item item;
 
     @Column(name = "order_status")
     private boolean orderStatus;
 
-    public static Delivery createDelivery(String address, String phoneNumber, String customerName, Member member, Item item) {
+    public static Delivery createDelivery(String address, String phoneNumber, String customerName, Member member) {
         Delivery delivery = new Delivery();
         delivery.address = address;
         delivery.phoneNumber = phoneNumber;
         delivery.customerName = customerName;
         delivery.member = member;
-        delivery.item = item;
         delivery.orderStatus = true;
         return delivery;
     }
