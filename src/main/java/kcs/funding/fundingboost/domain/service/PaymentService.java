@@ -16,7 +16,7 @@ public class PaymentService {
     private final MemberRepository memberRepository;
     private final DeliveryRepository deliveryRepository;
     @Transactional
-    public CommonSuccessDto processPayment(PaymentDto paymentDto, Long memberId) {
+    public CommonSuccessDto processMyPayment(PaymentDto paymentDto, Long memberId) {
 
         Delivery delivery = deliveryRepository
                 .findById(paymentDto.deliveryId())
