@@ -13,8 +13,6 @@ import kcs.funding.fundingboost.domain.repository.funding.FundingRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
-
 @Service
 @RequiredArgsConstructor
 public class MyPayService {
@@ -23,7 +21,7 @@ public class MyPayService {
     private final DeliveryRepository deliveryRepository;
     private final OrderRepository orderRepository;
 
-    public MyPayViewDto viewFunding(Long memberId){
+    public MyPayViewDto viewFunding(Long memberId) {
         Funding funding = fundingRepository.findByMemberIdAndStatus(memberId, true);
         List<ItemDto> itemDtoList = funding.getFundingItems()
                 .stream()
@@ -54,6 +52,6 @@ public class MyPayService {
 
         int point = orders.get(0).getMember().getPoint();
 
-        return MyPayViewDto.fromEntity(itemDtoList,deliveryDtoList,point);
+        return MyPayViewDto.fromEntity(itemDtoList, deliveryDtoList, point);
     }
 }
