@@ -21,7 +21,7 @@ public class MyPageService {
 
     @Transactional
     public CommonSuccessDto exchangePoint(TransformPointDto transformPointDto) {
-        Funding funding = fundingRepository.findById(transformPointDto.fundingId()).orElseThrow();
+        Funding funding = fundingRepository.findMemberByFundingId(transformPointDto.fundingId());
         Member member = funding.getMember();
         List<FundingItem> fundingItems = funding.getFundingItems();
 
