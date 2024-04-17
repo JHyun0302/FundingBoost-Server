@@ -12,7 +12,7 @@ public class MyPayController {
 
     private final MyPayService myPayService;
     @GetMapping("/order")
-    public MyPayViewDto myOrdePayView( @RequestParam(name = "memberId") Long memberId) {
+    public MyPayViewDto myOrderPayView( @RequestParam(name = "memberId") Long memberId) {
         return myPayService.viewOrder(memberId);
     }
 
