@@ -24,7 +24,7 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 @Slf4j
 public class InitH2DB {
-    private final InitService initService;
+    private final InitService initService; 
 
     @PostConstruct
     public void initDatabase() {
