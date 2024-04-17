@@ -84,7 +84,7 @@ public class Funding extends BaseTimeEntity {
         return funding;
     }
 
-    public static Funding createFundingWithCollectPrice(Member member, String message, Tag tag,
+    public static Funding createFundingForTest(Member member, String message, Tag tag,
         int totalPrice, int collectPrice, LocalDateTime deadline) {
         Funding funding = new Funding();
         funding.member = member;
@@ -93,7 +93,7 @@ public class Funding extends BaseTimeEntity {
         funding.totalPrice = totalPrice;
         funding.collectPrice = collectPrice;
         funding.deadline = deadline;
-        funding.fundingStatus = true;
+        funding.fundingStatus = false;
         return funding;
     }
 

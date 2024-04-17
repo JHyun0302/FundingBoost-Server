@@ -143,7 +143,7 @@ public class InitH2DB {
 
             Funding funding1 = Funding.createFunding(member1, "생일축하해줘", Tag.BIRTHDAY, 100000,
                 LocalDateTime.now().plusDays(14));
-            Funding funding3 = Funding.createFundingWithCollectPrice(member1, "생일 축하~",
+            Funding funding3 = Funding.createFundingForTest(member1, "생일 축하~",
                 Tag.BIRTHDAY, 100000,
                 10000, LocalDateTime.now().plusDays(14));
             em.persist(funding1);
@@ -174,7 +174,7 @@ public class InitH2DB {
 
             Funding funding2 = Funding.createFunding(member2, "드디어 졸업 성공~~", Tag.GRADUATE, 200000,
                 LocalDateTime.now().plusDays(7));
-            Funding funding4 = Funding.createFundingWithCollectPrice(member2, "드디어 졸업 성공~~",
+            Funding funding4 = Funding.createFundingForTest(member2, "드디어 졸업 성공~~",
                 Tag.GRADUATE, 200000,
                 110000, LocalDateTime.now().plusDays(7));
             em.persist(funding2);
@@ -237,7 +237,8 @@ public class InitH2DB {
             Member member1 = members.get(4);
             Member member2 = members.get(5);
 
-            Funding funding = Funding.createFunding(member, "줘", Tag.BIRTHDAY, 112000,
+            Funding funding = Funding.createFundingForTest(member, "줘", Tag.BIRTHDAY, 112000,
+                10000,
                 LocalDateTime.now().plusDays(14));
             em.persist(funding);
 
