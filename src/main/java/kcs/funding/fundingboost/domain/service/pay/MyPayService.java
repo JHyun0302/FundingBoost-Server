@@ -16,9 +16,11 @@ import kcs.funding.fundingboost.domain.repository.OrderRepository;
 import kcs.funding.fundingboost.domain.repository.funding.FundingRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class MyPayService {
 
     private final FundingRepository fundingRepository;
@@ -56,6 +58,7 @@ public class MyPayService {
         return MyPayViewDto.fromEntity(itemDtoList, deliveryDtoList, orders.get(0));
     }
 
+    @Transactional
     public CommonSuccessDto pay(PaymentDto paymentDto, Long memberId) {
         Member findMember = memberRepository.findById(memberId).orElseThrow();
         if (findMember.getPoint() - paymentDto.usingPoint() >= 0) {

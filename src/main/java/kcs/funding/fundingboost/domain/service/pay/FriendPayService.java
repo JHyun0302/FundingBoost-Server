@@ -9,9 +9,11 @@ import kcs.funding.fundingboost.domain.repository.MemberRepository;
 import kcs.funding.fundingboost.domain.repository.funding.FundingRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class FriendPayService {
 
     private final MemberRepository memberRepository;
@@ -24,6 +26,7 @@ public class FriendPayService {
         return FriendFundingPayingDto.fromEntity(friendFunding, member.getPoint());
     }
 
+    @Transactional
     public CommonSuccessDto fund(Long memberId, Long fundingId,
         FriendPayProcessDto friendPayProcessDto) {
         Member findMember = memberRepository.findById(memberId).orElseThrow();
