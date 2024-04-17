@@ -97,4 +97,7 @@ public class Funding extends BaseTimeEntity {
         return funding;
     }
 
+    public void fund(int fundedPoint) {
+        this.collectPrice += fundedPoint;
+    }
 }
