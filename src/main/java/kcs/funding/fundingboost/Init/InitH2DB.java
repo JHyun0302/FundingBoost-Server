@@ -17,14 +17,14 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 @Slf4j
 public class InitH2DB {
-    private final InitService initService; 
+    private final InitService initService;
 
     @PostConstruct
     public void initDatabase() {
         List<Member> members = initService.initMember();
         List<Item> items = initService.initBeauty();
-        initService.initOrders(members, items);
-        initService.initDelivery(members);
+        List<Delivery> deliveries = initService.initDelivery(members);
+        initService.initOrders(members, items, deliveries);
         initService.initFunding(members, items);
         initService.initRelationships(members);
         initService.initContributor(members,items);
@@ -38,25 +38,36 @@ public class InitH2DB {
 
         private final EntityManager em;
 
-        public void initOrders(List<Member> members, List<Item> items) {
+        public void initOrders(List<Member> members, List<Item> items, List<Delivery> deliveries) {
             Item item1 = items.get(0);
             Item item2 = items.get(1);
+
             Member member1 = members.get(0);
             Member member2 = members.get(0);
 
-            Order order1 = Order.createOrder(1, 10700, item1, member1);
-            Order order2 = Order.createOrder(1, 17820, item2, member2);
+            Delivery delivery = deliveries.get(0);
+
+            Order order1 = Order.createOrder(1, 10700, false, item1, member1, delivery);
+            Order order2 = Order.createOrder(1, 17820, false, item2, member2, delivery);
             em.persist(order1);
             em.persist(order2);
         }
 
-        public void initDelivery(List<Member> members) {
-            Member member1 = members.get(0);
+        public List<Delivery> initDelivery(List<Member> members) {
+            Member member = members.get(0);
 
-            Delivery delivery1 = Delivery.createDelivery("서울시 가산 디지털단지", "010-1111-1111", "nickname1", member1);
-            Delivery delivery2 = Delivery.createDelivery("경기도 오산시", "010-2222-2222", "nickname2", member1);
-            em.persist(delivery1);
-            em.persist(delivery2);
+            List<Delivery> deliveryInfos = Arrays.asList(
+                    Delivery.createDelivery("서울 금천구 가산디지털1로 189 (주)LG 가산 디지털센터 12층", "010-1111-2222",
+                            "직장", member),
+                    Delivery.createDelivery("경기도 성남시 분당구 판교역로 166 카카오 아지트", "010-1234-5678", "사무실",
+                            member),
+                    Delivery.createDelivery("경기도 화성시", "010-3333-4444", "집",
+                            member));
+
+            for (Delivery delivery : deliveryInfos) {
+                em.persist(delivery);
+            }
+            return deliveryInfos;
         }
 
         public void initFunding(List<Member> members, List<Item> items) {
@@ -115,6 +126,9 @@ public class InitH2DB {
 
         public List<Member> initMember() {
             List<Member> memberInfos = Arrays.asList(
+                    Member.createMember("임창희", "dlackdgml3710@gmail.com", "",
+                            "https://p.kakaocdn.net/th/talkp/wnbbRhlyRW/XaGAXxS1OkUtXnomt6S4IK/ky0f9a_110x110_c.jpg",
+                            "", "aFxoWGFUZlV5SH9MfE9-TH1PY1JiV2JRaF83"),
                     Member.createMember("구태형", "rnxogud136@gmail.com", "",
                             "https://p.kakaocdn.net/th/talkp/wowkAlwbLn/Ko25X6eV5bs1OycAz7n9Q1/lq4mv6_110x110_c.jpg",
                             "", "aFtpX2lZaFhvQ3JLe0J2QnFDcFxtXWhdbldgDA"),
@@ -127,9 +141,6 @@ public class InitH2DB {
                     Member.createMember("이재현", "jhyun030299@gmail.com", "",
                             "http://k.kakaocdn.net/dn/jrT50/btsF9BGMPni/7oxQfq58KmKxIl8UX01mn0/img_110x110.jpg", "",
                             "aFpqUmZVYFRsQHFIfU53R3ZDdlprW25baFFmDw"),
-                    Member.createMember("임창희", "dlackdgml3710@gmail.com", "",
-                            "https://p.kakaocdn.net/th/talkp/wnbbRhlyRW/XaGAXxS1OkUtXnomt6S4IK/ky0f9a_110x110_c.jpg",
-                            "", "aFxoWGFUZlV5SH9MfE9-TH1PY1JiV2JRaF83"),
                     Member.createMember("현세미", "gustpal08@gmail.com", "", "", "",
                             "aFlvVm9bbFpoRHBGf0Z0RHRDb15uW25dZFM_")
             );
