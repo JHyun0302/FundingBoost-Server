@@ -13,7 +13,6 @@ import kcs.funding.fundingboost.domain.entity.Funding;
 import kcs.funding.fundingboost.domain.entity.Member;
 import kcs.funding.fundingboost.domain.entity.Order;
 import kcs.funding.fundingboost.domain.repository.DeliveryRepository;
-import kcs.funding.fundingboost.domain.repository.FundingItem.FundingItemRepository;
 import kcs.funding.fundingboost.domain.repository.MemberRepository;
 import kcs.funding.fundingboost.domain.repository.OrderRepository;
 import kcs.funding.fundingboost.domain.repository.funding.FundingRepository;
@@ -26,13 +25,11 @@ import org.springframework.transaction.annotation.Transactional;
 public class PayService {
 
     private final FundingRepository fundingRepository;
-    private final FundingItemRepository fundingItemRepository;
     private final DeliveryRepository deliveryRepository;
     private final OrderRepository orderRepository;
-    private final PaymentService paymentService;
     private final MemberRepository memberRepository;
 
-    public MyPayViewDto viewFunding(Long memberId){
+    public MyPayViewDto viewFunding(Long memberId) {
         Funding funding = fundingRepository.findByMemberIdAndStatus(memberId, true);
         List<ItemDto> itemDtoList = funding.getFundingItems()
             .stream()
@@ -63,15 +60,15 @@ public class PayService {
 
         int point = orders.get(0).getMember().getPoint();
 
-        return MyPayViewDto.fromEntity(itemDtoList,deliveryDtoList,point);
+        return MyPayViewDto.fromEntity(itemDtoList, deliveryDtoList, point);
     }
 
     public CommonSuccessDto pay(PaymentDto paymentDto, Long memberId) {
         Delivery delivery = deliveryRepository
             .findById(paymentDto.deliveryId())
-            .orElseThrow(()->new RuntimeException("Delivery not found"));
+            .orElseThrow(() -> new RuntimeException("Delivery not found"));
         delivery.successDelivery();
-        paymentService.processMyPayment(memberId, paymentDto.usingPoint());
+        processMyPayment(memberId, paymentDto.usingPoint());
 
         return CommonSuccessDto.fromEntity(true);
     }
@@ -84,8 +81,34 @@ public class PayService {
     }
 
     @Transactional
-    public CommonSuccessDto pay(Long memberId, Long fundingId, FriendPayProcessDto friendPayProcessDto) {
-        paymentService.processFriendPayment(memberId, fundingId, friendPayProcessDto.myPoint());
+    public CommonSuccessDto pay(Long memberId, Long fundingId,
+        FriendPayProcessDto friendPayProcessDto) {
+        processFriendPayment(memberId, fundingId, friendPayProcessDto.myPoint());
         return CommonSuccessDto.fromEntity(true);
+    }
+
+    public void processMyPayment(Long memberId, int price) {
+        Member findMember = memberRepository.findById(memberId).orElseThrow();
+        calculatePoint(price, findMember);
+    }
+
+    public void processFriendPayment(Long memberId, Long fundingId, int point) {
+        Member findMember = memberRepository.findById(memberId).orElseThrow();
+        calculatePoint(point, findMember);
+
+        Funding friendFunding = fundingRepository.findById(fundingId).orElseThrow();
+        if (friendFunding.getCollectPrice() + point <= friendFunding.getTotalPrice()) {
+            friendFunding.fund(point);
+        } else {
+            throw new RuntimeException("설정된 펀딩액 이상을 후원할 수 없습니다");
+        }
+    }
+
+    private static void calculatePoint(int price, Member findMember) {
+        if (findMember.getPoint() - price >= 0) {
+            findMember.minusPoint(price);
+        } else {
+            throw new RuntimeException("Point가 음수가 돼 버렸네용~");
+        }
     }
 }
