@@ -20,9 +20,6 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class ItemService {
     private final ItemRepository itemRepository;
-
-    private final MemberRepository memberRepository;
-
     private final BookmarkRepository bookmarkRepository;
 
     public List<ShopDto> getItems() {
