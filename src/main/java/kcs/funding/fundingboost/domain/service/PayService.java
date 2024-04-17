@@ -64,10 +64,6 @@ public class PayService {
     }
 
     public CommonSuccessDto pay(PaymentDto paymentDto, Long memberId) {
-        Delivery delivery = deliveryRepository
-            .findById(paymentDto.deliveryId())
-            .orElseThrow(() -> new RuntimeException("Delivery not found"));
-        delivery.successDelivery();
         processMyPayment(memberId, paymentDto.usingPoint());
 
         return CommonSuccessDto.fromEntity(true);
