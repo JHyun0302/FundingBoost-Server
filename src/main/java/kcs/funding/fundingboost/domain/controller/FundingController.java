@@ -2,7 +2,6 @@ package kcs.funding.fundingboost.domain.controller;
 
 import kcs.funding.fundingboost.domain.dto.common.CommonSuccessDto;
 import kcs.funding.fundingboost.domain.dto.global.ResponseDto;
-import kcs.funding.fundingboost.domain.dto.request.RegisterFundingBringItemDto;
 import kcs.funding.fundingboost.domain.dto.request.RegisterFundingDto;
 import kcs.funding.fundingboost.domain.dto.response.FundingRegistrationItemDto;
 import kcs.funding.fundingboost.domain.service.FundingService;
