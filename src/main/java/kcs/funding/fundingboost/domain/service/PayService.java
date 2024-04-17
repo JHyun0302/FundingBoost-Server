@@ -29,38 +29,33 @@ public class PayService {
     private final OrderRepository orderRepository;
     private final MemberRepository memberRepository;
 
-    public MyPayViewDto viewFunding(Long memberId) {
+    public MyPayViewDto getMyFundingPay(Long memberId) {
         Funding funding = fundingRepository.findByMemberIdAndStatus(memberId, true);
         List<ItemDto> itemDtoList = funding.getFundingItems()
             .stream()
-            .map(f -> ItemDto.fromEntity(f))
+            .map(ItemDto::fromEntity)
             .toList();
 
         List<DeliveryDto> deliveryDtoList = deliveryRepository.findAllByMemberId(memberId)
             .stream()
-            .map(d -> DeliveryDto.fromEntity(d))
+            .map(DeliveryDto::fromEntity)
             .toList();
-        int point = funding.getMember().getPoint();
-        int collectPrice = funding.getCollectPrice();
 
-        return MyPayViewDto.fromEntity(itemDtoList, deliveryDtoList, point, collectPrice);
+        return MyPayViewDto.fromEntity(itemDtoList, deliveryDtoList, funding);
     }
 
-    public MyPayViewDto viewOrder(Long memberId) {
-
+    public MyPayViewDto getMyOrderPay(Long memberId) {
         List<Order> orders = orderRepository.findAllByMemberId(memberId);
         List<ItemDto> itemDtoList = orders.stream()
-            .map(o -> ItemDto.fromEntity(o))
+            .map(ItemDto::fromEntity)
             .toList();
 
         List<Delivery> deliveries = deliveryRepository.findAllByMemberId(memberId);
         List<DeliveryDto> deliveryDtoList = deliveries.stream()
-            .map(d -> DeliveryDto.fromEntity(d))
+            .map(DeliveryDto::fromEntity)
             .toList();
 
-        int point = orders.get(0).getMember().getPoint();
-
-        return MyPayViewDto.fromEntity(itemDtoList, deliveryDtoList, point);
+        return MyPayViewDto.fromEntity(itemDtoList, deliveryDtoList, orders.get(0));
     }
 
     public CommonSuccessDto pay(PaymentDto paymentDto, Long memberId) {
