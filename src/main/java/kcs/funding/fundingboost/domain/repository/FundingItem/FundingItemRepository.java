@@ -1,12 +1,10 @@
-package kcs.funding.fundingboost.domain.repository;
+package kcs.funding.fundingboost.domain.repository.FundingItem;
 
-import kcs.funding.fundingboost.domain.entity.Funding;
+import java.util.List;
 import kcs.funding.fundingboost.domain.entity.FundingItem;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
-
-import java.util.List;
 
 public interface FundingItemRepository extends JpaRepository<FundingItem, Long> {
 

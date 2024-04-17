@@ -1,5 +1,7 @@
 package kcs.funding.fundingboost.domain.service;
 
+import java.util.List;
+import java.util.stream.IntStream;
 import kcs.funding.fundingboost.domain.dto.common.CommonSuccessDto;
 import kcs.funding.fundingboost.domain.dto.request.RegisterFundingDto;
 import kcs.funding.fundingboost.domain.dto.response.FundingRegistrationItemDto;
@@ -18,10 +20,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.stream.IntStream;
-
 @Slf4j
 @Service
 @Transactional(readOnly = true)
@@ -33,18 +31,18 @@ public class FundingService {
     private final FundingRepository fundingRepository;
     private final FundingItemRepository fundingItemRepository;
 
-    public List<FundingRegistrationItemDto> getFundingRegister(List<Long> registerFundingBringItemDto, Long memberId){
+    public List<FundingRegistrationItemDto> getFundingRegister(List<Long> registerFundingBringItemDto, Long memberId) {
 
         Funding funding = fundingRepository.findByMemberIdAndStatus(memberId, true);
 
-        if(funding != null){
+        if (funding != null) {
             throw new CommonException(ErrorCode.ALREADY_EXIST_FUNDING);
         }
 
         return IntStream.range(0, registerFundingBringItemDto.size())
                 .mapToObj(i -> FundingRegistrationItemDto.createFundingRegistrationItemDto(
                         itemRepository.findById(registerFundingBringItemDto.get(i))
-                                .orElseThrow(()-> new RuntimeException("Item not found")),
+                                .orElseThrow(() -> new RuntimeException("Item not found")),
                         (long) i + 1)).toList();
     }
 
@@ -82,10 +80,11 @@ public class FundingService {
 
         return CommonSuccessDto.fromEntity(true);
     }
-      public CommonSuccessDto terminateFunding(Long fundingId) {
-          Funding funding = fundingRepository.findById(fundingId)
-                  .orElseThrow(() -> new RuntimeException("Funding not found"));
-          funding.terminate();
-          return CommonSuccessDto.fromEntity(true);
-      }
+
+    public CommonSuccessDto terminateFunding(Long fundingId) {
+        Funding funding = fundingRepository.findById(fundingId)
+                .orElseThrow(() -> new RuntimeException("Funding not found"));
+        funding.terminate();
+        return CommonSuccessDto.fromEntity(true);
+    }
 }
