@@ -1,5 +1,6 @@
 package kcs.funding.fundingboost.domain.service;
 
+import java.util.List;
 import kcs.funding.fundingboost.domain.dto.response.DeliveryDto;
 import kcs.funding.fundingboost.domain.dto.response.ItemDto;
 import kcs.funding.fundingboost.domain.dto.response.MyPayViewDto;
@@ -7,13 +8,11 @@ import kcs.funding.fundingboost.domain.entity.Delivery;
 import kcs.funding.fundingboost.domain.entity.Funding;
 import kcs.funding.fundingboost.domain.entity.Order;
 import kcs.funding.fundingboost.domain.repository.DeliveryRepository;
-import kcs.funding.fundingboost.domain.repository.FundingItemRepository;
+import kcs.funding.fundingboost.domain.repository.FundingItem.FundingItemRepository;
 import kcs.funding.fundingboost.domain.repository.OrderRepository;
 import kcs.funding.fundingboost.domain.repository.funding.FundingRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-
-import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -24,7 +23,7 @@ public class MyPayService {
     private final DeliveryRepository deliveryRepository;
     private final OrderRepository orderRepository;
 
-    public MyPayViewDto viewFunding(Long memberId){
+    public MyPayViewDto viewFunding(Long memberId) {
         Funding funding = fundingRepository.findByMemberIdAndStatus(memberId, true);
         List<ItemDto> itemDtoList = funding.getFundingItems()
                 .stream()
@@ -55,6 +54,6 @@ public class MyPayService {
 
         int point = orders.get(0).getMember().getPoint();
 
-        return MyPayViewDto.fromEntity(itemDtoList,deliveryDtoList,point);
+        return MyPayViewDto.fromEntity(itemDtoList, deliveryDtoList, point);
     }
 }
