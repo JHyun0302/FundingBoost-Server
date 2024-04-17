@@ -7,7 +7,6 @@ import kcs.funding.fundingboost.domain.entity.Delivery;
 import kcs.funding.fundingboost.domain.entity.Funding;
 import kcs.funding.fundingboost.domain.entity.Order;
 import kcs.funding.fundingboost.domain.repository.DeliveryRepository;
-import kcs.funding.fundingboost.domain.repository.funding.FundingItemRepository;
 import kcs.funding.fundingboost.domain.repository.OrderRepository;
 import kcs.funding.fundingboost.domain.repository.funding.FundingRepository;
 import lombok.RequiredArgsConstructor;
@@ -20,13 +19,12 @@ import java.util.List;
 public class MyPayService {
 
     private final FundingRepository fundingRepository;
-    private final FundingItemRepository fundingItemRepository;
     private final DeliveryRepository deliveryRepository;
     private final OrderRepository orderRepository;
 
     public MyPayViewDto viewFunding(Long memberId){
         Funding funding = fundingRepository.findByMemberIdAndStatus(memberId, true);
-        List<ItemDto> itemDtoList = fundingItemRepository.findAllByFundingId(funding.getFundingId())
+        List<ItemDto> itemDtoList = funding.getFundingItems()
                 .stream()
                 .map(f -> ItemDto.fromEntity(f))
                 .toList();

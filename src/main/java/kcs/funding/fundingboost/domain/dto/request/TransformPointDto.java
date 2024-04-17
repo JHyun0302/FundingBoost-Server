@@ -1,4 +1,4 @@
 package kcs.funding.fundingboost.domain.dto.request;
 
-public record RegisterFundingItemDto(Long itemId) {
+public record TransformPointDto(Long fundingId) {
 }
