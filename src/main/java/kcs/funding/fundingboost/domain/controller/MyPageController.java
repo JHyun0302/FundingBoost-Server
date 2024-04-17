@@ -21,6 +21,6 @@ public class MyPageController {
     @PostMapping("/point")
     public ResponseDto<CommonSuccessDto> exchangePoint(@RequestBody TransformPointDto transformPointDto,
                                                        @RequestParam("memberId") Long memberId) {
-        return ResponseDto.ok(myPageService.exchangePoint(transformPointDto, memberId));
+        return ResponseDto.ok(myPageService.exchangePoint(transformPointDto));
     }
 }

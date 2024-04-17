@@ -8,8 +8,6 @@ import kcs.funding.fundingboost.domain.dto.request.TransformPointDto;
 import kcs.funding.fundingboost.domain.entity.Funding;
 import kcs.funding.fundingboost.domain.entity.FundingItem;
 import kcs.funding.fundingboost.domain.entity.Member;
-import kcs.funding.fundingboost.domain.repository.FundingItem.FundingItemRepository;
-import kcs.funding.fundingboost.domain.repository.MemberRepository;
 import kcs.funding.fundingboost.domain.repository.funding.FundingRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -19,19 +17,13 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class MyPageService {
 
-    private final MemberRepository memberRepository;
-
     private final FundingRepository fundingRepository;
 
-    private final FundingItemRepository fundingItemRepository;
-
     @Transactional
-    public CommonSuccessDto exchangePoint(TransformPointDto transformPointDto, Long memberId) {
-        Member member = memberRepository.findById(memberId).orElseThrow();
-
+    public CommonSuccessDto exchangePoint(TransformPointDto transformPointDto) {
         Funding funding = fundingRepository.findById(transformPointDto.fundingId()).orElseThrow();
-        List<FundingItem> fundingItems = fundingItemRepository.findFundingItemsByFundingId(
-                transformPointDto.fundingId());
+        Member member = funding.getMember();
+        List<FundingItem> fundingItems = funding.getFundingItems();
 
         List<FundingItem> sortedFundingItems = fundingItems.stream()
                 .sorted(Comparator.comparingInt(FundingItem::getItemSequence))
