@@ -12,6 +12,4 @@ public interface FundingRepository extends JpaRepository<Funding, Long>, Funding
             " where m.memberId = :memberId and " +
             " f.fundingStatus = :status")
     Funding findByMemberIdAndStatus(@Param("memberId") Long memberId, @Param("status") boolean status);
-
-    Funding findByMemberAndFundingStatusIsTrue(Member member);
 }
