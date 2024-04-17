@@ -6,7 +6,7 @@ import kcs.funding.fundingboost.domain.dto.request.FriendPayProcessDto;
 import kcs.funding.fundingboost.domain.dto.request.PaymentDto;
 import kcs.funding.fundingboost.domain.dto.response.FriendFundingPayingDto;
 import kcs.funding.fundingboost.domain.dto.response.MyPayViewDto;
-import kcs.funding.fundingboost.domain.service.PayService;
+import kcs.funding.fundingboost.domain.service.pay.PayService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -42,7 +42,7 @@ public class PayController {
     public ResponseDto<FriendFundingPayingDto> friendPayView(
         @RequestParam("memberId") Long memberId,
         @PathVariable("fundingId") Long fundingId) {
-        return ResponseDto.ok(payService.findFriendFundingPay(fundingId, memberId));
+        return ResponseDto.ok(payService.getFriendFundingPay(fundingId, memberId));
     }
 
     @PostMapping("/friends/{fundingId}")
@@ -51,6 +51,6 @@ public class PayController {
         @PathVariable("fundingId") Long fundingId,
         @RequestBody FriendPayProcessDto friendPayProcessDto) {
         return ResponseDto.ok(
-            payService.pay(memberId, fundingId, friendPayProcessDto));
+            payService.payForFriend(memberId, fundingId, friendPayProcessDto));
     }
 }

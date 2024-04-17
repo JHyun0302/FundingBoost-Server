@@ -1,4 +1,4 @@
-package kcs.funding.fundingboost.domain.service;
+package kcs.funding.fundingboost.domain.service.pay;
 
 import java.util.List;
 import kcs.funding.fundingboost.domain.dto.common.CommonSuccessDto;
@@ -18,7 +18,6 @@ import kcs.funding.fundingboost.domain.repository.OrderRepository;
 import kcs.funding.fundingboost.domain.repository.funding.FundingRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
@@ -60,19 +59,17 @@ public class PayService {
 
     public CommonSuccessDto pay(PaymentDto paymentDto, Long memberId) {
         processMyPayment(memberId, paymentDto.usingPoint());
-
         return CommonSuccessDto.fromEntity(true);
     }
 
-    public FriendFundingPayingDto findFriendFundingPay(Long fundingId, Long memberId) {
+    public FriendFundingPayingDto getFriendFundingPay(Long fundingId, Long memberId) {
         Member member = memberRepository.findById(memberId).orElseThrow();
         Funding friendFunding = fundingRepository.findById(fundingId).orElseThrow();
 
         return FriendFundingPayingDto.fromEntity(friendFunding, member.getPoint());
     }
 
-    @Transactional
-    public CommonSuccessDto pay(Long memberId, Long fundingId,
+    public CommonSuccessDto payForFriend(Long memberId, Long fundingId,
         FriendPayProcessDto friendPayProcessDto) {
         processFriendPayment(memberId, fundingId, friendPayProcessDto.myPoint());
         return CommonSuccessDto.fromEntity(true);
