@@ -5,15 +5,8 @@ import jakarta.persistence.EntityManager;
 import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.List;
-import kcs.funding.fundingboost.domain.entity.Delivery;
-import kcs.funding.fundingboost.domain.entity.Funding;
-import kcs.funding.fundingboost.domain.entity.FundingItem;
-import kcs.funding.fundingboost.domain.entity.GiftHubItem;
-import kcs.funding.fundingboost.domain.entity.Item;
-import kcs.funding.fundingboost.domain.entity.Member;
-import kcs.funding.fundingboost.domain.entity.Order;
-import kcs.funding.fundingboost.domain.entity.Relationship;
-import kcs.funding.fundingboost.domain.entity.Tag;
+
+import kcs.funding.fundingboost.domain.entity.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
@@ -34,6 +27,7 @@ public class InitH2DB {
         initService.initOrders(members, items, deliveries);
         initService.initFunding(members, items);
         initService.initRelationships(members);
+        initService.initContributor(members,items);
     }
 
     @Component
@@ -155,6 +149,30 @@ public class InitH2DB {
                 em.persist(member);
             }
             return memberInfos;
+        }
+
+        public void initContributor(List<Member> members, List<Item> items){
+
+            Member member = members.get(0);
+            Member member1 = members.get(4);
+            Member member2 = members.get(5);
+
+            Funding funding = Funding.createFunding(member,"줘",Tag.BIRTHDAY,112000,LocalDateTime.now().plusDays(14));
+            em.persist(funding);
+
+            Item item1 = items.get(0);
+            Item item2 = items.get(1);
+
+
+            FundingItem fundingItem1 = FundingItem.createFundingItem(funding,item1,1);
+            FundingItem fundingItem2 = FundingItem.createFundingItem(funding,item2,2);
+            em.persist(fundingItem1);
+            em.persist(fundingItem2);
+
+            Contributor contributor1 = Contributor.createContributor(10000,member1,funding);
+            Contributor contributor2 = Contributor.createContributor(20000,member2,funding);
+            em.persist(contributor1);
+            em.persist(contributor2);
         }
 
         public List<Item> initBeauty() {

@@ -8,7 +8,6 @@ import kcs.funding.fundingboost.domain.entity.Delivery;
 import kcs.funding.fundingboost.domain.entity.Funding;
 import kcs.funding.fundingboost.domain.entity.Order;
 import kcs.funding.fundingboost.domain.repository.DeliveryRepository;
-import kcs.funding.fundingboost.domain.repository.FundingItem.FundingItemRepository;
 import kcs.funding.fundingboost.domain.repository.OrderRepository;
 import kcs.funding.fundingboost.domain.repository.funding.FundingRepository;
 import lombok.RequiredArgsConstructor;
@@ -19,7 +18,6 @@ import org.springframework.stereotype.Service;
 public class MyPayService {
 
     private final FundingRepository fundingRepository;
-    private final FundingItemRepository fundingItemRepository;
     private final DeliveryRepository deliveryRepository;
     private final OrderRepository orderRepository;
 

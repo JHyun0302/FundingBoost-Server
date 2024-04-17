@@ -4,7 +4,11 @@ import java.util.List;
 import java.util.stream.IntStream;
 import kcs.funding.fundingboost.domain.dto.common.CommonSuccessDto;
 import kcs.funding.fundingboost.domain.dto.request.RegisterFundingDto;
+import kcs.funding.fundingboost.domain.dto.response.ContributorDto;
+import kcs.funding.fundingboost.domain.dto.response.FriendFundingDetailDto;
+import kcs.funding.fundingboost.domain.dto.response.FriendFundingItemDto;
 import kcs.funding.fundingboost.domain.dto.response.FundingRegistrationItemDto;
+import kcs.funding.fundingboost.domain.repository.ContributorRepository;
 import kcs.funding.fundingboost.domain.entity.Funding;
 import kcs.funding.fundingboost.domain.entity.FundingItem;
 import kcs.funding.fundingboost.domain.entity.Item;
@@ -30,6 +34,7 @@ public class FundingService {
     private final MemberRepository memberRepository;
     private final FundingRepository fundingRepository;
     private final FundingItemRepository fundingItemRepository;
+    private final ContributorRepository contributorRepository;
 
     public List<FundingRegistrationItemDto> getFundingRegister(List<Long> registerFundingBringItemDto, Long memberId) {
 
@@ -86,5 +91,28 @@ public class FundingService {
                 .orElseThrow(() -> new RuntimeException("Funding not found"));
         funding.terminate();
         return CommonSuccessDto.fromEntity(true);
+    }
+
+    public FriendFundingDetailDto viewFreindsFundingDetail(Long fundingId, Long memberId) {
+
+        List<FundingItem> fundingItems = fundingItemRepository.findAllByFundingId(fundingId);
+        List<FriendFundingItemDto> friendFundingItemList = fundingItems.stream().map(FriendFundingItemDto::fromEntity).toList();
+
+        Funding funding = fundingItems.get(0).getFunding();
+
+        List<ContributorDto> contributorList = contributorRepository.findByFundingId(fundingId)
+                .stream()
+                .map(ContributorDto::fromEntity)
+                .toList();
+
+        int contributedPercent = 0;
+        if (funding.getTotalPrice() > 0) {
+            contributedPercent = funding.getCollectPrice() / funding.getTotalPrice() * 100;
+        } else {
+            throw new RuntimeException("펀딩에 담긴 상품이 없거나, 상품의 가격이 이상합니다.");
+        }
+
+        return FriendFundingDetailDto.fromEntity(friendFundingItemList, funding, contributorList, contributedPercent);
+
     }
 }
