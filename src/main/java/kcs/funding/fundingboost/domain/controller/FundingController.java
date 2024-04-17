@@ -6,6 +6,7 @@ import kcs.funding.fundingboost.domain.dto.request.RegisterFundingDto;
 import kcs.funding.fundingboost.domain.dto.response.FundingRegistrationItemDto;
 import kcs.funding.fundingboost.domain.service.FundingService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -20,9 +21,9 @@ public class FundingController {
     @GetMapping("")
     public ResponseDto<List<FundingRegistrationItemDto>> viewFundingRegistration(
             @RequestParam(name = "memberId") Long memberId,
-            @RequestBody List<Long> itemList
+            @RequestParam(name = "ItemList") List<Long> registerFundingBringItemDto
     ){
-        return ResponseDto.ok(fundingService.getFundingRegister(itemList));
+        return ResponseDto.ok(fundingService.getFundingRegister(registerFundingBringItemDto, memberId));
     }
 
     @PostMapping("")
@@ -30,9 +31,9 @@ public class FundingController {
             @RequestParam(name = "memberId") Long memberId,
             @RequestBody RegisterFundingDto registerFundingDto
     ) {
-
         return ResponseDto.created(fundingService.putFundingAndFundingItem(memberId, registerFundingDto));
     }
+    @Transactional
     @PostMapping("/close/{fundingId}")
     public CommonSuccessDto closeFunding(@PathVariable("fundingId") Long fundingId) {
         return fundingService.terminateFunding(fundingId);
