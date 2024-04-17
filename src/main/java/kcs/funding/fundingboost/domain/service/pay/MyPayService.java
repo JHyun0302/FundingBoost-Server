@@ -1,11 +1,8 @@
 package kcs.funding.fundingboost.domain.service.pay;
 
 import java.util.List;
-<<<<<<< HEAD:src/main/java/kcs/funding/fundingboost/domain/service/pay/MyPayService.java
 import kcs.funding.fundingboost.domain.dto.common.CommonSuccessDto;
 import kcs.funding.fundingboost.domain.dto.request.PaymentDto;
-=======
->>>>>>> dev:src/main/java/kcs/funding/fundingboost/domain/service/MyPayService.java
 import kcs.funding.fundingboost.domain.dto.response.DeliveryDto;
 import kcs.funding.fundingboost.domain.dto.response.ItemDto;
 import kcs.funding.fundingboost.domain.dto.response.MyPayViewDto;
