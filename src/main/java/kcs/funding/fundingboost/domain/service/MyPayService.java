@@ -1,5 +1,7 @@
 package kcs.funding.fundingboost.domain.service;
 
+import kcs.funding.fundingboost.domain.dto.common.CommonSuccessDto;
+import kcs.funding.fundingboost.domain.dto.request.PaymentDto;
 import kcs.funding.fundingboost.domain.dto.response.DeliveryDto;
 import kcs.funding.fundingboost.domain.dto.response.ItemDto;
 import kcs.funding.fundingboost.domain.dto.response.MyPayViewDto;
@@ -23,6 +25,7 @@ public class MyPayService {
     private final FundingItemRepository fundingItemRepository;
     private final DeliveryRepository deliveryRepository;
     private final OrderRepository orderRepository;
+    private final PaymentService paymentService;
 
     public MyPayViewDto viewFunding(Long memberId){
         Funding funding = fundingRepository.findByMemberIdAndStatus(memberId, true);
@@ -56,5 +59,15 @@ public class MyPayService {
         int point = orders.get(0).getMember().getPoint();
 
         return MyPayViewDto.fromEntity(itemDtoList,deliveryDtoList,point);
+    }
+
+    public CommonSuccessDto pay(PaymentDto paymentDto, Long memberId) {
+        Delivery delivery = deliveryRepository
+            .findById(paymentDto.deliveryId())
+            .orElseThrow(()->new RuntimeException("Delivery not found"));
+        delivery.successDelivery();
+        paymentService.processMyPayment(memberId, paymentDto.usingPoint());
+
+        return CommonSuccessDto.fromEntity(true);
     }
 }

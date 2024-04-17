@@ -1,7 +1,6 @@
 package kcs.funding.fundingboost.domain.service;
 
 import kcs.funding.fundingboost.domain.dto.common.CommonSuccessDto;
-import kcs.funding.fundingboost.domain.dto.global.ResponseDto;
 import kcs.funding.fundingboost.domain.dto.request.FriendPayProcessDto;
 import kcs.funding.fundingboost.domain.dto.response.FriendFundingPayingDto;
 import kcs.funding.fundingboost.domain.entity.Funding;
@@ -19,6 +18,7 @@ public class FriendPayService {
 
     private final FundingRepository fundingRepository;
     private final MemberRepository memberRepository;
+    private final PaymentService paymentService;
 
     public FriendFundingPayingDto findFriendFundingPay(Long fundingId, Long memberId) {
         Member member = memberRepository.findById(memberId).orElseThrow();
@@ -28,22 +28,8 @@ public class FriendPayService {
     }
 
     @Transactional
-    public CommonSuccessDto payFund(Long memberId, Long fundingId, FriendPayProcessDto friendPayProcessDto) {
-        Member member = memberRepository.findById(memberId).orElseThrow();
-        if (member.getPoint() >= friendPayProcessDto.myPoint()) {
-            member.minusPoint(friendPayProcessDto.myPoint());
-        } else {
-            throw new RuntimeException("포인트가 부족합니다");
-        }
-
-        Funding friendFunding = fundingRepository.findById(fundingId).orElseThrow();
-        if (friendFunding.getCollectPrice() + friendPayProcessDto.myPoint()
-            <= friendFunding.getTotalPrice()) {
-            friendFunding.fund(friendPayProcessDto.myPoint());
-        } else {
-            throw new RuntimeException("설정된 펀딩액 이상을 후원할 수 없습니다");
-        }
-
+    public CommonSuccessDto pay(Long memberId, Long fundingId, FriendPayProcessDto friendPayProcessDto) {
+        paymentService.processFriendPayment(memberId, fundingId, friendPayProcessDto.myPoint());
         return CommonSuccessDto.fromEntity(true);
     }
 }
