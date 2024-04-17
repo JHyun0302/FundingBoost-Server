@@ -55,21 +55,13 @@ public class MyPayService {
         return MyPayViewDto.fromEntity(itemDtoList, deliveryDtoList, orders.get(0));
     }
 
-    public CommonSuccessDto payForme(PaymentDto paymentDto, Long memberId) {
-        processMyPayment(memberId, paymentDto.usingPoint());
-        return CommonSuccessDto.fromEntity(true);
-    }
-
-    public void processMyPayment(Long memberId, int price) {
+    public CommonSuccessDto pay(PaymentDto paymentDto, Long memberId) {
         Member findMember = memberRepository.findById(memberId).orElseThrow();
-        calculatePoint(price, findMember);
-    }
-
-    private static void calculatePoint(int price, Member findMember) {
-        if (findMember.getPoint() - price >= 0) {
-            findMember.minusPoint(price);
+        if (findMember.getPoint() - paymentDto.usingPoint() >= 0) {
+            findMember.minusPoint(paymentDto.usingPoint());
         } else {
-            throw new RuntimeException("Point가 음수가 돼 버렸네용~");
+            throw new RuntimeException("point가 부족합니다");
         }
+        return CommonSuccessDto.fromEntity(true);
     }
 }

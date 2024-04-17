@@ -24,29 +24,20 @@ public class FriendPayService {
         return FriendFundingPayingDto.fromEntity(friendFunding, member.getPoint());
     }
 
-    public CommonSuccessDto payForFriend(Long memberId, Long fundingId,
+    public CommonSuccessDto fund(Long memberId, Long fundingId,
         FriendPayProcessDto friendPayProcessDto) {
-        processFriendPayment(memberId, fundingId, friendPayProcessDto.myPoint());
-        return CommonSuccessDto.fromEntity(true);
-    }
-
-    public void processFriendPayment(Long memberId, Long fundingId, int point) {
         Member findMember = memberRepository.findById(memberId).orElseThrow();
-        calculatePoint(point, findMember);
-
+        int point = friendPayProcessDto.myPoint();
+        if (findMember.getPoint() - point >= 0) {
+            findMember.minusPoint(point);
+        } else {
+            throw new RuntimeException("point가 부족합니다");
+        }
         Funding friendFunding = fundingRepository.findById(fundingId).orElseThrow();
         if (friendFunding.getCollectPrice() + point <= friendFunding.getTotalPrice()) {
             friendFunding.fund(point);
         } else {
             throw new RuntimeException("설정된 펀딩액 이상을 후원할 수 없습니다");
-        }
-    }
-
-    private static void calculatePoint(int price, Member findMember) {
-        if (findMember.getPoint() - price >= 0) {
-            findMember.minusPoint(price);
-        } else {
-            throw new RuntimeException("Point가 음수가 돼 버렸네용~");
-        }
+        }        return CommonSuccessDto.fromEntity(true);
     }
 }
