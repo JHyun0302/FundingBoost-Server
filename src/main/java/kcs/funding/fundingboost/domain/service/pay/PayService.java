@@ -1,20 +1,13 @@
 package kcs.funding.fundingboost.domain.service.pay;
 
-import java.util.List;
 import kcs.funding.fundingboost.domain.dto.common.CommonSuccessDto;
 import kcs.funding.fundingboost.domain.dto.request.FriendPayProcessDto;
 import kcs.funding.fundingboost.domain.dto.request.PaymentDto;
-import kcs.funding.fundingboost.domain.dto.response.DeliveryDto;
 import kcs.funding.fundingboost.domain.dto.response.FriendFundingPayingDto;
-import kcs.funding.fundingboost.domain.dto.response.ItemDto;
 import kcs.funding.fundingboost.domain.dto.response.MyPayViewDto;
-import kcs.funding.fundingboost.domain.entity.Delivery;
 import kcs.funding.fundingboost.domain.entity.Funding;
 import kcs.funding.fundingboost.domain.entity.Member;
-import kcs.funding.fundingboost.domain.entity.Order;
-import kcs.funding.fundingboost.domain.repository.DeliveryRepository;
 import kcs.funding.fundingboost.domain.repository.MemberRepository;
-import kcs.funding.fundingboost.domain.repository.OrderRepository;
 import kcs.funding.fundingboost.domain.repository.funding.FundingRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -23,50 +16,28 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class PayService {
 
+    private final MyPayService myPayService;
+    private final FriendPayService friendPayService;
+
     private final FundingRepository fundingRepository;
-    private final DeliveryRepository deliveryRepository;
-    private final OrderRepository orderRepository;
     private final MemberRepository memberRepository;
 
+
     public MyPayViewDto getMyFundingPay(Long memberId) {
-        Funding funding = fundingRepository.findByMemberIdAndStatus(memberId, true);
-        List<ItemDto> itemDtoList = funding.getFundingItems()
-            .stream()
-            .map(ItemDto::fromEntity)
-            .toList();
-
-        List<DeliveryDto> deliveryDtoList = deliveryRepository.findAllByMemberId(memberId)
-            .stream()
-            .map(DeliveryDto::fromEntity)
-            .toList();
-
-        return MyPayViewDto.fromEntity(itemDtoList, deliveryDtoList, funding);
+        return myPayService.fundingPay(memberId);
     }
 
     public MyPayViewDto getMyOrderPay(Long memberId) {
-        List<Order> orders = orderRepository.findAllByMemberId(memberId);
-        List<ItemDto> itemDtoList = orders.stream()
-            .map(ItemDto::fromEntity)
-            .toList();
-
-        List<Delivery> deliveries = deliveryRepository.findAllByMemberId(memberId);
-        List<DeliveryDto> deliveryDtoList = deliveries.stream()
-            .map(DeliveryDto::fromEntity)
-            .toList();
-
-        return MyPayViewDto.fromEntity(itemDtoList, deliveryDtoList, orders.get(0));
-    }
-
-    public CommonSuccessDto pay(PaymentDto paymentDto, Long memberId) {
-        processMyPayment(memberId, paymentDto.usingPoint());
-        return CommonSuccessDto.fromEntity(true);
+        return myPayService.orderPay(memberId);
     }
 
     public FriendFundingPayingDto getFriendFundingPay(Long fundingId, Long memberId) {
-        Member member = memberRepository.findById(memberId).orElseThrow();
-        Funding friendFunding = fundingRepository.findById(fundingId).orElseThrow();
+        return friendPayService.getFriendFundingPay(fundingId, memberId);
+    }
 
-        return FriendFundingPayingDto.fromEntity(friendFunding, member.getPoint());
+    public CommonSuccessDto payForme(PaymentDto paymentDto, Long memberId) {
+        processMyPayment(memberId, paymentDto.usingPoint());
+        return CommonSuccessDto.fromEntity(true);
     }
 
     public CommonSuccessDto payForFriend(Long memberId, Long fundingId,
