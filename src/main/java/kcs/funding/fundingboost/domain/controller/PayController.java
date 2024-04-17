@@ -6,8 +6,7 @@ import kcs.funding.fundingboost.domain.dto.request.FriendPayProcessDto;
 import kcs.funding.fundingboost.domain.dto.request.PaymentDto;
 import kcs.funding.fundingboost.domain.dto.response.FriendFundingPayingDto;
 import kcs.funding.fundingboost.domain.dto.response.MyPayViewDto;
-import kcs.funding.fundingboost.domain.service.FriendPayService;
-import kcs.funding.fundingboost.domain.service.MyPayService;
+import kcs.funding.fundingboost.domain.service.PayService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -22,29 +21,28 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/api/v1/pay")
 public class PayController {
 
-    private final FriendPayService friendPayService;
-    private final MyPayService myPayService;
+    private final PayService payService;
 
     @GetMapping("/order")
     public ResponseDto<MyPayViewDto> myOrderPayView(@RequestParam(name = "memberId") Long memberId) {
-        return ResponseDto.ok(myPayService.viewOrder(memberId));
+        return ResponseDto.ok(payService.viewOrder(memberId));
     }
 
     @GetMapping("/funding")
     public ResponseDto<MyPayViewDto> myFundingPayView( @RequestParam(name = "memberId") Long memberId){
-        return ResponseDto.ok(myPayService.viewFunding(memberId));
+        return ResponseDto.ok(payService.viewFunding(memberId));
     }
 
     @PostMapping
     public ResponseDto<CommonSuccessDto> processMyPayment( @RequestBody PaymentDto paymentDto, @RequestParam("memberId") Long memberId){
-        return ResponseDto.ok(myPayService.pay(paymentDto, memberId));
+        return ResponseDto.ok(payService.pay(paymentDto, memberId));
     }
 
     @GetMapping("/friends/{fundingId}")
     public ResponseDto<FriendFundingPayingDto> friendPayView(
         @RequestParam("memberId") Long memberId,
         @PathVariable("fundingId") Long fundingId) {
-        return ResponseDto.ok(friendPayService.findFriendFundingPay(fundingId, memberId));
+        return ResponseDto.ok(payService.findFriendFundingPay(fundingId, memberId));
     }
 
     @PostMapping("/friends/{fundingId}")
@@ -53,6 +51,6 @@ public class PayController {
         @PathVariable("fundingId") Long fundingId,
         @RequestBody FriendPayProcessDto friendPayProcessDto) {
         return ResponseDto.ok(
-            friendPayService.pay(memberId, fundingId, friendPayProcessDto));
+            payService.pay(memberId, fundingId, friendPayProcessDto));
     }
 }
