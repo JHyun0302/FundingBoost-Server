@@ -29,6 +29,9 @@ public class Member extends BaseTimeEntity {
     @Column(name = "nick_name", length = 20)
     private String nickName;
 
+    @Column(length = 100)
+    private String password;
+
     @NotNull
     @Column(length = 50)
     private String email;
@@ -41,25 +44,38 @@ public class Member extends BaseTimeEntity {
     @NotNull
     private int point;
 
-    public static Member createMember(String nickName, String email, String profileImgUrl) {
+    private String refreshToken;
+
+    @Column(length = 100)
+    private String kakaoUuid;
+
+    public static Member createMember(String nickName, String email, String password, String profileImgUrl,
+                                      String refreshToken, String kakaoUuid) {
         Member member = new Member();
         member.nickName = nickName;
         member.email = email;
+        member.password = password;
         member.profileImgUrl = profileImgUrl;
-        return member;
-    }
-  
-  //init(포인트 포함)
-      public static Member createMemberWithPoint(String nickName, String email, String profileImgUrl, int point) {
-        Member member = new Member();
-        member.nickName = nickName;
-        member.email = email;
-        member.profileImgUrl = profileImgUrl;
-        member.point = point;
+        member.refreshToken = refreshToken;
+        member.kakaoUuid = kakaoUuid;
         return member;
     }
 
-    public void minusPoint(int point) {
-        this.point -= point;
+    //init(포인트 포함)
+    public static Member createMemberWithPoint(String nickName, String email, String password, String profileImgUrl,
+                                               int point, String refreshToken, String kakaoUuid) {
+        Member member = new Member();
+        member.nickName = nickName;
+        member.email = email;
+        member.password = password;
+        member.profileImgUrl = profileImgUrl;
+        member.point = point;
+        member.refreshToken = refreshToken;
+        member.kakaoUuid = kakaoUuid;
+        return member;
+    }
+
+    public void minusPoint(int usingPoint) {
+        point -= usingPoint;
     }
 }
