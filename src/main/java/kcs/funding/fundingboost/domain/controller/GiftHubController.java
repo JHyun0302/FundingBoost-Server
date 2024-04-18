@@ -20,17 +20,23 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 @RestController
 @Slf4j
-@RequestMapping("/api/v1")
-public class GiftHubItemController {
+@RequestMapping("/api/v1/gifthub")
+public class GiftHubController {
 
     private final GiftHubItemService giftHubItemService;
 
-    @GetMapping("/gifthub")
+    /**
+     * Gifthub 페이지 조회
+     */
+    @GetMapping("")
     public ResponseDto<List<GiftHubDto>> giftHubPage(@RequestParam(name = "memberId") Long memberId) {
         return ResponseDto.ok(giftHubItemService.getGiftHub(memberId));
     }
 
-    @PostMapping("/cart/{itemId}")
+    /**
+     * Gifthub에 담기
+     */
+    @PostMapping("/{itemId}")
     public ResponseDto<CommonSuccessDto> addGiftHub(@PathVariable(name = "itemId") Long itemId,
                                                     @RequestBody AddGiftHubDto addGiftHubDto) {
         return ResponseDto.created(giftHubItemService.addGiftHub(itemId, addGiftHubDto));

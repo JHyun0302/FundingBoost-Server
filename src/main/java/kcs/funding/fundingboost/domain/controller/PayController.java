@@ -25,22 +25,34 @@ public class PayController {
     private final MyPayService myPayService;
     private final FriendPayService friendPayService;
 
+    /**
+     * 마이 페이 주문 페이지 조회
+     */
     @GetMapping("/order")
     public ResponseDto<MyPayViewDto> myOrderPayView(@RequestParam(name = "memberId") Long memberId) {
         return ResponseDto.ok(myPayService.orderPay(memberId));
     }
 
+    /**
+     * 마이 페이 펀딩 페이지 조회
+     */
     @GetMapping("/funding")
     public ResponseDto<MyPayViewDto> myFundingPayView(@RequestParam(name = "memberId") Long memberId) {
         return ResponseDto.ok(myPayService.fundingPay(memberId));
     }
 
-    @PostMapping("/")
+    /**
+     * 결제하기
+     */
+    @PostMapping("")
     public ResponseDto<CommonSuccessDto> payMyOrder(@RequestBody PaymentDto paymentDto,
                                                     @RequestParam("memberId") Long memberId) {
         return ResponseDto.ok(myPayService.pay(paymentDto, memberId));
     }
 
+    /**
+     * 친구 펀딩 결제 페이지 조회
+     */
     @GetMapping("/friends/{fundingId}")
     public ResponseDto<FriendFundingPayingDto> friendPayView(
             @RequestParam("memberId") Long memberId,
@@ -48,6 +60,9 @@ public class PayController {
         return ResponseDto.ok(friendPayService.getFriendFundingPay(fundingId, memberId));
     }
 
+    /**
+     * 친구 펀딩 결제하기
+     */
     @PostMapping("/friends/{fundingId}")
     public ResponseDto<CommonSuccessDto> fundFriend(
             @RequestParam("memberId") Long memberId,

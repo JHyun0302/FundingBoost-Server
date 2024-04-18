@@ -8,7 +8,6 @@ import kcs.funding.fundingboost.domain.dto.response.FriendFundingDetailDto;
 import kcs.funding.fundingboost.domain.dto.response.FundingRegistrationItemDto;
 import kcs.funding.fundingboost.domain.service.FundingService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -24,6 +23,9 @@ public class FundingController {
 
     private final FundingService fundingService;
 
+    /**
+     * 펀딩 등록 페이지 조회
+     */
     @GetMapping("")
     public ResponseDto<List<FundingRegistrationItemDto>> viewFundingRegistration(
             @RequestParam(name = "memberId") Long memberId,
@@ -32,6 +34,9 @@ public class FundingController {
         return ResponseDto.ok(fundingService.getFundingRegister(registerFundingBringItemDto, memberId));
     }
 
+    /**
+     * 펀딩 등록하기
+     */
     @PostMapping("")
     public ResponseDto<CommonSuccessDto> registerFunding(
             @RequestParam(name = "memberId") Long memberId,
@@ -41,12 +46,17 @@ public class FundingController {
         return ResponseDto.created(fundingService.putFundingAndFundingItem(memberId, registerFundingDto));
     }
 
-    @Transactional
+    /**
+     * 펀딩 종료하기
+     */
     @PostMapping("/close/{fundingId}")
     public CommonSuccessDto closeFunding(@PathVariable("fundingId") Long fundingId) {
         return fundingService.terminateFunding(fundingId);
     }
 
+    /**
+     * 친구 펀딩 디테일 페이지 조회
+     */
     @GetMapping("/friends/{fundingId}")
     public ResponseDto<FriendFundingDetailDto> viewFreindsFundingDetail(@PathVariable("fundingId") Long fundingId,
                                                                         @RequestParam(name = "memberId") Long memberId) {

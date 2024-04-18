@@ -17,16 +17,22 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 @RestController
 @Slf4j
-@RequestMapping("/api/v1")
+@RequestMapping("/api/v1/items")
 public class ItemController {
 
     private final ItemService itemService;
 
-    @GetMapping("/shop")
+    /**
+     * 쇼핑 페이지 조회
+     */
+    @GetMapping("")
     public ResponseDto<List<ShopDto>> ShoppingList() {
         return ResponseDto.ok(itemService.getItems());
     }
 
+    /**
+     * 쇼핑 상세 페이지 조회
+     */
     @GetMapping("/items/{itemId}")
     public ResponseDto<ItemDetailDto> showItemDetail(@RequestParam(name = "memberId") Long memberId,
                                                      @PathVariable(name = "itemId") Long itemId) {
