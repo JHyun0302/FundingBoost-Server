@@ -115,6 +115,5 @@ public class FundingService {
         }
 
         return FriendFundingDetailDto.fromEntity(friendFundingItemList, funding, contributorList, contributedPercent);
-
     }
 }
