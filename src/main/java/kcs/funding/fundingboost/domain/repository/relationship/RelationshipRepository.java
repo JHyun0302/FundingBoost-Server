@@ -6,7 +6,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
-public interface RelationshipRepositoryRepository extends JpaRepository<Relationship, Long>,
+public interface RelationshipRepository extends JpaRepository<Relationship, Long>,
         RelationshipRepositoryCustom {
 
     @Query("select r from Relationship r"
