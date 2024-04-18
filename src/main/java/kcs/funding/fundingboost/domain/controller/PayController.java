@@ -35,7 +35,7 @@ public class PayController {
         return ResponseDto.ok(myPayService.fundingPay(memberId));
     }
 
-    @PostMapping
+    @PostMapping("/")
     public ResponseDto<CommonSuccessDto> payMyOrder( @RequestBody PaymentDto paymentDto, @RequestParam("memberId") Long memberId){
         return ResponseDto.ok(myPayService.pay(paymentDto, memberId));
     }
