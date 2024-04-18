@@ -9,8 +9,8 @@ public record HomeMyFundingItemDto(String itemImageUrl,
 
     public static HomeMyFundingItemDto fromEntity(FundingItem fundingItem, int itemPercent) {
         return HomeMyFundingItemDto.builder()
-            .itemImageUrl(fundingItem.getItem().getItemImageUrl())
-            .itemPercent(itemPercent)
-            .build();
+                .itemImageUrl(fundingItem.getItem().getItemImageUrl())
+                .itemPercent(itemPercent)
+                .build();
     }
 }

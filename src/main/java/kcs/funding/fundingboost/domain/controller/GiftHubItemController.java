@@ -2,7 +2,6 @@ package kcs.funding.fundingboost.domain.controller;
 
 
 import java.util.List;
-
 import kcs.funding.fundingboost.domain.dto.common.CommonSuccessDto;
 import kcs.funding.fundingboost.domain.dto.global.ResponseDto;
 import kcs.funding.fundingboost.domain.dto.request.AddGiftHubDto;

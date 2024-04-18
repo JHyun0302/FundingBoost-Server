@@ -19,4 +19,4 @@ public record HomeItemDto(Long itemId,
                 .brandName(item.getBrandName())
                 .build();
     }
-                      }
+}

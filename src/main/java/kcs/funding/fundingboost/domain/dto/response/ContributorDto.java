@@ -6,7 +6,7 @@ import lombok.Builder;
 @Builder
 public record ContributorDto(String contributorName, String contributorProfileImgUrl) {
 
-    public static ContributorDto fromEntity(Contributor contributor){
+    public static ContributorDto fromEntity(Contributor contributor) {
         return ContributorDto.builder()
                 .contributorName(contributor.getMember().getNickName())
                 .contributorProfileImgUrl(contributor.getMember().getProfileImgUrl())

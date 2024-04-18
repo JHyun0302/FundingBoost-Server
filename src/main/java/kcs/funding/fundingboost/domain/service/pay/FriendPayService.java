@@ -1,7 +1,6 @@
-package kcs.funding.fundingboost.domain.service;
+package kcs.funding.fundingboost.domain.service.pay;
 
 import kcs.funding.fundingboost.domain.dto.common.CommonSuccessDto;
-import kcs.funding.fundingboost.domain.dto.global.ResponseDto;
 import kcs.funding.fundingboost.domain.dto.request.FriendPayProcessDto;
 import kcs.funding.fundingboost.domain.dto.response.FriendFundingPayingDto;
 import kcs.funding.fundingboost.domain.entity.Funding;
@@ -13,14 +12,14 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
-@Transactional(readOnly = true)
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class FriendPayService {
 
-    private final FundingRepository fundingRepository;
     private final MemberRepository memberRepository;
+    private final FundingRepository fundingRepository;
 
-    public FriendFundingPayingDto findFriendFundingPay(Long fundingId, Long memberId) {
+    public FriendFundingPayingDto getFriendFundingPay(Long fundingId, Long memberId) {
         Member member = memberRepository.findById(memberId).orElseThrow();
         Funding friendFunding = fundingRepository.findById(fundingId).orElseThrow();
 
@@ -28,22 +27,21 @@ public class FriendPayService {
     }
 
     @Transactional
-    public CommonSuccessDto payFund(Long memberId, Long fundingId, FriendPayProcessDto friendPayProcessDto) {
-        Member member = memberRepository.findById(memberId).orElseThrow();
-        if (member.getPoint() >= friendPayProcessDto.myPoint()) {
-            member.minusPoint(friendPayProcessDto.myPoint());
+    public CommonSuccessDto fund(Long memberId, Long fundingId,
+                                 FriendPayProcessDto friendPayProcessDto) {
+        Member findMember = memberRepository.findById(memberId).orElseThrow();
+        int point = friendPayProcessDto.myPoint();
+        if (findMember.getPoint() - point >= 0) {
+            findMember.minusPoint(point);
         } else {
-            throw new RuntimeException("포인트가 부족합니다");
+            throw new RuntimeException("point가 부족합니다");
         }
-
         Funding friendFunding = fundingRepository.findById(fundingId).orElseThrow();
-        if (friendFunding.getCollectPrice() + friendPayProcessDto.myPoint()
-            <= friendFunding.getTotalPrice()) {
-            friendFunding.fund(friendPayProcessDto.myPoint());
+        if (friendFunding.getCollectPrice() + point <= friendFunding.getTotalPrice()) {
+            friendFunding.fund(point);
         } else {
             throw new RuntimeException("설정된 펀딩액 이상을 후원할 수 없습니다");
         }
-
         return CommonSuccessDto.fromEntity(true);
     }
 }
