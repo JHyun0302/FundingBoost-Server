@@ -63,7 +63,7 @@ public class MyPageService {
                 .orElseThrow(() -> new CommonException(ErrorCode.NOT_FOUND_USER));
         Funding funding = fundingRepository.findByMemberIdAndStatus(member.getMemberId(), true);
         MyPageMemberDto myPageMemberDto = MyPageMemberDto.fromEntity(member);
-        if(funding == null){
+        if (funding == null) {
             return MyFundingStatusDto.createNotExistFundingMyFundingStatusDto(myPageMemberDto);
         }
         List<MyPageFundingItemDto> myPageFundingItemList = getMyPageFundingItemDtoList(funding);
@@ -81,30 +81,31 @@ public class MyPageService {
                 totalPercent,
                 funding.getDeadline().format(DateTimeFormatter.ofPattern("yyyy-MM-dd")),
                 deadlineDate
-                );
+        );
     }
 
-    private List<ParticipateFriendDto> getParticipateFriendDtoList(Funding funding){
+    private List<ParticipateFriendDto> getParticipateFriendDtoList(Funding funding) {
         List<Contributor> contributorList = contributorRepository.findAllByFundingId(funding.getFundingId());
         return contributorList.stream()
                 .map(ParticipateFriendDto::fromEntity).toList();
     }
 
-    private List<MyPageFundingItemDto> getMyPageFundingItemDtoList(Funding funding){
+    private List<MyPageFundingItemDto> getMyPageFundingItemDtoList(Funding funding) {
         List<FundingItem> fundingItemList = fundingItemRepository.findAllItemByFundingId(funding.getFundingId());
         List<MyPageFundingItemDto> myPageFundingItemList = new ArrayList<>();
         int collectPrice = funding.getCollectPrice();
 
-        for(FundingItem fundingItem : fundingItemList){
+        for (FundingItem fundingItem : fundingItemList) {
             int itemPercent = 0;
-            if(collectPrice >= fundingItem.getItem().getItemPrice()){
+            if (collectPrice >= fundingItem.getItem().getItemPrice()) {
                 collectPrice -= fundingItem.getItem().getItemPrice();
                 itemPercent = 100;
-            }else{
+            } else {
                 itemPercent = collectPrice * 100 / fundingItem.getItem().getItemPrice();
             }
             // 배송 상태를 나타내는 컬럼값이 FundingItem에 있어야 함
-            myPageFundingItemList.add(MyPageFundingItemDto.fromEntity(funding, fundingItem.getItem(), itemPercent, true));
+            myPageFundingItemList.add(MyPageFundingItemDto.fromEntity(funding, fundingItem.getItem(), itemPercent,
+                    fundingItem.isDeliveryStatus()));
         }
 
         return myPageFundingItemList;
