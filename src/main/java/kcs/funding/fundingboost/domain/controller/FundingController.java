@@ -8,7 +8,6 @@ import kcs.funding.fundingboost.domain.dto.response.FriendFundingDetailDto;
 import kcs.funding.fundingboost.domain.dto.response.FundingRegistrationItemDto;
 import kcs.funding.fundingboost.domain.service.FundingService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -41,7 +40,6 @@ public class FundingController {
         return ResponseDto.created(fundingService.putFundingAndFundingItem(memberId, registerFundingDto));
     }
 
-    @Transactional
     @PostMapping("/close/{fundingId}")
     public CommonSuccessDto closeFunding(@PathVariable("fundingId") Long fundingId) {
         return fundingService.terminateFunding(fundingId);

@@ -86,6 +86,7 @@ public class FundingService {
         return CommonSuccessDto.fromEntity(true);
     }
 
+    @Transactional
     public CommonSuccessDto terminateFunding(Long fundingId) {
         Funding funding = fundingRepository.findById(fundingId)
                 .orElseThrow(() -> new RuntimeException("Funding not found"));
