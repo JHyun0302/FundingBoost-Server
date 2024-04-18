@@ -15,6 +15,9 @@ public class MyPageController {
 
     private final MyPageService myPageService;
 
+    /**
+     * 포인트 전환하기
+     */
     @PostMapping("/point")
     public ResponseDto<CommonSuccessDto> exchangePoint(@RequestBody TransformPointDto transformPointDto,
                                                        @RequestParam("memberId") Long memberId) {

@@ -1,16 +1,23 @@
 package kcs.funding.fundingboost.domain.service;
 
+import java.time.LocalDate;
+import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.IntStream;
 import kcs.funding.fundingboost.domain.dto.common.CommonSuccessDto;
 import kcs.funding.fundingboost.domain.dto.request.RegisterFundingDto;
+import kcs.funding.fundingboost.domain.dto.response.CommonFriendFundingDto;
 import kcs.funding.fundingboost.domain.dto.response.ContributorDto;
 import kcs.funding.fundingboost.domain.dto.response.FriendFundingDetailDto;
+import kcs.funding.fundingboost.domain.dto.response.FriendFundingDto;
 import kcs.funding.fundingboost.domain.dto.response.FriendFundingItemDto;
+import kcs.funding.fundingboost.domain.dto.response.FriendFundingPageItemDto;
 import kcs.funding.fundingboost.domain.dto.response.FundingRegistrationItemDto;
 import kcs.funding.fundingboost.domain.entity.Funding;
 import kcs.funding.fundingboost.domain.entity.FundingItem;
 import kcs.funding.fundingboost.domain.entity.Item;
+import kcs.funding.fundingboost.domain.entity.Relationship;
 import kcs.funding.fundingboost.domain.entity.Tag;
 import kcs.funding.fundingboost.domain.exception.CommonException;
 import kcs.funding.fundingboost.domain.exception.ErrorCode;
@@ -19,6 +26,7 @@ import kcs.funding.fundingboost.domain.repository.FundingItem.FundingItemReposit
 import kcs.funding.fundingboost.domain.repository.ItemRepository;
 import kcs.funding.fundingboost.domain.repository.MemberRepository;
 import kcs.funding.fundingboost.domain.repository.funding.FundingRepository;
+import kcs.funding.fundingboost.domain.repository.relationship.RelationshipRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -35,6 +43,7 @@ public class FundingService {
     private final FundingRepository fundingRepository;
     private final FundingItemRepository fundingItemRepository;
     private final ContributorRepository contributorRepository;
+    private final RelationshipRepository relationshipRepository;
 
     public List<FundingRegistrationItemDto> getFundingRegister(List<Long> registerFundingBringItemDto, Long memberId) {
 
@@ -86,6 +95,7 @@ public class FundingService {
         return CommonSuccessDto.fromEntity(true);
     }
 
+    @Transactional
     public CommonSuccessDto terminateFunding(Long fundingId) {
         Funding funding = fundingRepository.findById(fundingId)
                 .orElseThrow(() -> new RuntimeException("Funding not found"));
@@ -114,6 +124,48 @@ public class FundingService {
         }
 
         return FriendFundingDetailDto.fromEntity(friendFundingItemList, funding, contributorList, contributedPercent);
+    }
 
+    public List<CommonFriendFundingDto> getCommonFriendFundingList(Long memberId) {
+        List<CommonFriendFundingDto> commonFriendFundingDtoList = new ArrayList<>();
+        List<Relationship> relationshipList = relationshipRepository.findFriendByMemberId(memberId);
+        for (Relationship relationship : relationshipList) {
+            Funding friendFunding = fundingRepository.findByMemberIdAndStatus(relationship.getFriend().getMemberId(),
+                    true);
+
+            int leftDate = (int) ChronoUnit.DAYS.between(LocalDate.now(),
+                    friendFunding.getDeadline());
+            String deadline = "D-" + leftDate;
+
+            List<FundingItem> fundingItemList = fundingItemRepository.findFundingItemIdListByFunding(
+                    friendFunding.getFundingId());
+            List<FriendFundingPageItemDto> friendFundingPageItemDtoList = fundingItemList.stream()
+                    .map(fundingItem -> FriendFundingPageItemDto.fromEntity(fundingItem.getItem())).toList();
+            int totalPrice = friendFunding.getTotalPrice();
+
+            if (totalPrice == 0) {
+                throw new CommonException(ErrorCode.INVALID_FUNDING_STATUS);
+            }
+            int fundingTotalPercent = friendFunding.getCollectPrice() * 100 / totalPrice;
+            commonFriendFundingDtoList.add(CommonFriendFundingDto.fromEntity(
+                    friendFunding,
+                    deadline,
+                    fundingTotalPercent,
+                    friendFundingPageItemDtoList
+            ));
+        }
+
+        return commonFriendFundingDtoList;
+    }
+
+    public List<FriendFundingDto> getFriendFundingList(Long memberId) {
+        List<CommonFriendFundingDto> commonFriendFundingDtoList = getCommonFriendFundingList(memberId);
+        List<FriendFundingDto> friendFundingDtoList = new ArrayList<>();
+
+        for (CommonFriendFundingDto commonFriendFundingDto : commonFriendFundingDtoList) {
+            friendFundingDtoList.add(FriendFundingDto.fromEntity(commonFriendFundingDto));
+        }
+
+        return friendFundingDtoList;
     }
 }

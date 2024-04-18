@@ -1,6 +1,5 @@
 package kcs.funding.fundingboost.domain.dto.request;
 
-
 import java.time.LocalDateTime;
 import java.util.List;
 

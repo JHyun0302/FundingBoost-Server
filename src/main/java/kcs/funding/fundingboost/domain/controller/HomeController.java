@@ -13,12 +13,15 @@ import org.springframework.web.bind.annotation.RestController;
 @Slf4j
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/v1")
+@RequestMapping("/api/v1/home")
 public class HomeController {
 
     private final HomeService homeService;
 
-    @GetMapping("/home")
+    /**
+     * 메인페이지 조회
+     */
+    @GetMapping("")
     public ResponseDto<HomeViewDto> home(@RequestParam("memberId") Long memberId) {
         return ResponseDto.ok(homeService.getMainView(memberId));
     }

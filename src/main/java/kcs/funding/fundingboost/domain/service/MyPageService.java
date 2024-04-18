@@ -60,7 +60,7 @@ public class MyPageService {
 
     public MyFundingStatusDto getMyFundingStatus(Long memberId) {
         Member member = memberRepository.findById(memberId)
-                .orElseThrow(() -> new CommonException(ErrorCode.NOT_FOUND_USER));
+                .orElseThrow(() -> new CommonException(ErrorCode.NOT_FOUND_MEMBER));
         Funding funding = fundingRepository.findByMemberIdAndStatus(member.getMemberId(), true);
         MyPageMemberDto myPageMemberDto = MyPageMemberDto.fromEntity(member);
         if (funding == null) {
