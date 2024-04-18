@@ -12,25 +12,25 @@ public record MyPayViewDto(List<ItemDto> itemListDto,
                            int collectPrice) {
 
     public static MyPayViewDto fromEntity(
-        List<ItemDto> itemListDto,
-        List<DeliveryDto> deliveryListDto,
-        Order order) {
+            List<ItemDto> itemListDto,
+            List<DeliveryDto> deliveryListDto,
+            Order order) {
         return MyPayViewDto.builder()
-            .itemListDto(itemListDto)
-            .deliveryListDto(deliveryListDto)
-            .point(order.getMember().getPoint())
-            .build();
+                .itemListDto(itemListDto)
+                .deliveryListDto(deliveryListDto)
+                .point(order.getMember().getPoint())
+                .build();
     }
 
     public static MyPayViewDto fromEntity(
-        List<ItemDto> itemListDto,
-        List<DeliveryDto> deliveryListDto,
-        Funding funding) {
+            List<ItemDto> itemListDto,
+            List<DeliveryDto> deliveryListDto,
+            Funding funding) {
         return MyPayViewDto.builder()
-            .itemListDto(itemListDto)
-            .deliveryListDto(deliveryListDto)
-            .point(funding.getMember().getPoint())
-            .collectPrice(funding.getCollectPrice())
-            .build();
+                .itemListDto(itemListDto)
+                .deliveryListDto(deliveryListDto)
+                .point(funding.getMember().getPoint())
+                .collectPrice(funding.getCollectPrice())
+                .build();
     }
 }

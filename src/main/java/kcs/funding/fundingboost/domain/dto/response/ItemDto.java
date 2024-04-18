@@ -6,10 +6,10 @@ import lombok.Builder;
 
 @Builder
 public record ItemDto(String itemThumbnailImageUrl,
-                          String itemName,
-                          String itemOption,
-                          int itemPrice,
-                          int quantity) {
+                      String itemName,
+                      String itemOption,
+                      int itemPrice,
+                      int quantity) {
 
     public static ItemDto fromEntity(Order order) {
         return ItemDto.builder()
@@ -20,6 +20,7 @@ public record ItemDto(String itemThumbnailImageUrl,
                 .quantity(order.getQuantity())
                 .build();
     }
+
     public static ItemDto fromEntity(FundingItem fundingItem) {
         return ItemDto.builder()
                 .itemThumbnailImageUrl(fundingItem.getItem().getItemImageUrl())

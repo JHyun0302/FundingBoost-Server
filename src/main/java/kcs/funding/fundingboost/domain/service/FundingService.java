@@ -8,13 +8,13 @@ import kcs.funding.fundingboost.domain.dto.response.ContributorDto;
 import kcs.funding.fundingboost.domain.dto.response.FriendFundingDetailDto;
 import kcs.funding.fundingboost.domain.dto.response.FriendFundingItemDto;
 import kcs.funding.fundingboost.domain.dto.response.FundingRegistrationItemDto;
-import kcs.funding.fundingboost.domain.repository.ContributorRepository;
 import kcs.funding.fundingboost.domain.entity.Funding;
 import kcs.funding.fundingboost.domain.entity.FundingItem;
 import kcs.funding.fundingboost.domain.entity.Item;
 import kcs.funding.fundingboost.domain.entity.Tag;
 import kcs.funding.fundingboost.domain.exception.CommonException;
 import kcs.funding.fundingboost.domain.exception.ErrorCode;
+import kcs.funding.fundingboost.domain.repository.ContributorRepository;
 import kcs.funding.fundingboost.domain.repository.FundingItem.FundingItemRepository;
 import kcs.funding.fundingboost.domain.repository.ItemRepository;
 import kcs.funding.fundingboost.domain.repository.MemberRepository;
@@ -96,7 +96,8 @@ public class FundingService {
     public FriendFundingDetailDto viewFreindsFundingDetail(Long fundingId, Long memberId) {
 
         List<FundingItem> fundingItems = fundingItemRepository.findAllByFundingId(fundingId);
-        List<FriendFundingItemDto> friendFundingItemList = fundingItems.stream().map(FriendFundingItemDto::fromEntity).toList();
+        List<FriendFundingItemDto> friendFundingItemList = fundingItems.stream().map(FriendFundingItemDto::fromEntity)
+                .toList();
 
         Funding funding = fundingItems.get(0).getFunding();
 

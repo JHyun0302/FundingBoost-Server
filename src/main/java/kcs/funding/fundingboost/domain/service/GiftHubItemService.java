@@ -4,7 +4,6 @@ import static kcs.funding.fundingboost.domain.dto.response.GiftHubDto.createGift
 
 import java.util.List;
 import java.util.stream.Collectors;
-
 import kcs.funding.fundingboost.domain.dto.common.CommonSuccessDto;
 import kcs.funding.fundingboost.domain.dto.request.AddGiftHubDto;
 import kcs.funding.fundingboost.domain.dto.response.GiftHubDto;

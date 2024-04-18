@@ -8,8 +8,8 @@ public record HomeMemberInfoDto(String nickName, String profile) {
 
     public static HomeMemberInfoDto fromEntity(Member member) {
         return HomeMemberInfoDto.builder()
-            .nickName(member.getNickName())
-            .profile(member.getProfileImgUrl())
-            .build();
+                .nickName(member.getNickName())
+                .profile(member.getProfileImgUrl())
+                .build();
     }
 }

@@ -28,7 +28,7 @@ public class FriendPayService {
 
     @Transactional
     public CommonSuccessDto fund(Long memberId, Long fundingId,
-        FriendPayProcessDto friendPayProcessDto) {
+                                 FriendPayProcessDto friendPayProcessDto) {
         Member findMember = memberRepository.findById(memberId).orElseThrow();
         int point = friendPayProcessDto.myPoint();
         if (findMember.getPoint() - point >= 0) {
@@ -41,6 +41,7 @@ public class FriendPayService {
             friendFunding.fund(point);
         } else {
             throw new RuntimeException("설정된 펀딩액 이상을 후원할 수 없습니다");
-        }        return CommonSuccessDto.fromEntity(true);
+        }
+        return CommonSuccessDto.fromEntity(true);
     }
 }

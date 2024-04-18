@@ -5,11 +5,11 @@ import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
 import kcs.funding.fundingboost.domain.dto.response.HomeFriendFundingDto;
+import kcs.funding.fundingboost.domain.dto.response.HomeItemDto;
 import kcs.funding.fundingboost.domain.dto.response.HomeMemberInfoDto;
 import kcs.funding.fundingboost.domain.dto.response.HomeMyFundingItemDto;
 import kcs.funding.fundingboost.domain.dto.response.HomeMyFundingStatusDto;
 import kcs.funding.fundingboost.domain.dto.response.HomeViewDto;
-import kcs.funding.fundingboost.domain.dto.response.HomeItemDto;
 import kcs.funding.fundingboost.domain.entity.Funding;
 import kcs.funding.fundingboost.domain.entity.FundingItem;
 import kcs.funding.fundingboost.domain.entity.Relationship;
@@ -49,11 +49,11 @@ public class HomeService {
 
         // 상품 목록: 상품Id, 이름, 가격, 이미지, 브랜드명
         List<HomeItemDto> itemList = itemRepository.findAll().stream()
-            .map(HomeItemDto::fromEntity)
-            .toList();
+                .map(HomeItemDto::fromEntity)
+                .toList();
 
         return HomeViewDto.fromEntity(homeMemberInfoDto, myFundingStatus, homeMyFundingItemList,
-            homeFriendFundingList, itemList);
+                homeFriendFundingList, itemList);
     }
 
     private List<HomeFriendFundingDto> getFriendFundingList(Long memberId, Funding funding) {
@@ -62,10 +62,10 @@ public class HomeService {
 
         for (Relationship relationship : relationshipList) {
             Funding friendFunding = fundingRepository.findFundingInfo(
-                relationship.getFriend().getMemberId());
+                    relationship.getFriend().getMemberId());
 
             int leftDate = (int) ChronoUnit.DAYS.between(LocalDate.now(),
-                friendFunding.getDeadline());
+                    friendFunding.getDeadline());
             String deadline = "D-" + leftDate;
 
             int collectPrice = friendFunding.getCollectPrice();
@@ -82,9 +82,9 @@ public class HomeService {
                 }
 
                 HomeFriendFundingDto homeFriendFundingDto = HomeFriendFundingDto.fromEntity(
-                    friendFunding,
-                    nowFundingItemImageUrl, percent,
-                    deadline);
+                        friendFunding,
+                        nowFundingItemImageUrl, percent,
+                        deadline);
                 friendFundingDtoList.add(homeFriendFundingDto);
             }
         }
@@ -105,7 +105,7 @@ public class HomeService {
                 percent = (int) collectPrice / itemPrice * 100;
             }
             HomeMyFundingItemDto homeMyFundingItemDto = HomeMyFundingItemDto.fromEntity(
-                myFundingItem, percent);
+                    myFundingItem, percent);
             myFundingItemDtoList.add(homeMyFundingItemDto);
         }
         return myFundingItemDtoList;

@@ -9,9 +9,9 @@ public record HomeMyFundingStatusDto(Long fundingId,
 
     public static HomeMyFundingStatusDto fromEntity(Funding funding, String deadline) {
         return HomeMyFundingStatusDto.builder()
-            .fundingId(funding.getFundingId())
-            .deadline(deadline)
-            .build();
+                .fundingId(funding.getFundingId())
+                .deadline(deadline)
+                .build();
     }
 
 }

@@ -8,7 +8,6 @@ import kcs.funding.fundingboost.domain.entity.Bookmark;
 import kcs.funding.fundingboost.domain.entity.Item;
 import kcs.funding.fundingboost.domain.repository.Bookmark.BookmarkRepository;
 import kcs.funding.fundingboost.domain.repository.ItemRepository;
-import kcs.funding.fundingboost.domain.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;

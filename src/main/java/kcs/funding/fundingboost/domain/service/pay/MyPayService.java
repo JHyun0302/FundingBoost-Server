@@ -32,14 +32,14 @@ public class MyPayService {
 
         Funding funding = fundingRepository.findByMemberIdAndStatus(memberId, true);
         List<ItemDto> itemDtoList = funding.getFundingItems()
-            .stream()
-            .map(ItemDto::fromEntity)
-            .toList();
+                .stream()
+                .map(ItemDto::fromEntity)
+                .toList();
 
         List<DeliveryDto> deliveryDtoList = deliveryRepository.findAllByMemberId(memberId)
-            .stream()
-            .map(DeliveryDto::fromEntity)
-            .toList();
+                .stream()
+                .map(DeliveryDto::fromEntity)
+                .toList();
 
         return MyPayViewDto.fromEntity(itemDtoList, deliveryDtoList, funding);
     }
@@ -47,13 +47,13 @@ public class MyPayService {
     public MyPayViewDto orderPay(Long memberId) {
         List<Order> orders = orderRepository.findAllByMemberId(memberId);
         List<ItemDto> itemDtoList = orders.stream()
-            .map(ItemDto::fromEntity)
-            .toList();
+                .map(ItemDto::fromEntity)
+                .toList();
 
         List<Delivery> deliveries = deliveryRepository.findAllByMemberId(memberId);
         List<DeliveryDto> deliveryDtoList = deliveries.stream()
-            .map(DeliveryDto::fromEntity)
-            .toList();
+                .map(DeliveryDto::fromEntity)
+                .toList();
 
         return MyPayViewDto.fromEntity(itemDtoList, deliveryDtoList, orders.get(0));
     }

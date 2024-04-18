@@ -12,15 +12,15 @@ public record HomeFriendFundingDto(String nickName,
                                    String friendFundingDeadlineDate) {
 
     public static HomeFriendFundingDto fromEntity(Funding funding, String nowFundingItemImageUrl,
-        int currentFriendFundingPercent,
-        String friendFundingDeadline) {
+                                                  int currentFriendFundingPercent,
+                                                  String friendFundingDeadline) {
 
         return HomeFriendFundingDto.builder()
-            .nickName(funding.getMember().getNickName())
-            .profile(funding.getMember().getProfileImgUrl())
-            .fundingId(funding.getFundingId())
-            .nowFundingItemImageUrl(nowFundingItemImageUrl)
-            .friendFundingDeadlineDate(friendFundingDeadline)
-            .build();
+                .nickName(funding.getMember().getNickName())
+                .profile(funding.getMember().getProfileImgUrl())
+                .fundingId(funding.getFundingId())
+                .nowFundingItemImageUrl(nowFundingItemImageUrl)
+                .friendFundingDeadlineDate(friendFundingDeadline)
+                .build();
     }
 }
