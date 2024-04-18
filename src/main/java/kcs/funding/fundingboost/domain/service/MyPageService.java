@@ -91,7 +91,7 @@ public class MyPageService {
     }
 
     private List<MyPageFundingItemDto> getMyPageFundingItemDtoList(Funding funding) {
-        List<FundingItem> fundingItemList = fundingItemRepository.findAllItemByFundingId(funding.getFundingId());
+        List<FundingItem> fundingItemList = funding.getFundingItems();
         List<MyPageFundingItemDto> myPageFundingItemList = new ArrayList<>();
         int collectPrice = funding.getCollectPrice();
 
