@@ -38,7 +38,8 @@ public class FundingRepositoryImpl implements FundingRepositoryCustom {
                 .join(funding.fundingItems, fundingItem)
                 .join(fundingItem.item, item)
                 .join(funding.member, member).fetchJoin()
-                .where(funding.member.memberId.eq(memberId))
+                .where(funding.member.memberId.eq(memberId)
+                        .and(funding.fundingStatus.eq(true)))
                 .fetchOne();
     }
 
