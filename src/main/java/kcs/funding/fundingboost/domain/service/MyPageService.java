@@ -103,7 +103,6 @@ public class MyPageService {
             } else {
                 itemPercent = collectPrice * 100 / fundingItem.getItem().getItemPrice();
             }
-            // 배송 상태를 나타내는 컬럼값이 FundingItem에 있어야 함
             myPageFundingItemList.add(MyPageFundingItemDto.fromEntity(funding, fundingItem.getItem(), itemPercent,
                     fundingItem.isDeliveryStatus()));
         }
