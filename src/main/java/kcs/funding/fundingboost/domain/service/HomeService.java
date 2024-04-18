@@ -63,8 +63,14 @@ public class HomeService {
         for (Relationship relationship : relationshipList) {
             Funding friendFunding = fundingRepository.findFundingInfo(
                 relationship.getFriend().getMemberId());
+
+            int leftDate = (int) ChronoUnit.DAYS.between(LocalDate.now(),
+                friendFunding.getDeadline());
+            String deadline = "D-" + leftDate;
+
             int collectPrice = friendFunding.getCollectPrice();
             int percent = collectPrice / funding.getTotalPrice();
+
             List<FundingItem> fundingItems = friendFunding.getFundingItems();
             for (FundingItem fundingItem : fundingItems) {
                 int itemPrice = fundingItem.getItem().getItemPrice();
@@ -74,10 +80,6 @@ public class HomeService {
                 } else {
                     nowFundingItemImageUrl = fundingItem.getItem().getItemImageUrl();
                 }
-
-                int leftDate = (int) ChronoUnit.DAYS.between(LocalDate.now(),
-                    friendFunding.getDeadline());
-                String deadline = "D-" + leftDate;
 
                 HomeFriendFundingDto homeFriendFundingDto = HomeFriendFundingDto.fromEntity(
                     friendFunding,
@@ -89,7 +91,7 @@ public class HomeService {
         return friendFundingDtoList;
     }
 
-    private static List<HomeMyFundingItemDto> getMyFundingItems(Funding funding) {
+    private List<HomeMyFundingItemDto> getMyFundingItems(Funding funding) {
         int collectPrice = funding.getCollectPrice();
         List<FundingItem> myFundingItems = funding.getFundingItems();
         List<HomeMyFundingItemDto> myFundingItemDtoList = new ArrayList<>();
@@ -100,7 +102,7 @@ public class HomeService {
                 collectPrice -= itemPrice;
                 percent = 100;
             } else {
-                percent = (int) collectPrice / itemPrice;
+                percent = (int) collectPrice / itemPrice * 100;
             }
             HomeMyFundingItemDto homeMyFundingItemDto = HomeMyFundingItemDto.fromEntity(
                 myFundingItem, percent);

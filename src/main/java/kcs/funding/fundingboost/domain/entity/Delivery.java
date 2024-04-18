@@ -47,11 +47,6 @@ public class Delivery extends BaseTimeEntity {
         delivery.phoneNumber = phoneNumber;
         delivery.customerName = customerName;
         delivery.member = member;
-        delivery.deliveryStatus = true;
         return delivery;
-    }
-
-    public void successDelivery() {
-        deliveryStatus = false;
     }
 }
