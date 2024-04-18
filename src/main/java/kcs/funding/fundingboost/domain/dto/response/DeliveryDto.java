@@ -4,9 +4,9 @@ import kcs.funding.fundingboost.domain.entity.Delivery;
 
 
 public record DeliveryDto(Long deliveryId,
-                         String customerName,
-                         String address,
-                         String phoneNumber) {
+                          String customerName,
+                          String address,
+                          String phoneNumber) {
 
 
     public static DeliveryDto fromEntity(Delivery delivery) {

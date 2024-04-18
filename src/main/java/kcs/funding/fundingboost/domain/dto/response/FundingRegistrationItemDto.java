@@ -10,8 +10,9 @@ public record FundingRegistrationItemDto(
         String optionName,
         int itemPrice
 ) {
-    public static FundingRegistrationItemDto createFundingRegistrationItemDto(Item item, Long itemSequence){
-        return new FundingRegistrationItemDto(item.getItemId(), itemSequence, item.getItemName(), item.getItemImageUrl(), item.getOptionName(), item.getItemPrice());
+    public static FundingRegistrationItemDto createFundingRegistrationItemDto(Item item, Long itemSequence) {
+        return new FundingRegistrationItemDto(item.getItemId(), itemSequence, item.getItemName(),
+                item.getItemImageUrl(), item.getOptionName(), item.getItemPrice());
     }
 
 }

@@ -6,9 +6,9 @@ import lombok.Builder;
 
 @Builder
 public record FriendFundingItemDto(String itemImageUrl, Long itemId,
-                                    String itemName, String optionName, int itemPrice) {
+                                   String itemName, String optionName, int itemPrice) {
 
-    public static FriendFundingItemDto fromEntity(FundingItem fundingItem){
+    public static FriendFundingItemDto fromEntity(FundingItem fundingItem) {
 
         Item item = fundingItem.getItem();
         return FriendFundingItemDto.builder()

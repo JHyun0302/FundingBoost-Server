@@ -11,18 +11,18 @@ public record HomeViewDto(HomeMemberInfoDto homeMemberInfoDto,
                           List<HomeItemDto> itemDtoList) {
 
     public static HomeViewDto fromEntity(
-        HomeMemberInfoDto homeMemberInfoDto,
-        HomeMyFundingStatusDto homeMyFundingStatusDto,
-        List<HomeMyFundingItemDto> homeMyFundingItemDtoList,
-        List<HomeFriendFundingDto> homeFriendFundingDtoList,
-        List<HomeItemDto> itemDtoList) {
+            HomeMemberInfoDto homeMemberInfoDto,
+            HomeMyFundingStatusDto homeMyFundingStatusDto,
+            List<HomeMyFundingItemDto> homeMyFundingItemDtoList,
+            List<HomeFriendFundingDto> homeFriendFundingDtoList,
+            List<HomeItemDto> itemDtoList) {
 
         return HomeViewDto.builder()
-            .homeMemberInfoDto(homeMemberInfoDto)
-            .homeMyFundingStatusDto(homeMyFundingStatusDto)
-            .homeMyFundingItemDtoList(homeMyFundingItemDtoList)
-            .homeFriendFundingDtoList(homeFriendFundingDtoList)
-            .itemDtoList(itemDtoList)
-            .build();
+                .homeMemberInfoDto(homeMemberInfoDto)
+                .homeMyFundingStatusDto(homeMyFundingStatusDto)
+                .homeMyFundingItemDtoList(homeMyFundingItemDtoList)
+                .homeFriendFundingDtoList(homeFriendFundingDtoList)
+                .itemDtoList(itemDtoList)
+                .build();
     }
 }

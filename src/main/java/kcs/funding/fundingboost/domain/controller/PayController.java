@@ -31,27 +31,28 @@ public class PayController {
     }
 
     @GetMapping("/funding")
-    public ResponseDto<MyPayViewDto> myFundingPayView( @RequestParam(name = "memberId") Long memberId){
+    public ResponseDto<MyPayViewDto> myFundingPayView(@RequestParam(name = "memberId") Long memberId) {
         return ResponseDto.ok(myPayService.fundingPay(memberId));
     }
 
     @PostMapping("/")
-    public ResponseDto<CommonSuccessDto> payMyOrder( @RequestBody PaymentDto paymentDto, @RequestParam("memberId") Long memberId){
+    public ResponseDto<CommonSuccessDto> payMyOrder(@RequestBody PaymentDto paymentDto,
+                                                    @RequestParam("memberId") Long memberId) {
         return ResponseDto.ok(myPayService.pay(paymentDto, memberId));
     }
 
     @GetMapping("/friends/{fundingId}")
     public ResponseDto<FriendFundingPayingDto> friendPayView(
-        @RequestParam("memberId") Long memberId,
-        @PathVariable("fundingId") Long fundingId) {
+            @RequestParam("memberId") Long memberId,
+            @PathVariable("fundingId") Long fundingId) {
         return ResponseDto.ok(friendPayService.getFriendFundingPay(fundingId, memberId));
     }
 
     @PostMapping("/friends/{fundingId}")
     public ResponseDto<CommonSuccessDto> fundFriend(
-        @RequestParam("memberId") Long memberId,
-        @PathVariable("fundingId") Long fundingId,
-        @RequestBody FriendPayProcessDto friendPayProcessDto) {
+            @RequestParam("memberId") Long memberId,
+            @PathVariable("fundingId") Long fundingId,
+            @RequestBody FriendPayProcessDto friendPayProcessDto) {
         return ResponseDto.ok(friendPayService.fund(memberId, fundingId, friendPayProcessDto));
     }
 }

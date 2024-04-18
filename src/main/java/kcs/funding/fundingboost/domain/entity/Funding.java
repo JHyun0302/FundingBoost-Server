@@ -72,7 +72,8 @@ public class Funding extends BaseTimeEntity {
         this.fundingStatus = false;
     }
 
-    public static Funding createFunding(Member member, String message, Tag tag, int totalPrice, LocalDateTime deadline) {
+    public static Funding createFunding(Member member, String message, Tag tag, int totalPrice,
+                                        LocalDateTime deadline) {
         Funding funding = new Funding();
         funding.member = member;
         funding.message = message;
@@ -85,7 +86,7 @@ public class Funding extends BaseTimeEntity {
     }
 
     public static Funding createFundingForTest(Member member, String message, Tag tag,
-        int totalPrice, int collectPrice, LocalDateTime deadline) {
+                                               int totalPrice, int collectPrice, LocalDateTime deadline) {
         Funding funding = new Funding();
         funding.member = member;
         funding.message = message;

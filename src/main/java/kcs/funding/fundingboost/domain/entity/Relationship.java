@@ -41,8 +41,7 @@ public class Relationship extends BaseTimeEntity {
     private Member friend;
 
     /**
-     * 나의 관계에 친구를 추가하고,
-     * 친구의 관계에 나를 추가하여 List로 반환
+     * 나의 관계에 친구를 추가하고, 친구의 관계에 나를 추가하여 List로 반환
      */
     public static List<Relationship> createRelationships(Member member, Member friend) {
 

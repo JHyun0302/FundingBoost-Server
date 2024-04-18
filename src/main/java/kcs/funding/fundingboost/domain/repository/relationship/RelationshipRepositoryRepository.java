@@ -7,10 +7,10 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 public interface RelationshipRepositoryRepository extends JpaRepository<Relationship, Long>,
-    RelationshipRepositoryCustom {
+        RelationshipRepositoryCustom {
 
     @Query("select r from Relationship r"
-        + " join fetch r.member m"
-        + " where m.memberId=:memberId")
+            + " join fetch r.member m"
+            + " where m.memberId=:memberId")
     List<Relationship> findFriendByMemberId(@Param("memberId") Long memberId);
 }
