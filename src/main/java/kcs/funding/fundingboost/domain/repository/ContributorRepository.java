@@ -12,4 +12,10 @@ public interface ContributorRepository extends JpaRepository<Contributor, Long> 
             " join fetch c.funding f" +
             " where f.fundingId = :fundingId")
     List<Contributor> findByFundingId(@Param("fundingId") Long fundingId);
+
+    @Query("select c from Contributor c" +
+            " join fetch c.funding f" +
+            " join fetch c.member m" +
+            " where f.fundingId = :fundingId")
+    List<Contributor> findAllByFundingId(@Param("fundingId") Long fundingId);
 }

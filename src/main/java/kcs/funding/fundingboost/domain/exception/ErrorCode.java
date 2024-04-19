@@ -19,6 +19,7 @@ public enum ErrorCode {
     NOT_FOUND_DIARY(40402, HttpStatus.NOT_FOUND, "해당 일기가 존재하지 않습니다."),
     NOT_FOUND_SHARED_URL(40403, HttpStatus.NOT_FOUND, "해당 공유 URL이 존재하지 않습니다."),
     NOT_FOUND_ALBUM(40404, HttpStatus.NOT_FOUND, "해당 앨범이 존재하지 않습니다."),
+    NOT_FOUND_FUNDING(40405, HttpStatus.NOT_FOUND, "펀딩이 존재하지 않습니다."),
 
     // Invalid Argument Error
     MISSING_REQUEST_PARAMETER(40000, HttpStatus.BAD_REQUEST, "필수 요청 파라미터가 누락되었습니다."),
