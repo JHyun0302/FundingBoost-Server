@@ -103,7 +103,7 @@ public class FundingService {
         return CommonSuccessDto.fromEntity(true);
     }
 
-    public FriendFundingDetailDto viewFreindsFundingDetail(Long fundingId, Long memberId) {
+    public FriendFundingDetailDto viewFriendsFundingDetail(Long fundingId, Long memberId) {
 
         List<FundingItem> fundingItems = fundingItemRepository.findAllByFundingId(fundingId);
         List<FriendFundingItemDto> friendFundingItemList = fundingItems.stream().map(FriendFundingItemDto::fromEntity)

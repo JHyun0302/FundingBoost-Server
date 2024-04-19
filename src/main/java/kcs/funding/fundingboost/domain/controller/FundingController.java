@@ -59,9 +59,9 @@ public class FundingController {
      * 친구 펀딩 디테일 페이지 조회
      */
     @GetMapping("/friends/{fundingId}")
-    public ResponseDto<FriendFundingDetailDto> viewFreindsFundingDetail(@PathVariable("fundingId") Long fundingId,
+    public ResponseDto<FriendFundingDetailDto> viewFriendsFundingDetail(@PathVariable("fundingId") Long fundingId,
                                                                         @RequestParam(name = "memberId") Long memberId) {
-        return ResponseDto.ok(fundingService.viewFreindsFundingDetail(fundingId, memberId));
+        return ResponseDto.ok(fundingService.viewFriendsFundingDetail(fundingId, memberId));
     }
 
     /**
