@@ -20,7 +20,6 @@ import kcs.funding.fundingboost.domain.entity.Member;
 import kcs.funding.fundingboost.domain.exception.CommonException;
 import kcs.funding.fundingboost.domain.exception.ErrorCode;
 import kcs.funding.fundingboost.domain.repository.ContributorRepository;
-import kcs.funding.fundingboost.domain.repository.FundingItem.FundingItemRepository;
 import kcs.funding.fundingboost.domain.repository.MemberRepository;
 import kcs.funding.fundingboost.domain.repository.funding.FundingRepository;
 import lombok.RequiredArgsConstructor;
@@ -33,7 +32,6 @@ public class MyPageService {
 
     private final FundingRepository fundingRepository;
     private final MemberRepository memberRepository;
-    private final FundingItemRepository fundingItemRepository;
     private final ContributorRepository contributorRepository;
 
     @Transactional
@@ -52,6 +50,7 @@ public class MyPageService {
                 collectPrice -= sortedFundingItem.getItem().getItemPrice();
             } else {
                 member.plusPoint(collectPrice);
+                sortedFundingItem.finishFunding();
                 return CommonSuccessDto.fromEntity(true);
             }
         }
@@ -104,7 +103,7 @@ public class MyPageService {
                 itemPercent = collectPrice * 100 / fundingItem.getItem().getItemPrice();
             }
             myPageFundingItemList.add(MyPageFundingItemDto.fromEntity(funding, fundingItem.getItem(), itemPercent,
-                    fundingItem.isDeliveryStatus()));
+                    fundingItem.isFinishedStatus()));
         }
 
         return myPageFundingItemList;
