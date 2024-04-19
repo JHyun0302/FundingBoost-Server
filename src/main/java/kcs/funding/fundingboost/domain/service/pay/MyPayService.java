@@ -2,15 +2,18 @@ package kcs.funding.fundingboost.domain.service.pay;
 
 import java.util.List;
 import kcs.funding.fundingboost.domain.dto.common.CommonSuccessDto;
-import kcs.funding.fundingboost.domain.dto.request.PaymentDto;
+import kcs.funding.fundingboost.domain.dto.request.FundingPaymentDto;
+import kcs.funding.fundingboost.domain.dto.request.MyPayDto;
 import kcs.funding.fundingboost.domain.dto.response.DeliveryDto;
 import kcs.funding.fundingboost.domain.dto.response.ItemDto;
 import kcs.funding.fundingboost.domain.dto.response.MyPayViewDto;
 import kcs.funding.fundingboost.domain.entity.Delivery;
 import kcs.funding.fundingboost.domain.entity.Funding;
+import kcs.funding.fundingboost.domain.entity.FundingItem;
 import kcs.funding.fundingboost.domain.entity.Member;
 import kcs.funding.fundingboost.domain.entity.Order;
 import kcs.funding.fundingboost.domain.repository.DeliveryRepository;
+import kcs.funding.fundingboost.domain.repository.FundingItem.FundingItemRepository;
 import kcs.funding.fundingboost.domain.repository.MemberRepository;
 import kcs.funding.fundingboost.domain.repository.OrderRepository;
 import kcs.funding.fundingboost.domain.repository.funding.FundingRepository;
@@ -22,14 +25,13 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
 public class MyPayService {
-
     private final FundingRepository fundingRepository;
     private final DeliveryRepository deliveryRepository;
     private final OrderRepository orderRepository;
     private final MemberRepository memberRepository;
+    private final FundingItemRepository fundingItemRepository;
 
-    public MyPayViewDto fundingPay(Long memberId) {
-
+    public MyPayViewDto getMyFundingPay(Long memberId) {
         Funding funding = fundingRepository.findByMemberIdAndStatus(memberId, true);
         List<ItemDto> itemDtoList = funding.getFundingItems()
                 .stream()
@@ -44,7 +46,7 @@ public class MyPayService {
         return MyPayViewDto.fromEntity(itemDtoList, deliveryDtoList, funding);
     }
 
-    public MyPayViewDto orderPay(Long memberId) {
+    public MyPayViewDto getMyOrderPay(Long memberId) {
         List<Order> orders = orderRepository.findAllByMemberId(memberId);
         List<ItemDto> itemDtoList = orders.stream()
                 .map(ItemDto::fromEntity)
@@ -59,13 +61,26 @@ public class MyPayService {
     }
 
     @Transactional
-    public CommonSuccessDto pay(PaymentDto paymentDto, Long memberId) {
+    public CommonSuccessDto payMyItem(MyPayDto paymentDto, Long memberId) {
         Member findMember = memberRepository.findById(memberId).orElseThrow();
-        if (findMember.getPoint() - paymentDto.usingPoint() >= 0) {
-            findMember.minusPoint(paymentDto.usingPoint());
+        deductPointsIfPossible(findMember, paymentDto.usingPoint());
+        return CommonSuccessDto.fromEntity(true);
+    }
+
+    @Transactional
+    public CommonSuccessDto payMyFunding(FundingPaymentDto fundingPaymentDto, Long memberId) {
+        Member findMember = memberRepository.findById(memberId).orElseThrow();
+        FundingItem fundingItem = fundingItemRepository.findById(fundingPaymentDto.fundingItemId()).orElseThrow();
+        deductPointsIfPossible(findMember, fundingPaymentDto.usingPoint());
+        fundingItem.finishFunding();
+        return CommonSuccessDto.fromEntity(true);
+    }
+
+    private void deductPointsIfPossible(Member member, int points) {
+        if (member.getPoint() - points >= 0) {
+            member.minusPoint(points);
         } else {
             throw new RuntimeException("point가 부족합니다");
         }
-        return CommonSuccessDto.fromEntity(true);
     }
 }
