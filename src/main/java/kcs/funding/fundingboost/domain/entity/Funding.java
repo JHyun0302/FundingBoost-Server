@@ -68,6 +68,7 @@ public class Funding extends BaseTimeEntity {
     @Column(name = "funding_status")
     private boolean fundingStatus;
 
+
     public void terminate() {
         this.fundingStatus = false;
     }
