@@ -6,7 +6,7 @@ import lombok.Builder;
 
 @Builder
 public record MyOrderPayViewDto(List<ItemDto> itemListDto,
-                                List<Long> giftHubItemIdsList,
+                                List<Long> giftHubItemIds,
                                 List<DeliveryDto> deliveryListDto,
                                 int point
 ) {
@@ -17,7 +17,7 @@ public record MyOrderPayViewDto(List<ItemDto> itemListDto,
             int point) {
         return MyOrderPayViewDto.builder()
                 .itemListDto(orderItemsDtos.items())
-                .giftHubItemIdsList(orderItemsDtos.giftHubItemIds())
+                .giftHubItemIds(orderItemsDtos.giftHubItemIds())
                 .deliveryListDto(deliveryListDto)
                 .point(point)
                 .build();
