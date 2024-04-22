@@ -172,7 +172,7 @@ public class FundingService {
     @Transactional
     public CommonSuccessDto extendFunding(Long fundingId) {
         Funding funding = fundingRepository.findById(fundingId).orElseThrow();
-        funding.extendDeadline(14);
+        funding.extendDeadline(FundingConst.extendDeadline);
         return CommonSuccessDto.fromEntity(true);
     }
 }
