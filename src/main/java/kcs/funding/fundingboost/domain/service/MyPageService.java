@@ -104,7 +104,7 @@ public class MyPageService {
                 itemPercent = collectPrice * 100 / fundingItem.getItem().getItemPrice();
             }
             myPageFundingItemList.add(MyPageFundingItemDto.fromEntity(funding, fundingItem.getItem(), itemPercent,
-                    fundingItem.isDeliveryStatus()));
+                    fundingItem.isFinishedStatus()));
         }
 
         return myPageFundingItemList;

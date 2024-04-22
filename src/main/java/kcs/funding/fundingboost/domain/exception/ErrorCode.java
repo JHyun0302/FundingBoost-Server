@@ -33,6 +33,7 @@ public enum ErrorCode {
     SEARCH_SHORT_LENGTH_ERROR(40007, HttpStatus.BAD_REQUEST, "검색어는 2글자 이상이어야 합니다."),
     ALREADY_SHARED_DIARY(40008, HttpStatus.BAD_REQUEST, "이미 공유 중인 일기입니다."),
     INVALID_FUNDING_STATUS(40009, HttpStatus.BAD_REQUEST, "펀딩이 정상적이지 않습니다."),
+    INVALID_FUNDINGITEM_STATUS(40010, HttpStatus.BAD_REQUEST, "펀딩아이템이 정상적이지 않습니다."),
 
     // Gone Error
     GONE_SHARED_URL(41001, HttpStatus.GONE, "해당 공유 URL이 만료되었습니다."),

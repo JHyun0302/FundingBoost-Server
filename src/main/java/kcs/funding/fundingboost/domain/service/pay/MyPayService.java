@@ -34,6 +34,10 @@ public class MyPayService {
         FundingItem fundingItem = fundingItemRepository.findById(fundingItemId)
                 .orElseThrow(() -> new CommonException(ErrorCode.NOT_FOUND_FUNDINGITEM));
 
+        if (!fundingItem.isFinishedStatus()) {
+            throw new CommonException(ErrorCode.INVALID_FUNDINGITEM_STATUS);
+        }
+
         List<DeliveryDto> deliveryDtoList = deliveryRepository.findAllByMemberId(memberId)
                 .stream()
                 .map(DeliveryDto::fromEntity)
