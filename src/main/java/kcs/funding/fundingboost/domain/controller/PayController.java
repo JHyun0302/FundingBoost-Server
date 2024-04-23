@@ -40,10 +40,10 @@ public class PayController {
     }
 
     @PostMapping("/order/now")
-    public ResponseDto<MyNowOrderPayViewDto> myOrderNowPayView(
+    public ResponseDto<MyNowOrderPayViewDto> orderNowPayView(
             @RequestBody ItemDto itemDto,
             @RequestParam(name = "memberId") Long memberId) {
-        return ResponseDto.ok(myPayService.myOrderNowPayView(itemDto, memberId));
+        return ResponseDto.ok(myPayService.orderNowPayView(itemDto, memberId));
     }
 
     /**

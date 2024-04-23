@@ -60,7 +60,7 @@ public class MyPayService {
         return MyOrderPayViewDto.fromEntity(orderItemsDto, deliveryDtoList, point);
     }
 
-    public MyNowOrderPayViewDto myOrderNowPayView(ItemDto itemDto, Long memberId) {
+    public MyNowOrderPayViewDto orderNowPayView(ItemDto itemDto, Long memberId) {
         int point = memberRepository.findById(memberId)
                 .orElseThrow(() -> new CommonException(ErrorCode.NOT_FOUND_MEMBER))
                 .getPoint();
