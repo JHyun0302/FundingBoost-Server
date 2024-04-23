@@ -5,7 +5,9 @@ import kcs.funding.fundingboost.domain.dto.common.CommonSuccessDto;
 import kcs.funding.fundingboost.domain.dto.request.OrderItemsDto;
 import kcs.funding.fundingboost.domain.dto.request.PaymentDto;
 import kcs.funding.fundingboost.domain.dto.response.DeliveryDto;
+import kcs.funding.fundingboost.domain.dto.response.ItemDto;
 import kcs.funding.fundingboost.domain.dto.response.MyFundingPayViewDto;
+import kcs.funding.fundingboost.domain.dto.response.MyNowOrderPayViewDto;
 import kcs.funding.fundingboost.domain.dto.response.MyOrderPayViewDto;
 import kcs.funding.fundingboost.domain.entity.FundingItem;
 import kcs.funding.fundingboost.domain.entity.Member;
@@ -34,7 +36,7 @@ public class MyPayService {
         FundingItem fundingItem = fundingItemRepository.findById(fundingItemId)
                 .orElseThrow(() -> new CommonException(ErrorCode.NOT_FOUND_FUNDINGITEM));
 
-        if (!fundingItem.isFinishedStatus()) {
+        if (!fundingItem.isFinishedStatus() || fundingItem.isItemStatus()) {
             throw new CommonException(ErrorCode.INVALID_FUNDINGITEM_STATUS);
         }
 
@@ -58,6 +60,18 @@ public class MyPayService {
         return MyOrderPayViewDto.fromEntity(orderItemsDto, deliveryDtoList, point);
     }
 
+    public MyNowOrderPayViewDto myOrderNowPay(ItemDto itemDto, Long memberId) {
+        int point = memberRepository.findById(memberId)
+                .orElseThrow(() -> new CommonException(ErrorCode.NOT_FOUND_MEMBER))
+                .getPoint();
+
+        List<DeliveryDto> deliveryDtoList = deliveryRepository.findAllByMemberId(memberId)
+                .stream()
+                .map(DeliveryDto::fromEntity)
+                .toList();
+
+        return MyNowOrderPayViewDto.fromEntity(itemDto, deliveryDtoList, point);
+    }
 
     @Transactional
     public CommonSuccessDto pay(PaymentDto paymentDto, Long memberId) {
@@ -69,4 +83,5 @@ public class MyPayService {
         }
         return CommonSuccessDto.fromEntity(true);
     }
+
 }

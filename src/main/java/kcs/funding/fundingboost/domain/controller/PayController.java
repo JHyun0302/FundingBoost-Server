@@ -6,7 +6,9 @@ import kcs.funding.fundingboost.domain.dto.request.FriendPayProcessDto;
 import kcs.funding.fundingboost.domain.dto.request.OrderItemsDto;
 import kcs.funding.fundingboost.domain.dto.request.PaymentDto;
 import kcs.funding.fundingboost.domain.dto.response.FriendFundingPayingDto;
+import kcs.funding.fundingboost.domain.dto.response.ItemDto;
 import kcs.funding.fundingboost.domain.dto.response.MyFundingPayViewDto;
+import kcs.funding.fundingboost.domain.dto.response.MyNowOrderPayViewDto;
 import kcs.funding.fundingboost.domain.dto.response.MyOrderPayViewDto;
 import kcs.funding.fundingboost.domain.service.pay.FriendPayService;
 import kcs.funding.fundingboost.domain.service.pay.MyPayService;
@@ -30,21 +32,28 @@ public class PayController {
     /**
      * 마이 페이 주문 페이지 조회
      */
-    @GetMapping("/order")
+    @PostMapping("/order")
     public ResponseDto<MyOrderPayViewDto> myOrderPayView(
             @RequestBody OrderItemsDto orderItemDto,
             @RequestParam(name = "memberId") Long memberId) {
         return ResponseDto.ok(myPayService.orderPay(orderItemDto, memberId));
     }
 
+    @PostMapping("/order/now")
+    public ResponseDto<MyNowOrderPayViewDto> myOrderNowPay(
+            @RequestBody ItemDto itemDto,
+            @RequestParam(name = "memberId") Long memberId) {
+        return ResponseDto.ok(myPayService.myOrderNowPay(itemDto, memberId));
+    }
 
     /**
      * 마이 페이 펀딩 페이지 조회
      */
-    @GetMapping("/funding/{fundingItemId}")
+    @PostMapping("/funding/{fundingItemId}")
     public ResponseDto<MyFundingPayViewDto> myFundingPayView(
             @PathVariable(name = "fundingItemId") Long fundingItemId,
             @RequestParam(name = "memberId") Long memberId) {
+
         return ResponseDto.ok(myPayService.fundingPay(fundingItemId, memberId));
     }
 
