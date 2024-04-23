@@ -4,15 +4,18 @@ import kcs.funding.fundingboost.domain.entity.FundingItem;
 import lombok.Builder;
 
 @Builder
-public record ItemDto(String itemThumbnailImageUrl,
-                      String itemName,
-                      String itemOption,
-                      int itemPrice,
-                      int quantity) {
+public record ItemDto(
+        Long itemId,
+        String itemThumbnailImageUrl,
+        String itemName,
+        String itemOption,
+        int itemPrice,
+        int quantity) {
 
 
     public static ItemDto fromEntity(FundingItem fundingItem) {
         return ItemDto.builder()
+                .itemId(fundingItem.getItem().getItemId())
                 .itemThumbnailImageUrl(fundingItem.getItem().getItemImageUrl())
                 .itemName(fundingItem.getItem().getItemName())
                 .itemOption(fundingItem.getItem().getOptionName())
