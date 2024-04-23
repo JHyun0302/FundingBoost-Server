@@ -12,6 +12,8 @@ import kcs.funding.fundingboost.domain.entity.Funding;
 import kcs.funding.fundingboost.domain.entity.FundingItem;
 import kcs.funding.fundingboost.domain.entity.Member;
 import kcs.funding.fundingboost.domain.entity.Order;
+import kcs.funding.fundingboost.domain.exception.CommonException;
+import kcs.funding.fundingboost.domain.exception.ErrorCode;
 import kcs.funding.fundingboost.domain.repository.DeliveryRepository;
 import kcs.funding.fundingboost.domain.repository.FundingItem.FundingItemRepository;
 import kcs.funding.fundingboost.domain.repository.MemberRepository;
@@ -62,14 +64,16 @@ public class MyPayService {
 
     @Transactional
     public CommonSuccessDto payMyItem(MyPayDto paymentDto, Long memberId) {
-        Member findMember = memberRepository.findById(memberId).orElseThrow();
+        Member findMember = memberRepository.findById(memberId)
+                .orElseThrow(() -> new CommonException(ErrorCode.NOT_FOUND_MEMBER));
         deductPointsIfPossible(findMember, paymentDto.usingPoint());
         return CommonSuccessDto.fromEntity(true);
     }
 
     @Transactional
     public CommonSuccessDto payMyFunding(FundingPaymentDto fundingPaymentDto, Long memberId) {
-        Member findMember = memberRepository.findById(memberId).orElseThrow();
+        Member findMember = memberRepository.findById(memberId)
+                .orElseThrow(() -> new CommonException(ErrorCode.NOT_FOUND_MEMBER));
         FundingItem fundingItem = fundingItemRepository.findById(fundingPaymentDto.fundingItemId()).orElseThrow();
         deductPointsIfPossible(findMember, fundingPaymentDto.usingPoint());
         fundingItem.finishFunding();
