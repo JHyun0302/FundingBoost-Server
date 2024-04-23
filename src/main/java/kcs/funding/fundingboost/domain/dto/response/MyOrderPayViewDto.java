@@ -16,7 +16,7 @@ public record MyOrderPayViewDto(List<ItemDto> itemListDto,
             List<DeliveryDto> deliveryListDto,
             int point) {
         return MyOrderPayViewDto.builder()
-                .itemListDto(orderItemsDtos.items())
+                .itemListDto(orderItemsDtos.itemDtos())
                 .giftHubItemIds(orderItemsDtos.giftHubItemIds())
                 .deliveryListDto(deliveryListDto)
                 .point(point)

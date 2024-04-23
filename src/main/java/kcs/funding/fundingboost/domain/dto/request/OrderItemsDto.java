@@ -1,11 +1,10 @@
 package kcs.funding.fundingboost.domain.dto.request;
 
+import java.util.List;
 import kcs.funding.fundingboost.domain.dto.response.ItemDto;
 
-import java.util.List;
-
 public record OrderItemsDto(
-        List<ItemDto> items,
+        List<ItemDto> itemDtos,
         List<Long> giftHubItemIds
 ) {
 
