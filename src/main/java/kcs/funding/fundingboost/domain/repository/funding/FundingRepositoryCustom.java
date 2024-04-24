@@ -10,4 +10,8 @@ public interface FundingRepositoryCustom {
     Funding findFundingInfo(Long memberId);
 
     Funding findMemberByFundingId(Long fundingId);
+
+    List<Funding> findFundingByMemberId(Long memberId);
+
+    Long countContributorsForFunding(Long fundingId);
 }

@@ -1,5 +1,6 @@
 package kcs.funding.fundingboost.domain.repository.funding;
 
+import static kcs.funding.fundingboost.domain.entity.QContributor.contributor;
 import static kcs.funding.fundingboost.domain.entity.QFunding.funding;
 import static kcs.funding.fundingboost.domain.entity.QFundingItem.fundingItem;
 import static kcs.funding.fundingboost.domain.entity.QItem.item;
@@ -52,5 +53,22 @@ public class FundingRepositoryImpl implements FundingRepositoryCustom {
                 .fetchOne();
     }
 
+    @Override
+    public List<Funding> findFundingByMemberId(Long memberId) {
+        return queryFactory
+                .selectFrom(funding)
+                .join(funding.member, member).fetchJoin()
+                .where(funding.member.memberId.eq(memberId))
+                .orderBy(funding.createdDate.desc())
+                .fetch();
+    }
 
+    @Override
+    public Long countContributorsForFunding(Long fundingId) {
+        return queryFactory
+                .select(contributor.count())
+                .from(contributor)
+                .where(contributor.funding.fundingId.eq(fundingId))
+                .fetchOne();
+    }
 }
