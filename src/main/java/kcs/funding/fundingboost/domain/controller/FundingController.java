@@ -51,8 +51,8 @@ public class FundingController {
      * 펀딩 종료하기
      */
     @PostMapping("/close/{fundingId}")
-    public CommonSuccessDto closeFunding(@PathVariable("fundingId") Long fundingId) {
-        return fundingService.terminateFunding(fundingId);
+    public ResponseDto<CommonSuccessDto> closeFunding(@PathVariable("fundingId") Long fundingId) {
+        return ResponseDto.ok(fundingService.terminateFunding(fundingId));
     }
 
     /**
@@ -72,5 +72,14 @@ public class FundingController {
             @RequestParam(name = "memberId") Long memberId
     ) {
         return ResponseDto.ok(fundingService.getFriendFundingList(memberId));
+    }
+
+    /**
+     * 펀딩 기간 늘리기
+     */
+    @PostMapping("/extension/{fundingId}")
+    public ResponseDto<CommonSuccessDto> extendMyFunding(@PathVariable("fundingId") Long fundingId,
+                                                         @RequestParam("memberId") Long memberId) {
+        return ResponseDto.ok(fundingService.extendFunding(fundingId));
     }
 }

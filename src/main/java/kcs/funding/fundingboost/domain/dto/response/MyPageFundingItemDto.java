@@ -12,14 +12,14 @@ public record MyPageFundingItemDto(
         String itemImageUrl,
         String optionName,
         int itemPercent,
-        boolean deliveryStatus
+        boolean finishedStatus
 ) {
     public static MyPageFundingItemDto fromEntity(
             Funding funding,
             Item item,
             int itemPercent,
-            boolean deliveryStatus
-    ){
+            boolean finishedStatus
+    ) {
         return MyPageFundingItemDto.builder()
                 .fundingId(funding.getFundingId())
                 .itemName(item.getItemName())
@@ -27,7 +27,7 @@ public record MyPageFundingItemDto(
                 .itemImageUrl(item.getItemImageUrl())
                 .optionName(item.getOptionName())
                 .itemPercent(itemPercent)
-                .deliveryStatus(deliveryStatus)
+                .finishedStatus(finishedStatus)
                 .build();
     }
 

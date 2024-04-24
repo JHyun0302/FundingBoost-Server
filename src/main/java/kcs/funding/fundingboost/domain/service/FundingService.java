@@ -168,4 +168,12 @@ public class FundingService {
 
         return friendFundingDtoList;
     }
+
+    @Transactional
+    public CommonSuccessDto extendFunding(Long fundingId) {
+        Funding funding = fundingRepository.findById(fundingId)
+                .orElseThrow(() -> new CommonException(ErrorCode.NOT_FOUND_FUNDING));
+        funding.extendDeadline(FundingConst.EXTEND_DEADLINE);
+        return CommonSuccessDto.fromEntity(true);
+    }
 }

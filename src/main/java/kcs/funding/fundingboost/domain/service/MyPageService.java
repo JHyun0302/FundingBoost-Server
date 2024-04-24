@@ -52,6 +52,7 @@ public class MyPageService {
                 collectPrice -= sortedFundingItem.getItem().getItemPrice();
             } else {
                 member.plusPoint(collectPrice);
+                sortedFundingItem.finishFunding();
                 return CommonSuccessDto.fromEntity(true);
             }
         }
@@ -104,7 +105,7 @@ public class MyPageService {
                 itemPercent = collectPrice * 100 / fundingItem.getItem().getItemPrice();
             }
             myPageFundingItemList.add(MyPageFundingItemDto.fromEntity(funding, fundingItem.getItem(), itemPercent,
-                    fundingItem.isDeliveryStatus()));
+                    fundingItem.isFinishedStatus()));
         }
 
         return myPageFundingItemList;
