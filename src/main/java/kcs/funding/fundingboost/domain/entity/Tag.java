@@ -16,6 +16,10 @@ public enum Tag {
         this.tag = tag;
     }
 
+    public String getDisplayName() {
+        return "#" + this.tag;
+    }
+
     public static Tag getTag(String targetTag) {
         for (Tag tag : Tag.values()) {
             if (tag.getTag().equals(targetTag)) {

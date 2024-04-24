@@ -5,9 +5,9 @@ import kcs.funding.fundingboost.domain.entity.Funding;
 
 public interface FundingRepositoryCustom {
 
-    List<Funding> findAllByMemberIn(List<Long> memberIds);
-
     Funding findFundingInfo(Long memberId);
 
     Funding findMemberByFundingId(Long fundingId);
+
+    List<Funding> findFundingByMemberId(Long memberId);
 }
