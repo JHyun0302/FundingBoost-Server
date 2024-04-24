@@ -26,7 +26,7 @@ public record CommonFriendFundingDto(
                 .nickName(funding.getMember().getNickName())
                 .friendProfileImgUrl(funding.getMember().getProfileImgUrl())
                 .friendFundingDeadlineDate(deadline)
-                .tag(funding.getTag().getTag())
+                .tag(funding.getTag().getDisplayName())
                 .collectPrice(funding.getCollectPrice())
                 .friendFundingPercent(fundingTotalPercent)
                 .friendFundingPageItemDtoList(friendFundingPageItemDtoList)

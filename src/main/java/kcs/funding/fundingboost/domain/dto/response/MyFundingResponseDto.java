@@ -12,7 +12,7 @@ public record MyFundingResponseDto(
         String itemImageUrl,
         String optionName,
         boolean status,
-        Long contributor,
+        Long contributorCount,
         String tag
 ) {
     public static MyFundingResponseDto fromEntity(Funding funding, Long contributor) {
@@ -23,7 +23,7 @@ public record MyFundingResponseDto(
                 .itemImageUrl(funding.getFundingItems().get(0).getItem().getItemImageUrl())
                 .optionName(funding.getFundingItems().get(0).getItem().getOptionName())
                 .status(funding.getFundingItems().get(0).getFunding().isFundingStatus())
-                .contributor(contributor)
+                .contributorCount(contributor)
                 .tag(funding.getTag().getDisplayName())
                 .build();
     }
