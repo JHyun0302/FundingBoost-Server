@@ -3,7 +3,8 @@ package kcs.funding.fundingboost.domain.controller;
 import kcs.funding.fundingboost.domain.dto.common.CommonSuccessDto;
 import kcs.funding.fundingboost.domain.dto.global.ResponseDto;
 import kcs.funding.fundingboost.domain.dto.request.FriendPayProcessDto;
-import kcs.funding.fundingboost.domain.dto.request.PaymentDto;
+import kcs.funding.fundingboost.domain.dto.request.FundingPaymentDto;
+import kcs.funding.fundingboost.domain.dto.request.MyPayDto;
 import kcs.funding.fundingboost.domain.dto.response.FriendFundingPayingDto;
 import kcs.funding.fundingboost.domain.dto.response.MyPayViewDto;
 import kcs.funding.fundingboost.domain.service.pay.FriendPayService;
@@ -30,7 +31,7 @@ public class PayController {
      */
     @GetMapping("/order")
     public ResponseDto<MyPayViewDto> myOrderPayView(@RequestParam(name = "memberId") Long memberId) {
-        return ResponseDto.ok(myPayService.orderPay(memberId));
+        return ResponseDto.ok(myPayService.getMyOrderPay(memberId));
     }
 
     /**
@@ -38,16 +39,25 @@ public class PayController {
      */
     @GetMapping("/funding")
     public ResponseDto<MyPayViewDto> myFundingPayView(@RequestParam(name = "memberId") Long memberId) {
-        return ResponseDto.ok(myPayService.fundingPay(memberId));
+        return ResponseDto.ok(myPayService.getMyFundingPay(memberId));
     }
 
     /**
-     * 결제하기
+     * 상품 구매하기
      */
-    @PostMapping("")
-    public ResponseDto<CommonSuccessDto> payMyOrder(@RequestBody PaymentDto paymentDto,
+    @PostMapping("/order")
+    public ResponseDto<CommonSuccessDto> payMyOrder(@RequestBody MyPayDto paymentDto,
                                                     @RequestParam("memberId") Long memberId) {
-        return ResponseDto.ok(myPayService.pay(paymentDto, memberId));
+        return ResponseDto.ok(myPayService.payMyItem(paymentDto, memberId));
+    }
+
+    /**
+     * 펀딩 상품 구매하기
+     */
+    @PostMapping("/funding")
+    public ResponseDto<CommonSuccessDto> payMyFunding(@RequestBody FundingPaymentDto fundingPaymentDto,
+                                                      @RequestParam("memberId") Long memberId) {
+        return ResponseDto.ok(myPayService.payMyFunding(fundingPaymentDto, memberId));
     }
 
     /**
