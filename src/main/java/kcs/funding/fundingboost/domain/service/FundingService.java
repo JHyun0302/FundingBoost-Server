@@ -21,7 +21,7 @@ import kcs.funding.fundingboost.domain.entity.Relationship;
 import kcs.funding.fundingboost.domain.entity.Tag;
 import kcs.funding.fundingboost.domain.exception.CommonException;
 import kcs.funding.fundingboost.domain.exception.ErrorCode;
-import kcs.funding.fundingboost.domain.repository.ContributorRepository;
+import kcs.funding.fundingboost.domain.repository.Contributor.ContributorRepository;
 import kcs.funding.fundingboost.domain.repository.FundingItem.FundingItemRepository;
 import kcs.funding.fundingboost.domain.repository.ItemRepository;
 import kcs.funding.fundingboost.domain.repository.MemberRepository;
@@ -103,7 +103,7 @@ public class FundingService {
         return CommonSuccessDto.fromEntity(true);
     }
 
-    public FriendFundingDetailDto viewFreindsFundingDetail(Long fundingId, Long memberId) {
+    public FriendFundingDetailDto viewFriendsFundingDetail(Long fundingId, Long memberId) {
 
         List<FundingItem> fundingItems = fundingItemRepository.findAllByFundingId(fundingId);
         List<FriendFundingItemDto> friendFundingItemList = fundingItems.stream().map(FriendFundingItemDto::fromEntity)
