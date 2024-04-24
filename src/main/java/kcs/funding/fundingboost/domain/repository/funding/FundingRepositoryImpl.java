@@ -1,6 +1,5 @@
 package kcs.funding.fundingboost.domain.repository.funding;
 
-import static kcs.funding.fundingboost.domain.entity.QContributor.contributor;
 import static kcs.funding.fundingboost.domain.entity.QFunding.funding;
 import static kcs.funding.fundingboost.domain.entity.QFundingItem.fundingItem;
 import static kcs.funding.fundingboost.domain.entity.QItem.item;
@@ -19,18 +18,6 @@ import org.springframework.stereotype.Repository;
 public class FundingRepositoryImpl implements FundingRepositoryCustom {
 
     private final JPAQueryFactory queryFactory;
-
-    @Override
-    public List<Funding> findAllByMemberIn(List<Long> memberIds) {
-        log.info("FundingRepositoryImpl findAllByMemberIn called");
-        return queryFactory
-                .selectFrom(funding)
-                .leftJoin(funding.member, member).fetchJoin()
-                .leftJoin(funding.fundingItems, fundingItem).fetchJoin()
-                .leftJoin(fundingItem.item, item).fetchJoin()
-                .where(member.memberId.in(memberIds))
-                .fetch();
-    }
 
     @Override
     public Funding findFundingInfo(Long memberId) {
@@ -61,14 +48,5 @@ public class FundingRepositoryImpl implements FundingRepositoryCustom {
                 .where(funding.member.memberId.eq(memberId))
                 .orderBy(funding.createdDate.desc())
                 .fetch();
-    }
-
-    @Override
-    public Long countContributorsForFunding(Long fundingId) {
-        return queryFactory
-                .select(contributor.count())
-                .from(contributor)
-                .where(contributor.funding.fundingId.eq(fundingId))
-                .fetchOne();
     }
 }

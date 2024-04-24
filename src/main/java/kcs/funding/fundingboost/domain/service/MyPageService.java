@@ -21,7 +21,7 @@ import kcs.funding.fundingboost.domain.entity.FundingItem;
 import kcs.funding.fundingboost.domain.entity.Member;
 import kcs.funding.fundingboost.domain.exception.CommonException;
 import kcs.funding.fundingboost.domain.exception.ErrorCode;
-import kcs.funding.fundingboost.domain.repository.ContributorRepository;
+import kcs.funding.fundingboost.domain.repository.Contributor.ContributorRepository;
 import kcs.funding.fundingboost.domain.repository.MemberRepository;
 import kcs.funding.fundingboost.domain.repository.funding.FundingRepository;
 import lombok.RequiredArgsConstructor;
@@ -120,7 +120,7 @@ public class MyPageService {
 
         List<MyFundingResponseDto> myFundingResponseDtos = fundings.stream()
                 .map(funding -> {
-                    Long contributors = fundingRepository.countContributorsForFunding(funding.getFundingId());
+                    Long contributors = contributorRepository.countContributorsForFunding(funding.getFundingId());
                     return MyFundingResponseDto.fromEntity(funding, contributors);
                 })
                 .toList();
