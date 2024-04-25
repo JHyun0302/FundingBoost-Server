@@ -5,11 +5,13 @@ import java.util.List;
 import kcs.funding.fundingboost.domain.dto.common.CommonSuccessDto;
 import kcs.funding.fundingboost.domain.dto.global.ResponseDto;
 import kcs.funding.fundingboost.domain.dto.request.AddGiftHubDto;
+import kcs.funding.fundingboost.domain.dto.request.ItemQuantityDto;
 import kcs.funding.fundingboost.domain.dto.response.GiftHubDto;
 import kcs.funding.fundingboost.domain.service.GiftHubItemService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -41,4 +43,14 @@ public class GiftHubController {
                                                     @RequestBody AddGiftHubDto addGiftHubDto) {
         return ResponseDto.created(giftHubItemService.addGiftHub(itemId, addGiftHubDto));
     }
+
+    /**
+     * 상품 수량 변경
+     */
+    @PatchMapping("/quantity/{gifthubItemId}")
+    public ResponseDto<CommonSuccessDto> patchGifthubItem(@PathVariable(name = "gifthubItemId") Long gifthubItemId,
+                                                          @RequestBody ItemQuantityDto itemQuantity) {
+        return ResponseDto.ok(giftHubItemService.updateItem(gifthubItemId, itemQuantity));
+    }
+
 }
