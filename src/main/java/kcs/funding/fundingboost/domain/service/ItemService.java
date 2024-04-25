@@ -45,7 +45,7 @@ public class ItemService {
             return ItemDetailDto.fromEntity(bookmark.get().getItem(), true);
         } else {
             Item item = itemRepository.findById(itemId)
-                    .orElseThrow(() -> new RuntimeException("Item Not Found"));
+                    .orElseThrow(() -> new CommonException(NOT_FOUND_ITEM));
 
             return ItemDetailDto.fromEntity(item, false);
         }

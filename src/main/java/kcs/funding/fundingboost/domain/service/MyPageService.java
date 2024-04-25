@@ -64,7 +64,7 @@ public class MyPageService {
                 .orElseThrow(() -> new CommonException(ErrorCode.NOT_FOUND_MEMBER));
         Funding funding = fundingRepository.findByMemberIdAndStatus(member.getMemberId(), true);
         MyPageMemberDto myPageMemberDto = MyPageMemberDto.fromEntity(member);
-        if (funding == null) {
+        if (funding == null) { //TODO: optional
             return MyFundingStatusDto.createNotExistFundingMyFundingStatusDto(myPageMemberDto);
         }
         List<MyPageFundingItemDto> myPageFundingItemList = getMyPageFundingItemDtoList(funding);

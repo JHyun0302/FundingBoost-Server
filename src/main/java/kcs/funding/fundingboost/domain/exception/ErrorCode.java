@@ -16,10 +16,10 @@ public enum ErrorCode {
     NOT_FOUND_LOGIN_USER(40401, HttpStatus.NOT_FOUND, "로그인한 사용자가 존재하지 않습니다."),
     NOT_FOUND_AUTHORIZATION_HEADER(40401, HttpStatus.NOT_FOUND, "Authorization 헤더가 존재하지 않습니다."),
     NOT_FOUND_MEMBER(40401, HttpStatus.NOT_FOUND, "해당 사용자가 존재하지 않습니다."),
-    NOT_FOUND_DIARY(40402, HttpStatus.NOT_FOUND, "해당 일기가 존재하지 않습니다."),
     NOT_FOUND_SHARED_URL(40403, HttpStatus.NOT_FOUND, "해당 공유 URL이 존재하지 않습니다."),
-    NOT_FOUND_ALBUM(40404, HttpStatus.NOT_FOUND, "해당 앨범이 존재하지 않습니다."),
     NOT_FOUND_FUNDING(40405, HttpStatus.NOT_FOUND, "펀딩이 존재하지 않습니다."),
+    NOT_FOUND_ITEM(40405, HttpStatus.NOT_FOUND, "상품이 존재하지 않습니다."),
+
 
     // Invalid Argument Error
     MISSING_REQUEST_PARAMETER(40000, HttpStatus.BAD_REQUEST, "필수 요청 파라미터가 누락되었습니다."),
@@ -30,8 +30,10 @@ public enum ErrorCode {
     BAD_REQUEST_PARAMETER(40005, HttpStatus.BAD_REQUEST, "잘못된 요청 파라미터입니다."),
     BAD_REQUEST_JSON(40006, HttpStatus.BAD_REQUEST, "잘못된 JSON 형식입니다."),
     SEARCH_SHORT_LENGTH_ERROR(40007, HttpStatus.BAD_REQUEST, "검색어는 2글자 이상이어야 합니다."),
-    ALREADY_SHARED_DIARY(40008, HttpStatus.BAD_REQUEST, "이미 공유 중인 일기입니다."),
     INVALID_FUNDING_STATUS(40009, HttpStatus.BAD_REQUEST, "펀딩이 정상적이지 않습니다."),
+    INVALID_POINT_LACK(40010, HttpStatus.BAD_REQUEST, "point가 부족합니다."),
+    INVALID_FUNDING_MONEY(40011, HttpStatus.BAD_REQUEST, "설정된 펀딩액 이상을 후원할 수 없습니다"),
+    INVALID_FUNDING_OR_PRICE(40012, HttpStatus.BAD_REQUEST, "펀딩에 담긴 상품이 없거나, 상품의 가격이 이상합니다."),
 
     // Gone Error
     GONE_SHARED_URL(41001, HttpStatus.GONE, "해당 공유 URL이 만료되었습니다."),
@@ -55,6 +57,7 @@ public enum ErrorCode {
     // Internal Server Error
     INTERNAL_SERVER_ERROR(50000, HttpStatus.INTERNAL_SERVER_ERROR, "서버 내부 에러입니다."),
     UPLOAD_FILE_ERROR(50001, HttpStatus.INTERNAL_SERVER_ERROR, "파일 업로드에 실패하였습니다."),
+    INTERNAL_SAVE_ERROR(50003, HttpStatus.INTERNAL_SERVER_ERROR, "Saving GiftHubItem failed"),
 
     // Funding Error
     ALREADY_EXIST_FUNDING(50002, HttpStatus.INTERNAL_SERVER_ERROR, "펀딩이 이미 존재합니다.");

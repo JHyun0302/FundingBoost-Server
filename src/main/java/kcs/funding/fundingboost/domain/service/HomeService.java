@@ -1,5 +1,7 @@
 package kcs.funding.fundingboost.domain.service;
 
+import static kcs.funding.fundingboost.domain.exception.ErrorCode.NOT_FOUND_MEMBER;
+
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
@@ -16,7 +18,6 @@ import kcs.funding.fundingboost.domain.entity.Funding;
 import kcs.funding.fundingboost.domain.entity.FundingItem;
 import kcs.funding.fundingboost.domain.entity.Member;
 import kcs.funding.fundingboost.domain.exception.CommonException;
-import kcs.funding.fundingboost.domain.exception.ErrorCode;
 import kcs.funding.fundingboost.domain.repository.ItemRepository;
 import kcs.funding.fundingboost.domain.repository.MemberRepository;
 import kcs.funding.fundingboost.domain.repository.funding.FundingRepository;
@@ -42,7 +43,7 @@ public class HomeService {
     public HomeViewDto getMainView(Long memberId) {
         Funding funding = fundingRepository.findFundingInfo(memberId);
         Member member = memberRepository.findById(memberId)
-                .orElseThrow(() -> new CommonException(ErrorCode.NOT_FOUND_MEMBER));
+                .orElseThrow(() -> new CommonException(NOT_FOUND_MEMBER));
         // 사용자 정보: 이름, 프로필 이미지
         HomeMemberInfoDto homeMemberInfoDto = HomeMemberInfoDto.fromEntity(member);
 

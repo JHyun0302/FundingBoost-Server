@@ -1,6 +1,9 @@
 package kcs.funding.fundingboost.domain.service;
 
 import static kcs.funding.fundingboost.domain.dto.response.GiftHubDto.createGiftHubDto;
+import static kcs.funding.fundingboost.domain.exception.ErrorCode.INTERNAL_SAVE_ERROR;
+import static kcs.funding.fundingboost.domain.exception.ErrorCode.NOT_FOUND_ITEM;
+import static kcs.funding.fundingboost.domain.exception.ErrorCode.NOT_FOUND_MEMBER;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -10,6 +13,7 @@ import kcs.funding.fundingboost.domain.dto.response.GiftHubDto;
 import kcs.funding.fundingboost.domain.entity.GiftHubItem;
 import kcs.funding.fundingboost.domain.entity.Item;
 import kcs.funding.fundingboost.domain.entity.Member;
+import kcs.funding.fundingboost.domain.exception.CommonException;
 import kcs.funding.fundingboost.domain.repository.GiftHubItemRepository;
 import kcs.funding.fundingboost.domain.repository.ItemRepository;
 import kcs.funding.fundingboost.domain.repository.MemberRepository;
@@ -32,7 +36,7 @@ public class GiftHubItemService {
 
     public List<GiftHubDto> getGiftHub(Long memberId) {
         Member member = memberRepository.findById(memberId)
-                .orElseThrow(() -> new RuntimeException("Member not found"));
+                .orElseThrow(() -> new CommonException(NOT_FOUND_MEMBER));
 
         List<GiftHubItem> giftHubItems = giftHubItemRepository.findGiftHubItemsByMember(member);
 
@@ -44,10 +48,10 @@ public class GiftHubItemService {
     @Transactional
     public CommonSuccessDto addGiftHub(Long itemId, AddGiftHubDto addGiftHubDto) {
         Item item = itemRepository.findById(itemId)
-                .orElseThrow(() -> new RuntimeException("Item not found"));
+                .orElseThrow(() -> new CommonException(NOT_FOUND_ITEM));
 
         Member member = memberRepository.findById(addGiftHubDto.memberId())
-                .orElseThrow(() -> new RuntimeException("Member not found"));
+                .orElseThrow(() -> new CommonException(NOT_FOUND_MEMBER));
 
         GiftHubItem giftHubItem = GiftHubItem.createGiftHubItem(addGiftHubDto.quantity(), item, member);
         GiftHubItem saveGiftHubItem = giftHubItemRepository.save(giftHubItem);
@@ -55,7 +59,7 @@ public class GiftHubItemService {
         if (saveGiftHubItem != null) {
             return CommonSuccessDto.fromEntity(true);
         } else {
-            throw new RuntimeException("Saving GiftHubItem failed");
+            throw new CommonException(INTERNAL_SAVE_ERROR);
         }
     }
 }

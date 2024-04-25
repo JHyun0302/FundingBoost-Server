@@ -1,5 +1,13 @@
 package kcs.funding.fundingboost.domain.service;
 
+import static kcs.funding.fundingboost.domain.exception.ErrorCode.ALREADY_EXIST_FUNDING;
+import static kcs.funding.fundingboost.domain.exception.ErrorCode.INVALID_FUNDING_OR_PRICE;
+import static kcs.funding.fundingboost.domain.exception.ErrorCode.INVALID_FUNDING_STATUS;
+import static kcs.funding.fundingboost.domain.exception.ErrorCode.NOT_FOUND_FUNDING;
+import static kcs.funding.fundingboost.domain.exception.ErrorCode.NOT_FOUND_ITEM;
+import static kcs.funding.fundingboost.domain.exception.ErrorCode.NOT_FOUND_MEMBER;
+import static kcs.funding.fundingboost.domain.service.FundingConst.EXTEND_DEADLINE;
+
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
@@ -20,7 +28,6 @@ import kcs.funding.fundingboost.domain.entity.Item;
 import kcs.funding.fundingboost.domain.entity.Relationship;
 import kcs.funding.fundingboost.domain.entity.Tag;
 import kcs.funding.fundingboost.domain.exception.CommonException;
-import kcs.funding.fundingboost.domain.exception.ErrorCode;
 import kcs.funding.fundingboost.domain.repository.Contributor.ContributorRepository;
 import kcs.funding.fundingboost.domain.repository.FundingItem.FundingItemRepository;
 import kcs.funding.fundingboost.domain.repository.ItemRepository;
@@ -50,13 +57,13 @@ public class FundingService {
         Funding funding = fundingRepository.findByMemberIdAndStatus(memberId, true);
 
         if (funding != null) {
-            throw new CommonException(ErrorCode.ALREADY_EXIST_FUNDING);
+            throw new CommonException(ALREADY_EXIST_FUNDING);
         }
 
         return IntStream.range(0, registerFundingBringItemDto.size())
                 .mapToObj(i -> FundingRegistrationItemDto.createFundingRegistrationItemDto(
                         itemRepository.findById(registerFundingBringItemDto.get(i))
-                                .orElseThrow(() -> new RuntimeException("Item not found")),
+                                .orElseThrow(() -> new CommonException(NOT_FOUND_ITEM)),
                         (long) i + 1)).toList();
     }
 
@@ -67,7 +74,7 @@ public class FundingService {
 
         List<Item> itemList = registerFundingItemList.stream()
                 .map(itemIdList -> itemRepository.findById(itemIdList)
-                        .orElseThrow(() -> new RuntimeException("Item Not Found"))).toList();
+                        .orElseThrow(() -> new CommonException(NOT_FOUND_ITEM))).toList();
 
         int sum = 0;
         for (Item item : itemList) {
@@ -75,7 +82,7 @@ public class FundingService {
         }
 
         Funding funding = Funding.createFunding(memberRepository.findById(memberId)
-                        .orElseThrow(() -> new RuntimeException("Member Not Found")),
+                        .orElseThrow(() -> new CommonException(NOT_FOUND_MEMBER)),
                 registerFundingDto.fundingMessage(),
                 Tag.getTag(registerFundingDto.tag()),
                 sum,
@@ -87,7 +94,7 @@ public class FundingService {
             FundingItem fundingItem = FundingItem.createFundingItem(
                     funding,
                     itemRepository.findById(registerFundingItemList.get(i))
-                            .orElseThrow(() -> new RuntimeException("Item Not Found")),
+                            .orElseThrow(() -> new CommonException(NOT_FOUND_ITEM)),
                     i + 1);
             fundingItemRepository.save(fundingItem);
         }
@@ -98,7 +105,7 @@ public class FundingService {
     @Transactional
     public CommonSuccessDto terminateFunding(Long fundingId) {
         Funding funding = fundingRepository.findById(fundingId)
-                .orElseThrow(() -> new RuntimeException("Funding not found"));
+                .orElseThrow(() -> new CommonException(NOT_FOUND_FUNDING));
         funding.terminate();
         return CommonSuccessDto.fromEntity(true);
     }
@@ -120,7 +127,7 @@ public class FundingService {
         if (funding.getTotalPrice() > 0) {
             contributedPercent = funding.getCollectPrice() / funding.getTotalPrice() * 100;
         } else {
-            throw new RuntimeException("펀딩에 담긴 상품이 없거나, 상품의 가격이 이상합니다.");
+            throw new CommonException(INVALID_FUNDING_OR_PRICE);
         }
 
         return FriendFundingDetailDto.fromEntity(friendFundingItemList, funding, contributorList, contributedPercent);
@@ -144,7 +151,7 @@ public class FundingService {
             int totalPrice = friendFunding.getTotalPrice();
 
             if (totalPrice == 0) {
-                throw new CommonException(ErrorCode.INVALID_FUNDING_STATUS);
+                throw new CommonException(INVALID_FUNDING_STATUS);
             }
             int fundingTotalPercent = friendFunding.getCollectPrice() * 100 / totalPrice;
             commonFriendFundingDtoList.add(CommonFriendFundingDto.fromEntity(
@@ -172,8 +179,8 @@ public class FundingService {
     @Transactional
     public CommonSuccessDto extendFunding(Long fundingId) {
         Funding funding = fundingRepository.findById(fundingId)
-                .orElseThrow(() -> new CommonException(ErrorCode.NOT_FOUND_FUNDING));
-        funding.extendDeadline(FundingConst.EXTEND_DEADLINE);
+                .orElseThrow(() -> new CommonException(NOT_FOUND_FUNDING));
+        funding.extendDeadline(EXTEND_DEADLINE);
         return CommonSuccessDto.fromEntity(true);
     }
 }

@@ -1,5 +1,7 @@
 package kcs.funding.fundingboost.domain.service.pay;
 
+import static kcs.funding.fundingboost.domain.exception.ErrorCode.INVALID_POINT_LACK;
+
 import java.util.List;
 import kcs.funding.fundingboost.domain.dto.common.CommonSuccessDto;
 import kcs.funding.fundingboost.domain.dto.request.FundingPaymentDto;
@@ -84,7 +86,7 @@ public class MyPayService {
         if (member.getPoint() - points >= 0) {
             member.minusPoint(points);
         } else {
-            throw new RuntimeException("point가 부족합니다");
+            throw new CommonException(INVALID_POINT_LACK);
         }
     }
 }
