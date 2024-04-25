@@ -1,5 +1,7 @@
 package kcs.funding.fundingboost.domain.service;
 
+import static kcs.funding.fundingboost.domain.exception.ErrorCode.NOT_FOUND_MEMBER;
+
 import java.util.List;
 import kcs.funding.fundingboost.domain.dto.response.myPage.orderHistory.OrderHistoryDto;
 import kcs.funding.fundingboost.domain.dto.response.myPage.orderHistory.OrderHistoryItemDto;
@@ -7,7 +9,6 @@ import kcs.funding.fundingboost.domain.dto.response.myPage.orderHistory.OrderHis
 import kcs.funding.fundingboost.domain.entity.Member;
 import kcs.funding.fundingboost.domain.entity.OrderItem;
 import kcs.funding.fundingboost.domain.exception.CommonException;
-import kcs.funding.fundingboost.domain.exception.ErrorCode;
 import kcs.funding.fundingboost.domain.repository.MemberRepository;
 import kcs.funding.fundingboost.domain.repository.orderItem.OrderItemRepository;
 import lombok.RequiredArgsConstructor;
@@ -39,7 +40,7 @@ public class OrderService {
         } else {
             // 주문 목록이 존재하지 않는 경우
             Member member = memberRepository.findById(memberId)
-                    .orElseThrow(() -> new CommonException(ErrorCode.NOT_FOUND_MEMBER));
+                    .orElseThrow(() -> new CommonException(NOT_FOUND_MEMBER));
             OrderHistoryMemberDto orderHistoryMemberDto = OrderHistoryMemberDto.fromEntity(member); // memberDto 초기화
             return OrderHistoryDto.fromEntity(orderHistoryMemberDto, null);
         }
