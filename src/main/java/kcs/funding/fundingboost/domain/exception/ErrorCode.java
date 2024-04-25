@@ -32,7 +32,7 @@ public enum ErrorCode {
     SEARCH_SHORT_LENGTH_ERROR(40007, HttpStatus.BAD_REQUEST, "검색어는 2글자 이상이어야 합니다."),
     INVALID_FUNDING_STATUS(40009, HttpStatus.BAD_REQUEST, "펀딩이 정상적이지 않습니다."),
     INVALID_POINT_LACK(40010, HttpStatus.BAD_REQUEST, "point가 부족합니다."),
-    INVALID_FUNDING_MONEY(40011, HttpStatus.BAD_REQUEST, "설정된 펀딩액 이상을 후원할 수 없습니다"),
+    INVALID_FUNDING_MONEY(40011, HttpStatus.BAD_REQUEST, "펀딩 금액 이상을 후원할 수 없습니다"),
     INVALID_FUNDING_OR_PRICE(40012, HttpStatus.BAD_REQUEST, "펀딩에 담긴 상품이 없거나, 상품의 가격이 이상합니다."),
 
     // Gone Error
@@ -57,7 +57,7 @@ public enum ErrorCode {
     // Internal Server Error
     INTERNAL_SERVER_ERROR(50000, HttpStatus.INTERNAL_SERVER_ERROR, "서버 내부 에러입니다."),
     UPLOAD_FILE_ERROR(50001, HttpStatus.INTERNAL_SERVER_ERROR, "파일 업로드에 실패하였습니다."),
-    INTERNAL_SAVE_ERROR(50003, HttpStatus.INTERNAL_SERVER_ERROR, "Saving GiftHubItem failed"),
+    INTERNAL_SAVE_ERROR(50003, HttpStatus.INTERNAL_SERVER_ERROR, "기프트에 아이템 담기 실패"),
 
     // Funding Error
     ALREADY_EXIST_FUNDING(50002, HttpStatus.INTERNAL_SERVER_ERROR, "펀딩이 이미 존재합니다.");
