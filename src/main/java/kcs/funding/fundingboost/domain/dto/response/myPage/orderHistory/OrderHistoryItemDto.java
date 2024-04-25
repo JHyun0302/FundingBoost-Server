@@ -20,7 +20,7 @@ public record OrderHistoryItemDto(
                 .itemImageUrl(orderItem.getItem().getItemImageUrl())
                 .optionName(orderItem.getItem().getOptionName())
                 .quantity(orderItem.getQuantity())
-                .price(orderItem.getItem().getItemPrice())
+                .price(orderItem.getItem().getItemPrice() * orderItem.getQuantity()) // 총 가격을 반환
                 .createdDate(LocalDate.from(orderItem.getOrder().getCreatedDate()))
                 .build();
     }
