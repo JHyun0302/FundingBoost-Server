@@ -35,11 +35,6 @@ public class Order {
     private int price;
 
     @ManyToOne(fetch = LAZY)
-    @JoinColumn(name = "item_id")
-    @OnDelete(action = OnDeleteAction.CASCADE)
-    private Item item;
-
-    @ManyToOne(fetch = LAZY)
     @JoinColumn(name = "memeber_id")
     @OnDelete(action = OnDeleteAction.CASCADE)
     private Member member;
@@ -50,12 +45,11 @@ public class Order {
     private Delivery delivery;
 
 
-    public static Order createOrder(int quantity, int price, Item item, Member member,
+    public static Order createOrder(int quantity, int price, Member member,
                                     Delivery delivery) {
         Order order = new Order();
         order.quantity = quantity;
         order.price = price;
-        order.item = item;
         order.member = member;
         order.delivery = delivery;
         return order;
