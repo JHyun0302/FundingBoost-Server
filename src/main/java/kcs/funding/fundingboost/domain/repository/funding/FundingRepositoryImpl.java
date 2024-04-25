@@ -20,18 +20,6 @@ public class FundingRepositoryImpl implements FundingRepositoryCustom {
     private final JPAQueryFactory queryFactory;
 
     @Override
-    public List<Funding> findAllByMemberIn(List<Long> memberIds) {
-        log.info("FundingRepositoryImpl findAllByMemberIn called");
-        return queryFactory
-                .selectFrom(funding)
-                .leftJoin(funding.member, member).fetchJoin()
-                .leftJoin(funding.fundingItems, fundingItem).fetchJoin()
-                .leftJoin(fundingItem.item, item).fetchJoin()
-                .where(member.memberId.in(memberIds))
-                .fetch();
-    }
-
-    @Override
     public Funding findFundingInfo(Long memberId) {
         return queryFactory
                 .selectFrom(funding)
@@ -52,5 +40,13 @@ public class FundingRepositoryImpl implements FundingRepositoryCustom {
                 .fetchOne();
     }
 
-
+    @Override
+    public List<Funding> findFundingByMemberId(Long memberId) {
+        return queryFactory
+                .selectFrom(funding)
+                .join(funding.member, member).fetchJoin()
+                .where(funding.member.memberId.eq(memberId))
+                .orderBy(funding.createdDate.desc())
+                .fetch();
+    }
 }

@@ -73,6 +73,10 @@ public class Funding extends BaseTimeEntity {
         this.fundingStatus = false;
     }
 
+    public void extendDeadline(int day) {
+        this.deadline = this.deadline.plusDays(day);
+    }
+
     public static Funding createFunding(Member member, String message, Tag tag, int totalPrice,
                                         LocalDateTime deadline) {
         Funding funding = new Funding();

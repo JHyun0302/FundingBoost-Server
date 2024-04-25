@@ -113,10 +113,26 @@ public class MyPayService {
     }
 
     @Transactional
-    public CommonSuccessDto pay(PaymentDto paymentDto, Long memberId) {
-        Member findMember = memberRepository.findById(memberId).orElseThrow();
-        if (findMember.getPoint() - paymentDto.usingPoint() >= 0) {
-            findMember.minusPoint(paymentDto.usingPoint());
+    public CommonSuccessDto payMyItem(MyPayDto paymentDto, Long memberId) {
+        Member findMember = memberRepository.findById(memberId)
+                .orElseThrow(() -> new CommonException(ErrorCode.NOT_FOUND_MEMBER));
+        deductPointsIfPossible(findMember, paymentDto.usingPoint());
+        return CommonSuccessDto.fromEntity(true);
+    }
+
+    @Transactional
+    public CommonSuccessDto payMyFunding(FundingPaymentDto fundingPaymentDto, Long memberId) {
+        Member findMember = memberRepository.findById(memberId)
+                .orElseThrow(() -> new CommonException(ErrorCode.NOT_FOUND_MEMBER));
+        FundingItem fundingItem = fundingItemRepository.findById(fundingPaymentDto.fundingItemId()).orElseThrow();
+        deductPointsIfPossible(findMember, fundingPaymentDto.usingPoint());
+        fundingItem.finishFunding();
+        return CommonSuccessDto.fromEntity(true);
+    }
+
+    private void deductPointsIfPossible(Member member, int points) {
+        if (member.getPoint() - points >= 0) {
+            member.minusPoint(points);
         } else {
             throw new RuntimeException("point가 부족합니다");
         }

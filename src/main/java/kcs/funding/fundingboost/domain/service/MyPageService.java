@@ -9,6 +9,8 @@ import java.util.List;
 import java.util.stream.Collectors;
 import kcs.funding.fundingboost.domain.dto.common.CommonSuccessDto;
 import kcs.funding.fundingboost.domain.dto.request.TransformPointDto;
+import kcs.funding.fundingboost.domain.dto.response.MyFundingHistoryDto;
+import kcs.funding.fundingboost.domain.dto.response.MyFundingResponseDto;
 import kcs.funding.fundingboost.domain.dto.response.MyFundingStatusDto;
 import kcs.funding.fundingboost.domain.dto.response.MyPageFundingItemDto;
 import kcs.funding.fundingboost.domain.dto.response.MyPageMemberDto;
@@ -19,8 +21,7 @@ import kcs.funding.fundingboost.domain.entity.FundingItem;
 import kcs.funding.fundingboost.domain.entity.Member;
 import kcs.funding.fundingboost.domain.exception.CommonException;
 import kcs.funding.fundingboost.domain.exception.ErrorCode;
-import kcs.funding.fundingboost.domain.repository.ContributorRepository;
-import kcs.funding.fundingboost.domain.repository.FundingItem.FundingItemRepository;
+import kcs.funding.fundingboost.domain.repository.Contributor.ContributorRepository;
 import kcs.funding.fundingboost.domain.repository.MemberRepository;
 import kcs.funding.fundingboost.domain.repository.funding.FundingRepository;
 import lombok.RequiredArgsConstructor;
@@ -33,7 +34,6 @@ public class MyPageService {
 
     private final FundingRepository fundingRepository;
     private final MemberRepository memberRepository;
-    private final FundingItemRepository fundingItemRepository;
     private final ContributorRepository contributorRepository;
 
     @Transactional
@@ -52,6 +52,7 @@ public class MyPageService {
                 collectPrice -= sortedFundingItem.getItem().getItemPrice();
             } else {
                 member.plusPoint(collectPrice);
+                sortedFundingItem.finishFunding();
                 return CommonSuccessDto.fromEntity(true);
             }
         }
@@ -69,7 +70,7 @@ public class MyPageService {
         List<MyPageFundingItemDto> myPageFundingItemList = getMyPageFundingItemDtoList(funding);
         List<ParticipateFriendDto> participateFriendDtoList = getParticipateFriendDtoList(funding);
 
-        int totalPercent = (int) funding.getCollectPrice() * 100 / funding.getTotalPrice();
+        int totalPercent = funding.getCollectPrice() * 100 / funding.getTotalPrice();
         int leftDate = (int) ChronoUnit.DAYS.between(LocalDate.now(),
                 funding.getDeadline());
         String deadlineDate = "D-" + leftDate;
@@ -108,5 +109,23 @@ public class MyPageService {
         }
 
         return myPageFundingItemList;
+    }
+
+    public MyFundingHistoryDto getMyFundingHistory(Long memberId) {
+        Member member = memberRepository.findById(memberId)
+                .orElseThrow(() -> new CommonException(ErrorCode.NOT_FOUND_MEMBER));
+
+        MyPageMemberDto myPageMemberDto = MyPageMemberDto.fromEntity(member);
+
+        List<Funding> fundings = fundingRepository.findFundingByMemberId(memberId);
+
+        List<MyFundingResponseDto> myFundingResponseDtos = fundings.stream()
+                .map(funding -> {
+                    Long contributors = contributorRepository.countContributorsForFunding(funding.getFundingId());
+                    return MyFundingResponseDto.fromEntity(funding, contributors);
+                })
+                .toList();
+
+        return MyFundingHistoryDto.fromEntity(myPageMemberDto, myFundingResponseDtos);
     }
 }

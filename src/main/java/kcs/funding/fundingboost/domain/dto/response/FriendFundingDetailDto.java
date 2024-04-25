@@ -4,7 +4,6 @@ package kcs.funding.fundingboost.domain.dto.response;
 import java.time.LocalDateTime;
 import java.util.List;
 import kcs.funding.fundingboost.domain.entity.Funding;
-import kcs.funding.fundingboost.domain.entity.Tag;
 import lombok.Builder;
 
 @Builder
@@ -12,7 +11,7 @@ public record FriendFundingDetailDto(List<FriendFundingItemDto> friendFundingIte
                                      List<ContributorDto> contributorList,
                                      String friendName, String friendProfile,
                                      LocalDateTime deadline, int contributedPercent,
-                                     Tag fundingTag, String fundingMessage) {
+                                     String fundingTag, String fundingMessage) {
 
 
     public static FriendFundingDetailDto fromEntity(List<FriendFundingItemDto> friendFundingItemList, Funding funding,
@@ -22,7 +21,7 @@ public record FriendFundingDetailDto(List<FriendFundingItemDto> friendFundingIte
         return FriendFundingDetailDto.builder()
                 .friendFundingItemList(friendFundingItemList)
                 .friendName(funding.getMember().getNickName())
-                .fundingTag(funding.getTag())
+                .fundingTag(funding.getTag().getDisplayName())
                 .fundingMessage(funding.getMessage())
                 .friendProfile(funding.getMember().getProfileImgUrl())
                 .contributorList(contributorList)

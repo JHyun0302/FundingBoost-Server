@@ -3,10 +3,16 @@ package kcs.funding.fundingboost.domain.controller;
 import kcs.funding.fundingboost.domain.dto.common.CommonSuccessDto;
 import kcs.funding.fundingboost.domain.dto.global.ResponseDto;
 import kcs.funding.fundingboost.domain.dto.request.TransformPointDto;
+import kcs.funding.fundingboost.domain.dto.response.MyFundingHistoryDto;
 import kcs.funding.fundingboost.domain.dto.response.MyFundingStatusDto;
 import kcs.funding.fundingboost.domain.service.MyPageService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequiredArgsConstructor
@@ -27,5 +33,13 @@ public class MyPageController {
     @GetMapping("")
     public ResponseDto<MyFundingStatusDto> viewMyPage(@RequestParam("memberId") Long memberId) {
         return ResponseDto.ok(myPageService.getMyFundingStatus(memberId));
+    }
+
+    /**
+     * 지난 펀딩 이력 조회
+     */
+    @GetMapping("/funding-history")
+    public ResponseDto<MyFundingHistoryDto> viewMyFundingHistory(@RequestParam("memberId") Long memberId) {
+        return ResponseDto.ok(myPageService.getMyFundingHistory(memberId));
     }
 }
