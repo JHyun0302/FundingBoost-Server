@@ -15,9 +15,9 @@ public enum ErrorCode {
     NOT_FOUND_RESOURCE(40400, HttpStatus.NOT_FOUND, "해당 리소스가 존재하지 않습니다."),
     NOT_FOUND_LOGIN_USER(40401, HttpStatus.NOT_FOUND, "로그인한 사용자가 존재하지 않습니다."),
     NOT_FOUND_AUTHORIZATION_HEADER(40401, HttpStatus.NOT_FOUND, "Authorization 헤더가 존재하지 않습니다."),
-    NOT_FOUND_MEMBER(40401, HttpStatus.NOT_FOUND, "해당 사용자가 존재하지 않습니다."),
+    NOT_FOUND_MEMBER(40402, HttpStatus.NOT_FOUND, "해당 사용자가 존재하지 않습니다."),
     NOT_FOUND_SHARED_URL(40403, HttpStatus.NOT_FOUND, "해당 공유 URL이 존재하지 않습니다."),
-    NOT_FOUND_FUNDING(40405, HttpStatus.NOT_FOUND, "펀딩이 존재하지 않습니다."),
+    NOT_FOUND_FUNDING(40404, HttpStatus.NOT_FOUND, "펀딩이 존재하지 않습니다."),
     NOT_FOUND_ITEM(40405, HttpStatus.NOT_FOUND, "상품이 존재하지 않습니다."),
 
 
