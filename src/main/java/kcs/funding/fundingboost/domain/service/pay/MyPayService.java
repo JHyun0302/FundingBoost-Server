@@ -137,7 +137,5 @@ public class MyPayService {
         } else {
             throw new RuntimeException("point가 부족합니다");
         }
-        return CommonSuccessDto.fromEntity(true);
     }
-
 }
