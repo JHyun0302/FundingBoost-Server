@@ -7,6 +7,7 @@ import static kcs.funding.fundingboost.domain.entity.QMember.member;
 
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import java.util.List;
+import java.util.Optional;
 import kcs.funding.fundingboost.domain.entity.Funding;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -20,15 +21,15 @@ public class FundingRepositoryImpl implements FundingRepositoryCustom {
     private final JPAQueryFactory queryFactory;
 
     @Override
-    public Funding findFundingInfo(Long memberId) {
-        return queryFactory
+    public Optional<Funding> findFundingInfo(Long memberId) {
+        return Optional.ofNullable(queryFactory
                 .selectFrom(funding)
                 .join(funding.fundingItems, fundingItem)
                 .join(fundingItem.item, item)
                 .join(funding.member, member).fetchJoin()
                 .where(funding.member.memberId.eq(memberId)
                         .and(funding.fundingStatus.eq(true)))
-                .fetchOne();
+                .fetchOne());
     }
 
     @Override

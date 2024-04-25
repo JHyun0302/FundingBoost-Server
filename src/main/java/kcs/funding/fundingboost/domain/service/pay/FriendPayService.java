@@ -1,7 +1,9 @@
 package kcs.funding.fundingboost.domain.service.pay;
 
-import static kcs.funding.fundingboost.domain.exception.ErrorCode.EXCEEDED_FUNDING_AMOUNT_ERROR;
-import static kcs.funding.fundingboost.domain.exception.ErrorCode.LOW_POINT_ERROR;
+import static kcs.funding.fundingboost.domain.exception.ErrorCode.INVALID_FUNDING_MONEY;
+import static kcs.funding.fundingboost.domain.exception.ErrorCode.INVALID_POINT_LACK;
+import static kcs.funding.fundingboost.domain.exception.ErrorCode.NOT_FOUND_FUNDING;
+import static kcs.funding.fundingboost.domain.exception.ErrorCode.NOT_FOUND_MEMBER;
 
 import kcs.funding.fundingboost.domain.dto.common.CommonSuccessDto;
 import kcs.funding.fundingboost.domain.dto.request.FriendPayProcessDto;
@@ -24,7 +26,8 @@ public class FriendPayService {
     private final FundingRepository fundingRepository;
 
     public FriendFundingPayingDto getFriendFundingPay(Long fundingId, Long memberId) {
-        Member member = memberRepository.findById(memberId).orElseThrow();
+        Member member = memberRepository.findById(memberId)
+                .orElseThrow(() -> new CommonException(NOT_FOUND_MEMBER));
         Funding friendFunding = fundingRepository.findById(fundingId).orElseThrow();
 
         return FriendFundingPayingDto.fromEntity(friendFunding, member.getPoint());
@@ -33,18 +36,20 @@ public class FriendPayService {
     @Transactional
     public CommonSuccessDto fund(Long memberId, Long fundingId,
                                  FriendPayProcessDto friendPayProcessDto) {
-        Member findMember = memberRepository.findById(memberId).orElseThrow();
+        Member findMember = memberRepository.findById(memberId)
+                .orElseThrow(() -> new CommonException(NOT_FOUND_MEMBER));
         int point = friendPayProcessDto.myPoint();
         if (findMember.getPoint() - point >= 0) {
             findMember.minusPoint(point);
         } else {
-            throw new CommonException(LOW_POINT_ERROR);
+            throw new CommonException(INVALID_POINT_LACK);
         }
-        Funding friendFunding = fundingRepository.findById(fundingId).orElseThrow();
+        Funding friendFunding = fundingRepository.findById(fundingId)
+                .orElseThrow(() -> new CommonException(NOT_FOUND_FUNDING));
         if (friendFunding.getCollectPrice() + point <= friendFunding.getTotalPrice()) {
             friendFunding.fund(point);
         } else {
-            throw new CommonException(EXCEEDED_FUNDING_AMOUNT_ERROR);
+            throw new CommonException(INVALID_FUNDING_MONEY);
         }
         return CommonSuccessDto.fromEntity(true);
     }
