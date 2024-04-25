@@ -9,14 +9,4 @@ import org.springframework.stereotype.Repository;
 public class RelationshipRepositoryRepositoryImpl implements RelationshipRepositoryCustom {
 
     private final JPAQueryFactory queryFactory;
-
-//    @Override
-//    public List<Long> findFriendIdByMemberId(Long memberId) {
-//        return queryFactory
-//                .select(relationship.friend.memberId)
-//                .from(relationship)
-//                .leftJoin(relationship.member, member).fetchJoin()
-//                .where(relationship.member.memberId.eq(memberId))
-//                .fetch();
-//    }
 }

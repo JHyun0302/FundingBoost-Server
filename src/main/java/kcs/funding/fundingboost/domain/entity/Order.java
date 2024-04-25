@@ -11,6 +11,7 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
+import kcs.funding.fundingboost.domain.entity.common.BaseTimeEntity;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -21,7 +22,7 @@ import org.hibernate.annotations.OnDeleteAction;
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Table(name = "orders")
-public class Order {
+public class Order extends BaseTimeEntity {
 
     @Id
     @GeneratedValue(strategy = IDENTITY)
@@ -43,7 +44,7 @@ public class Order {
     private Delivery delivery;
 
 
-    public static Order createOrder( int totalPrice, Member member,
+    public static Order createOrder(int totalPrice, Member member,
                                     Delivery delivery) {
         Order order = new Order();
         order.totalPrice = totalPrice;
