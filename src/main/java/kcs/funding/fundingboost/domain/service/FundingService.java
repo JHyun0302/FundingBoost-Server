@@ -6,10 +6,8 @@ import static kcs.funding.fundingboost.domain.exception.ErrorCode.INVALID_FUNDIN
 import static kcs.funding.fundingboost.domain.exception.ErrorCode.LOW_POINT_ERROR;
 import static kcs.funding.fundingboost.domain.exception.ErrorCode.NOT_FOUND_DELIVERY;
 import static kcs.funding.fundingboost.domain.exception.ErrorCode.NOT_FOUND_FUNDING;
-import static kcs.funding.fundingboost.domain.exception.ErrorCode.NOT_FOUND_FUNDING_ITEM;
 import static kcs.funding.fundingboost.domain.exception.ErrorCode.NOT_FOUND_MEMBER;
 
-import jakarta.persistence.EntityManager;
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
@@ -40,6 +38,8 @@ import kcs.funding.fundingboost.domain.repository.DeliveryRepository;
 import kcs.funding.fundingboost.domain.repository.FundingItem.FundingItemRepository;
 import kcs.funding.fundingboost.domain.repository.ItemRepository;
 import kcs.funding.fundingboost.domain.repository.MemberRepository;
+import kcs.funding.fundingboost.domain.repository.OrderItemRepository;
+import kcs.funding.fundingboost.domain.repository.OrderRepository;
 import kcs.funding.fundingboost.domain.repository.funding.FundingRepository;
 import kcs.funding.fundingboost.domain.repository.relationship.RelationshipRepository;
 import lombok.RequiredArgsConstructor;
@@ -52,8 +52,6 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional(readOnly = true)
 @RequiredArgsConstructor
 public class FundingService {
-    private final EntityManager em;
-
     private final ItemRepository itemRepository;
     private final MemberRepository memberRepository;
     private final FundingRepository fundingRepository;
@@ -61,6 +59,8 @@ public class FundingService {
     private final ContributorRepository contributorRepository;
     private final RelationshipRepository relationshipRepository;
     private final DeliveryRepository deliveryRepository;
+    private final OrderRepository orderRepository;
+    private final OrderItemRepository orderItemRepository;
 
     public List<FundingRegistrationItemDto> getFundingRegister(List<Long> registerFundingBringItemDto, Long memberId) {
 
@@ -197,8 +197,7 @@ public class FundingService {
     @Transactional
     public CommonSuccessDto payRemain(Long fundingItemId, PayRemainDto payRemainDto, Long memberId) {
 
-        FundingItem fundingItem = fundingItemRepository.findById(fundingItemId)
-                .orElseThrow(() -> new CommonException(NOT_FOUND_FUNDING_ITEM));
+        FundingItem fundingItem = fundingItemRepository.findFundingItemAndItemByFundingItemId(fundingItemId);
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new CommonException(NOT_FOUND_MEMBER));
         Delivery delivery = deliveryRepository.findById(payRemainDto.deliveryId())
@@ -218,8 +217,8 @@ public class FundingService {
 
         Order newOrder = Order.createOrder(fundingItem.getItem().getItemPrice(), member, delivery);
         OrderItem newOrderItem = OrderItem.createOrderItem(newOrder, fundingItem.getItem(), 1);
-        em.persist(newOrder);
-        em.persist(newOrderItem);
+        orderRepository.save(newOrder);
+        orderItemRepository.save(newOrderItem);
 
         return CommonSuccessDto.fromEntity(true);
     }
