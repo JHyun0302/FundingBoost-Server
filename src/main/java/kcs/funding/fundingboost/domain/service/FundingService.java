@@ -12,6 +12,7 @@ import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.IntStream;
 import kcs.funding.fundingboost.domain.dto.common.CommonSuccessDto;
 import kcs.funding.fundingboost.domain.dto.request.RegisterFundingDto;
@@ -54,9 +55,9 @@ public class FundingService {
 
     public List<FundingRegistrationItemDto> getFundingRegister(List<Long> registerFundingBringItemDto, Long memberId) {
 
-        Funding funding = fundingRepository.findByMemberIdAndStatus(memberId, true);
+        Optional<Funding> funding = fundingRepository.findByMemberIdAndStatus(memberId, true);
 
-        if (funding != null) {
+        if (funding.isPresent()) {
             throw new CommonException(ALREADY_EXIST_FUNDING);
         }
 
@@ -137,25 +138,26 @@ public class FundingService {
         List<CommonFriendFundingDto> commonFriendFundingDtoList = new ArrayList<>();
         List<Relationship> relationshipList = relationshipRepository.findFriendByMemberId(memberId);
         for (Relationship relationship : relationshipList) {
-            Funding friendFunding = fundingRepository.findByMemberIdAndStatus(relationship.getFriend().getMemberId(),
+            Optional<Funding> friendFunding = fundingRepository.findByMemberIdAndStatus(
+                    relationship.getFriend().getMemberId(),
                     true);
 
             int leftDate = (int) ChronoUnit.DAYS.between(LocalDate.now(),
-                    friendFunding.getDeadline());
+                    friendFunding.get().getDeadline());
             String deadline = "D-" + leftDate;
 
             List<FundingItem> fundingItemList = fundingItemRepository.findFundingItemIdListByFunding(
-                    friendFunding.getFundingId());
+                    friendFunding.get().getFundingId());
             List<FriendFundingPageItemDto> friendFundingPageItemDtoList = fundingItemList.stream()
                     .map(fundingItem -> FriendFundingPageItemDto.fromEntity(fundingItem.getItem())).toList();
-            int totalPrice = friendFunding.getTotalPrice();
+            int totalPrice = friendFunding.get().getTotalPrice();
 
             if (totalPrice == 0) {
                 throw new CommonException(INVALID_FUNDING_STATUS);
             }
-            int fundingTotalPercent = friendFunding.getCollectPrice() * 100 / totalPrice;
+            int fundingTotalPercent = friendFunding.get().getCollectPrice() * 100 / totalPrice;
             commonFriendFundingDtoList.add(CommonFriendFundingDto.fromEntity(
-                    friendFunding,
+                    friendFunding.get(),
                     deadline,
                     fundingTotalPercent,
                     friendFundingPageItemDtoList

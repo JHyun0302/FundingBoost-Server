@@ -1,7 +1,7 @@
 package kcs.funding.fundingboost.domain.repository.funding;
 
+import java.util.Optional;
 import kcs.funding.fundingboost.domain.entity.Funding;
-import kcs.funding.fundingboost.domain.entity.Member;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -11,5 +11,5 @@ public interface FundingRepository extends JpaRepository<Funding, Long>, Funding
             " join fetch f.member m" +
             " where m.memberId = :memberId and " +
             " f.fundingStatus = :status")
-    Funding findByMemberIdAndStatus(@Param("memberId") Long memberId, @Param("status") boolean status);
+    Optional<Funding> findByMemberIdAndStatus(@Param("memberId") Long memberId, @Param("status") boolean status);
 }

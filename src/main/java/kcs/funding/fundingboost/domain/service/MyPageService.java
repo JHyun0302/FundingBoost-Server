@@ -6,6 +6,7 @@ import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import kcs.funding.fundingboost.domain.dto.common.CommonSuccessDto;
 import kcs.funding.fundingboost.domain.dto.request.TransformPointDto;
@@ -62,17 +63,17 @@ public class MyPageService {
     public MyFundingStatusDto getMyFundingStatus(Long memberId) {
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new CommonException(ErrorCode.NOT_FOUND_MEMBER));
-        Funding funding = fundingRepository.findByMemberIdAndStatus(member.getMemberId(), true);
+        Optional<Funding> funding = fundingRepository.findByMemberIdAndStatus(member.getMemberId(), true);
         MyPageMemberDto myPageMemberDto = MyPageMemberDto.fromEntity(member);
-        if (funding == null) { //TODO: optional
+        if (funding.isPresent()) {
             return MyFundingStatusDto.createNotExistFundingMyFundingStatusDto(myPageMemberDto);
         }
-        List<MyPageFundingItemDto> myPageFundingItemList = getMyPageFundingItemDtoList(funding);
-        List<ParticipateFriendDto> participateFriendDtoList = getParticipateFriendDtoList(funding);
+        List<MyPageFundingItemDto> myPageFundingItemList = getMyPageFundingItemDtoList(funding.get());
+        List<ParticipateFriendDto> participateFriendDtoList = getParticipateFriendDtoList(funding.get());
 
-        int totalPercent = funding.getCollectPrice() * 100 / funding.getTotalPrice();
+        int totalPercent = funding.get().getCollectPrice() * 100 / funding.get().getTotalPrice();
         int leftDate = (int) ChronoUnit.DAYS.between(LocalDate.now(),
-                funding.getDeadline());
+                funding.get().getDeadline());
         String deadlineDate = "D-" + leftDate;
 
         return MyFundingStatusDto.createMyFundingStatusDto(
@@ -80,7 +81,7 @@ public class MyPageService {
                 myPageFundingItemList,
                 participateFriendDtoList,
                 totalPercent,
-                funding.getDeadline().format(DateTimeFormatter.ofPattern("yyyy-MM-dd")),
+                funding.get().getDeadline().format(DateTimeFormatter.ofPattern("yyyy-MM-dd")),
                 deadlineDate
         );
     }

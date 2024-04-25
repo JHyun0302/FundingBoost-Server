@@ -6,6 +6,7 @@ import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import kcs.funding.fundingboost.domain.dto.response.CommonFriendFundingDto;
 import kcs.funding.fundingboost.domain.dto.response.FriendFundingPageItemDto;
 import kcs.funding.fundingboost.domain.dto.response.HomeFriendFundingDto;
@@ -41,20 +42,20 @@ public class HomeService {
 
 
     public HomeViewDto getMainView(Long memberId) {
-        Funding funding = fundingRepository.findFundingInfo(memberId);
+        Optional<Funding> funding = fundingRepository.findFundingInfo(memberId);
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new CommonException(NOT_FOUND_MEMBER));
         // 사용자 정보: 이름, 프로필 이미지
         HomeMemberInfoDto homeMemberInfoDto = HomeMemberInfoDto.fromEntity(member);
 
         // 사용자 펀딩 내용: 펀딩 이름, 완료일
-        if (funding == null) {
+        if (funding.isPresent()) {
             HomeMyFundingStatusDto myFundingStatus = null;
         }
-        HomeMyFundingStatusDto myFundingStatus = getMyFundingStatus(funding);
+        HomeMyFundingStatusDto myFundingStatus = getMyFundingStatus(funding.get());
 
         // 사용자 펀딩 상세: 펀딩 상품 이미지, 펀딩 진행률
-        List<HomeMyFundingItemDto> homeMyFundingItemList = getMyFundingItems(funding);
+        List<HomeMyFundingItemDto> homeMyFundingItemList = getMyFundingItems(funding.get());
 
         // 친구 펀딩: 이름, 프로필 이미지, 펀딩Id, 현재 펀딩 진행중인 상품 이미지, 펀딩 진행률, 펀딩 마감일
         List<HomeFriendFundingDto> homeFriendFundingList = getFriendFundingList(memberId);

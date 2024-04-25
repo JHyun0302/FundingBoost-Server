@@ -3,6 +3,7 @@ package kcs.funding.fundingboost.domain.service.pay;
 import static kcs.funding.fundingboost.domain.exception.ErrorCode.INVALID_POINT_LACK;
 
 import java.util.List;
+import java.util.Optional;
 import kcs.funding.fundingboost.domain.dto.common.CommonSuccessDto;
 import kcs.funding.fundingboost.domain.dto.request.FundingPaymentDto;
 import kcs.funding.fundingboost.domain.dto.request.MyPayDto;
@@ -36,8 +37,8 @@ public class MyPayService {
     private final FundingItemRepository fundingItemRepository;
 
     public MyPayViewDto getMyFundingPay(Long memberId) {
-        Funding funding = fundingRepository.findByMemberIdAndStatus(memberId, true);
-        List<ItemDto> itemDtoList = funding.getFundingItems()
+        Optional<Funding> funding = fundingRepository.findByMemberIdAndStatus(memberId, true);
+        List<ItemDto> itemDtoList = funding.get().getFundingItems()
                 .stream()
                 .map(ItemDto::fromEntity)
                 .toList();
@@ -47,7 +48,7 @@ public class MyPayService {
                 .map(DeliveryDto::fromEntity)
                 .toList();
 
-        return MyPayViewDto.fromEntity(itemDtoList, deliveryDtoList, funding);
+        return MyPayViewDto.fromEntity(itemDtoList, deliveryDtoList, funding.get());
     }
 
     public MyPayViewDto getMyOrderPay(Long memberId) {

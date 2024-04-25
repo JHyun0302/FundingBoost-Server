@@ -1,7 +1,6 @@
 package kcs.funding.fundingboost.domain.service;
 
 import static kcs.funding.fundingboost.domain.dto.response.GiftHubDto.createGiftHubDto;
-import static kcs.funding.fundingboost.domain.exception.ErrorCode.INTERNAL_SAVE_ERROR;
 import static kcs.funding.fundingboost.domain.exception.ErrorCode.NOT_FOUND_ITEM;
 import static kcs.funding.fundingboost.domain.exception.ErrorCode.NOT_FOUND_MEMBER;
 
@@ -54,12 +53,8 @@ public class GiftHubItemService {
                 .orElseThrow(() -> new CommonException(NOT_FOUND_MEMBER));
 
         GiftHubItem giftHubItem = GiftHubItem.createGiftHubItem(addGiftHubDto.quantity(), item, member);
-        GiftHubItem saveGiftHubItem = giftHubItemRepository.save(giftHubItem);
+        giftHubItemRepository.save(giftHubItem);
 
-        if (saveGiftHubItem != null) {
-            return CommonSuccessDto.fromEntity(true);
-        } else {
-            throw new CommonException(INTERNAL_SAVE_ERROR);
-        }
+        return CommonSuccessDto.fromEntity(true);
     }
 }
