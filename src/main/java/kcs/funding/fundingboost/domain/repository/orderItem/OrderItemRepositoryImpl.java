@@ -21,9 +21,9 @@ public class OrderItemRepositoryImpl implements OrderItemRepositoryCustom {
     public List<OrderItem> findLastOrderByMemberId(Long memberId) {
         return queryFactory
                 .selectFrom(orderItem)
-                .join(orderItem.item, item)
-                .join(orderItem.order, order)
-                .join(order.member, member)
+                .join(orderItem.item, item).fetchJoin()
+                .join(orderItem.order, order).fetchJoin()
+                .join(order.member, member).fetchJoin()
                 .where(member.memberId.eq(memberId))
                 .fetch();
     }
