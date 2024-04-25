@@ -1,6 +1,7 @@
 package kcs.funding.fundingboost.domain.service;
 
 import static kcs.funding.fundingboost.domain.dto.response.GiftHubDto.createGiftHubDto;
+import static kcs.funding.fundingboost.domain.exception.ErrorCode.NOT_FOUND_GIFTHUB_ITEM;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -12,7 +13,6 @@ import kcs.funding.fundingboost.domain.entity.GiftHubItem;
 import kcs.funding.fundingboost.domain.entity.Item;
 import kcs.funding.fundingboost.domain.entity.Member;
 import kcs.funding.fundingboost.domain.exception.CommonException;
-import kcs.funding.fundingboost.domain.exception.ErrorCode;
 import kcs.funding.fundingboost.domain.repository.GiftHubItemRepository;
 import kcs.funding.fundingboost.domain.repository.ItemRepository;
 import kcs.funding.fundingboost.domain.repository.MemberRepository;
@@ -65,7 +65,7 @@ public class GiftHubItemService {
     @Transactional
     public CommonSuccessDto updateItem(Long gifthubItemId, ItemQuantityDto itemQuantity) {
         GiftHubItem giftHubItem = giftHubItemRepository.findById(gifthubItemId)
-                .orElseThrow(() -> new CommonException(ErrorCode.NOT_FOUND_GIFTHUB_ITEM));
+                .orElseThrow(() -> new CommonException(NOT_FOUND_GIFTHUB_ITEM));
         giftHubItem.updateQuantity(itemQuantity.quantity());
         return CommonSuccessDto.fromEntity(true);
     }

@@ -20,7 +20,7 @@ public enum ErrorCode {
     NOT_FOUND_SHARED_URL(40403, HttpStatus.NOT_FOUND, "해당 공유 URL이 존재하지 않습니다."),
     NOT_FOUND_ALBUM(40404, HttpStatus.NOT_FOUND, "해당 앨범이 존재하지 않습니다."),
     NOT_FOUND_FUNDING(40405, HttpStatus.NOT_FOUND, "펀딩이 존재하지 않습니다."),
-    NOT_FOUND_FUNDING_ITEM(40406, HttpStatus.NOT_FOUND, "펀딩 상품이 r존재하지 않습니다."),
+    NOT_FOUND_FUNDING_ITEM(40406, HttpStatus.NOT_FOUND, "펀딩 상품이 존재하지 않습니다."),
     NOT_FOUND_ITEM(40407, HttpStatus.NOT_FOUND, "상품이 존재하지 않습니다."),
     NOT_FOUND_GIFTHUB_ITEM(40408, HttpStatus.NOT_FOUND, "장바구니에 아이템이 존재하지 않습니다."),
 
