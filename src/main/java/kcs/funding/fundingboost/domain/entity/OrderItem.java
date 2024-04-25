@@ -35,10 +35,11 @@ public class OrderItem {
     @OnDelete(action = OnDeleteAction.CASCADE)
     private Item item;
 
-    public static OrderItem createOrderItem(Order order, Item item) {
+    public static OrderItem createOrderItem(Order order, Item item, int quantity) {
         OrderItem orderItem = new OrderItem();
         orderItem.order = order;
         orderItem.item = item;
+        orderItem.quantity = quantity;
         return orderItem;
     }
 }

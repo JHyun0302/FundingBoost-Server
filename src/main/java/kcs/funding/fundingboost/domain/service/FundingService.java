@@ -217,7 +217,7 @@ public class FundingService {
         }
 
         Order newOrder = Order.createOrder(fundingItem.getItem().getItemPrice(), member, delivery);
-        OrderItem newOrderItem = OrderItem.createOrderItem(newOrder, fundingItem.getItem());
+        OrderItem newOrderItem = OrderItem.createOrderItem(newOrder, fundingItem.getItem(), 1);
         em.persist(newOrder);
         em.persist(newOrderItem);
 
