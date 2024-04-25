@@ -3,9 +3,9 @@ package kcs.funding.fundingboost.domain.service;
 import static kcs.funding.fundingboost.domain.exception.ErrorCode.NOT_FOUND_MEMBER;
 
 import java.util.List;
+import kcs.funding.fundingboost.domain.dto.response.MyPageMemberDto;
 import kcs.funding.fundingboost.domain.dto.response.myPage.orderHistory.OrderHistoryDto;
 import kcs.funding.fundingboost.domain.dto.response.myPage.orderHistory.OrderHistoryItemDto;
-import kcs.funding.fundingboost.domain.dto.response.myPage.orderHistory.OrderHistoryMemberDto;
 import kcs.funding.fundingboost.domain.entity.Member;
 import kcs.funding.fundingboost.domain.entity.OrderItem;
 import kcs.funding.fundingboost.domain.exception.CommonException;
@@ -35,14 +35,14 @@ public class OrderService {
                     .toList(); // orderItemDtoList 초기화
 
             Member member = orderItemList.get(0).getOrder().getMember();
-            OrderHistoryMemberDto orderHistoryMemberDto = OrderHistoryMemberDto.fromEntity(member); // memberDto 초기화
-            return OrderHistoryDto.fromEntity(orderHistoryMemberDto, orderHistoryItemDtoList);
+            MyPageMemberDto myPageMemberDto = MyPageMemberDto.fromEntity(member);// memberDto 초기화
+            return OrderHistoryDto.fromEntity(myPageMemberDto, orderHistoryItemDtoList);
         } else {
             // 주문 목록이 존재하지 않는 경우
             Member member = memberRepository.findById(memberId)
                     .orElseThrow(() -> new CommonException(NOT_FOUND_MEMBER));
-            OrderHistoryMemberDto orderHistoryMemberDto = OrderHistoryMemberDto.fromEntity(member); // memberDto 초기화
-            return OrderHistoryDto.fromEntity(orderHistoryMemberDto, null);
+            MyPageMemberDto myPageMemberDto = MyPageMemberDto.fromEntity(member);// memberDto 초기화
+            return OrderHistoryDto.fromEntity(myPageMemberDto, null);
         }
 
     }

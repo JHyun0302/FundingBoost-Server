@@ -1,18 +1,19 @@
 package kcs.funding.fundingboost.domain.dto.response.myPage.orderHistory;
 
 import java.util.List;
+import kcs.funding.fundingboost.domain.dto.response.MyPageMemberDto;
 import lombok.Builder;
 
 @Builder
 public record OrderHistoryDto(
-        OrderHistoryMemberDto orderHistoryMemberDto,
+        MyPageMemberDto myPageMemberDto,
         List<OrderHistoryItemDto> orderHistoryItemDtoList
 ) {
 
-    public static OrderHistoryDto fromEntity(OrderHistoryMemberDto orderHistoryMemberDto,
+    public static OrderHistoryDto fromEntity(MyPageMemberDto myPageMemberDto,
                                              List<OrderHistoryItemDto> orderHistoryItemDtoList) {
         return OrderHistoryDto.builder()
-                .orderHistoryMemberDto(orderHistoryMemberDto)
+                .myPageMemberDto(myPageMemberDto)
                 .orderHistoryItemDtoList(orderHistoryItemDtoList)
                 .build();
     }
