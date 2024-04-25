@@ -3,7 +3,6 @@ package kcs.funding.fundingboost.domain.service.pay;
 import static kcs.funding.fundingboost.domain.exception.ErrorCode.INVALID_POINT_LACK;
 
 import java.util.List;
-import java.util.Optional;
 import kcs.funding.fundingboost.domain.dto.common.CommonSuccessDto;
 import kcs.funding.fundingboost.domain.dto.request.FundingPaymentDto;
 import kcs.funding.fundingboost.domain.dto.request.MyPayDto;
@@ -23,7 +22,6 @@ import kcs.funding.fundingboost.domain.repository.FundingItem.FundingItemReposit
 import kcs.funding.fundingboost.domain.repository.GiftHubItemRepository;
 import kcs.funding.fundingboost.domain.repository.ItemRepository;
 import kcs.funding.fundingboost.domain.repository.MemberRepository;
-import kcs.funding.fundingboost.domain.repository.funding.FundingRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -38,15 +36,10 @@ public class MyPayService {
     private final DeliveryRepository deliveryRepository;
     private final MemberRepository memberRepository;
     private final FundingItemRepository fundingItemRepository;
-    private final FundingRepository fundingRepository;
     private final GiftHubItemRepository giftHubItemRepository;
     private final ItemRepository itemRepository;
 
     public MyFundingPayViewDto myFundingPayView(Long fundingItemId, Long memberId) {
-
-    public MyPayViewDto getMyFundingPay(Long memberId) {
-        Optional<Funding> funding = fundingRepository.findByMemberIdAndStatus(memberId, true);
-        List<ItemDto> itemDtoList = funding.get().getFundingItems()
         FundingItem fundingItem = fundingItemRepository.findById(fundingItemId)
                 .orElseThrow(() -> new CommonException(ErrorCode.NOT_FOUND_FUNDING_ITEM));
 
@@ -99,7 +92,8 @@ public class MyPayService {
 
     public MyNowOrderPayViewDto MyOrderNowPayView(Long itemId, Long memberId) {
 
-        Item item = itemRepository.findById(itemId).orElseThrow(() -> new CommonException(ErrorCode.NOT_FOUND_ITEM));
+        Item item = itemRepository.findById(itemId)
+                .orElseThrow(() -> new CommonException(ErrorCode.NOT_FOUND_ITEM));
         ItemDto itemDto = ItemDto.fromEntity(item.getItemId(),
                 item.getItemImageUrl(),
                 item.getItemName(),
