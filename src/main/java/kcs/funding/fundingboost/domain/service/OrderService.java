@@ -1,7 +1,6 @@
 package kcs.funding.fundingboost.domain.service;
 
 import java.util.List;
-import java.util.Optional;
 import kcs.funding.fundingboost.domain.dto.response.myPage.orderHistory.OrderHistoryDto;
 import kcs.funding.fundingboost.domain.dto.response.myPage.orderHistory.OrderHistoryItemDto;
 import kcs.funding.fundingboost.domain.dto.response.myPage.orderHistory.OrderHistoryMemberDto;
@@ -12,9 +11,11 @@ import kcs.funding.fundingboost.domain.exception.ErrorCode;
 import kcs.funding.fundingboost.domain.repository.MemberRepository;
 import kcs.funding.fundingboost.domain.repository.orderItem.OrderItemRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+@Slf4j
 @Service
 @Transactional(readOnly = true)
 @RequiredArgsConstructor
@@ -24,16 +25,15 @@ public class OrderService {
     private final OrderItemRepository orderItemRepository;
 
     public OrderHistoryDto getOrderHistory(Long memberId) {
-        Optional<List<OrderItem>> orderItemList = orderItemRepository.findLastOrderByMemberId(memberId);
+        List<OrderItem> orderItemList = orderItemRepository.findLastOrderByMemberId(memberId);
 
-        if (orderItemList.isPresent()) {
+        if (!orderItemList.isEmpty()) {
             // 주문 목록이 존재하는 경우
-            List<OrderItem> orderItems = orderItemList.get();
-            List<OrderHistoryItemDto> orderHistoryItemDtoList = orderItems.stream()
+            List<OrderHistoryItemDto> orderHistoryItemDtoList = orderItemList.stream()
                     .map(OrderHistoryItemDto::fromEntity)
                     .toList(); // orderItemDtoList 초기화
 
-            Member member = orderItems.get(0).getOrder().getMember();
+            Member member = orderItemList.get(0).getOrder().getMember();
             OrderHistoryMemberDto orderHistoryMemberDto = OrderHistoryMemberDto.fromEntity(member); // memberDto 초기화
             return OrderHistoryDto.fromEntity(orderHistoryMemberDto, orderHistoryItemDtoList);
         } else {
