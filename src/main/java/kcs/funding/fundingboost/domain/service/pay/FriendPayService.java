@@ -1,10 +1,14 @@
 package kcs.funding.fundingboost.domain.service.pay;
 
+import static kcs.funding.fundingboost.domain.exception.ErrorCode.EXCEEDED_FUNDING_AMOUNT_ERROR;
+import static kcs.funding.fundingboost.domain.exception.ErrorCode.LOW_POINT_ERROR;
+
 import kcs.funding.fundingboost.domain.dto.common.CommonSuccessDto;
 import kcs.funding.fundingboost.domain.dto.request.FriendPayProcessDto;
 import kcs.funding.fundingboost.domain.dto.response.FriendFundingPayingDto;
 import kcs.funding.fundingboost.domain.entity.Funding;
 import kcs.funding.fundingboost.domain.entity.Member;
+import kcs.funding.fundingboost.domain.exception.CommonException;
 import kcs.funding.fundingboost.domain.repository.MemberRepository;
 import kcs.funding.fundingboost.domain.repository.funding.FundingRepository;
 import lombok.RequiredArgsConstructor;
@@ -34,13 +38,13 @@ public class FriendPayService {
         if (findMember.getPoint() - point >= 0) {
             findMember.minusPoint(point);
         } else {
-            throw new RuntimeException("point가 부족합니다");
+            throw new CommonException(LOW_POINT_ERROR);
         }
         Funding friendFunding = fundingRepository.findById(fundingId).orElseThrow();
         if (friendFunding.getCollectPrice() + point <= friendFunding.getTotalPrice()) {
             friendFunding.fund(point);
         } else {
-            throw new RuntimeException("설정된 펀딩액 이상을 후원할 수 없습니다");
+            throw new CommonException(EXCEEDED_FUNDING_AMOUNT_ERROR);
         }
         return CommonSuccessDto.fromEntity(true);
     }
