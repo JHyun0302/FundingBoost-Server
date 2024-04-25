@@ -1,4 +1,4 @@
-package kcs.funding.fundingboost.domain.repository.Bookmark;
+package kcs.funding.fundingboost.domain.repository.bookmark;
 
 import kcs.funding.fundingboost.domain.entity.Bookmark;
 
