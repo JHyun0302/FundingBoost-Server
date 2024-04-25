@@ -42,7 +42,7 @@ public class MyPayService {
     public MyFundingPayViewDto myFundingPayView(Long fundingItemId, Long memberId) {
 
         FundingItem fundingItem = fundingItemRepository.findById(fundingItemId)
-                .orElseThrow(() -> new CommonException(ErrorCode.NOT_FOUND_FUNDINGITEM));
+                .orElseThrow(() -> new CommonException(ErrorCode.NOT_FOUND_FUNDING_ITEM));
 
         List<DeliveryDto> deliveryDtoList = deliveryRepository.findAllByMemberId(memberId)
                 .stream()

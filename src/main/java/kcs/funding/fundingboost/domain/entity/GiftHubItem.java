@@ -50,4 +50,8 @@ public class GiftHubItem extends BaseTimeEntity {
         giftHubItem.member = member;
         return giftHubItem;
     }
+
+    public void updateQuantity(int quantity) {
+        this.quantity = quantity;
+    }
 }
