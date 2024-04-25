@@ -1,6 +1,8 @@
 package kcs.funding.fundingboost.domain.service;
 
 import static kcs.funding.fundingboost.domain.dto.response.GiftHubDto.createGiftHubDto;
+import static kcs.funding.fundingboost.domain.exception.ErrorCode.NOT_FOUND_ITEM;
+import static kcs.funding.fundingboost.domain.exception.ErrorCode.NOT_FOUND_MEMBER;
 import static kcs.funding.fundingboost.domain.exception.ErrorCode.NOT_FOUND_GIFTHUB_ITEM;
 
 import java.util.List;
@@ -35,7 +37,7 @@ public class GiftHubItemService {
 
     public List<GiftHubDto> getGiftHub(Long memberId) {
         Member member = memberRepository.findById(memberId)
-                .orElseThrow(() -> new RuntimeException("Member not found"));
+                .orElseThrow(() -> new CommonException(NOT_FOUND_MEMBER));
 
         List<GiftHubItem> giftHubItems = giftHubItemRepository.findGiftHubItemsByMember(member);
 
@@ -47,19 +49,15 @@ public class GiftHubItemService {
     @Transactional
     public CommonSuccessDto addGiftHub(Long itemId, AddGiftHubDto addGiftHubDto) {
         Item item = itemRepository.findById(itemId)
-                .orElseThrow(() -> new RuntimeException("Item not found"));
+                .orElseThrow(() -> new CommonException(NOT_FOUND_ITEM));
 
         Member member = memberRepository.findById(addGiftHubDto.memberId())
-                .orElseThrow(() -> new RuntimeException("Member not found"));
+                .orElseThrow(() -> new CommonException(NOT_FOUND_MEMBER));
 
         GiftHubItem giftHubItem = GiftHubItem.createGiftHubItem(addGiftHubDto.quantity(), item, member);
-        GiftHubItem saveGiftHubItem = giftHubItemRepository.save(giftHubItem);
+        giftHubItemRepository.save(giftHubItem);
 
-        if (saveGiftHubItem != null) {
-            return CommonSuccessDto.fromEntity(true);
-        } else {
-            throw new RuntimeException("Saving GiftHubItem failed");
-        }
+        return CommonSuccessDto.fromEntity(true);
     }
 
     @Transactional

@@ -1,6 +1,9 @@
 package kcs.funding.fundingboost.domain.service.pay;
 
+import static kcs.funding.fundingboost.domain.exception.ErrorCode.INVALID_POINT_LACK;
+
 import java.util.List;
+import java.util.Optional;
 import kcs.funding.fundingboost.domain.dto.common.CommonSuccessDto;
 import kcs.funding.fundingboost.domain.dto.request.FundingPaymentDto;
 import kcs.funding.fundingboost.domain.dto.request.MyPayDto;
@@ -41,6 +44,9 @@ public class MyPayService {
 
     public MyFundingPayViewDto myFundingPayView(Long fundingItemId, Long memberId) {
 
+    public MyPayViewDto getMyFundingPay(Long memberId) {
+        Optional<Funding> funding = fundingRepository.findByMemberIdAndStatus(memberId, true);
+        List<ItemDto> itemDtoList = funding.get().getFundingItems()
         FundingItem fundingItem = fundingItemRepository.findById(fundingItemId)
                 .orElseThrow(() -> new CommonException(ErrorCode.NOT_FOUND_FUNDING_ITEM));
 
@@ -135,7 +141,7 @@ public class MyPayService {
         if (member.getPoint() - points >= 0) {
             member.minusPoint(points);
         } else {
-            throw new RuntimeException("point가 부족합니다");
+            throw new CommonException(INVALID_POINT_LACK);
         }
     }
 }
