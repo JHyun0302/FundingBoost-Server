@@ -131,11 +131,8 @@ public class MyPageService {
     }
 
     public MyFundingHistoryDetailDto getMyFundingHistoryDetails(Long memberId, Long fundingId) {
-        Member member = memberRepository.findById(memberId)
-                .orElseThrow(() -> new CommonException(ErrorCode.NOT_FOUND_MEMBER));
-        Funding funding = fundingRepository.findById(fundingId)
-                .orElseThrow(() -> new CommonException(ErrorCode.NOT_FOUND_FUNDING));
-        MyPageMemberDto myPageMemberDto = MyPageMemberDto.fromEntity(member);
+        Funding funding = fundingRepository.findByFundingId(fundingId);
+        MyPageMemberDto myPageMemberDto = MyPageMemberDto.fromEntity(funding.getMember());
         if (funding.isFundingStatus()) {
             // 펀딩이 진행중인 상황
             throw new CommonException(ErrorCode.INVALID_FUNDING_STATUS);
