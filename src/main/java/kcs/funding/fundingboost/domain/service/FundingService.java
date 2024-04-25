@@ -215,10 +215,10 @@ public class FundingService {
             throw new CommonException(LOW_POINT_ERROR);
         }
 
-        Order newOrder = Order.createOrder(fundingItem.getItem().getItemPrice(), member, delivery);
-        OrderItem newOrderItem = OrderItem.createOrderItem(newOrder, fundingItem.getItem(), 1);
-        orderRepository.save(newOrder);
-        orderItemRepository.save(newOrderItem);
+        Order order = Order.createOrder(fundingItem.getItem().getItemPrice(), member, delivery);
+        OrderItem orderItem = OrderItem.createOrderItem(order, fundingItem.getItem(), 1);
+        orderRepository.save(order);
+        orderItemRepository.save(orderItem);
 
         return CommonSuccessDto.fromEntity(true);
     }

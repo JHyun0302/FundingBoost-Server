@@ -39,7 +39,7 @@ public enum ErrorCode {
     INVALID_FUNDINGITEM_STATUS(40010, HttpStatus.BAD_REQUEST, "펀딩아이템이 정상적이지 않습니다."),
     ONGOING_FUNDING_ERROR(40011, HttpStatus.BAD_REQUEST, "현재 진행중인 펀딩입니다."),
     LOW_POINT_ERROR(40012, HttpStatus.BAD_REQUEST, "포안트가 부족합니다."),
-    EXCEEDED_FUNDING_AMOUNT_ERROR(40013, HttpStatus.BAD_REQUEST, "설정된 펀딩액 이상을 후원할 수 없습니다"),
+    EXCEEDED_FUNDING_AMOUNT_ERROR(40013, HttpStatus.BAD_REQUEST, "설정된 펀딩금액 이상을 후원할 수 없습니다"),
 
     // Gone Error
     GONE_SHARED_URL(41001, HttpStatus.GONE, "해당 공유 URL이 만료되었습니다."),
