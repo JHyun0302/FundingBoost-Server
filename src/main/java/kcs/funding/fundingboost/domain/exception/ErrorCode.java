@@ -20,7 +20,10 @@ public enum ErrorCode {
     NOT_FOUND_SHARED_URL(40403, HttpStatus.NOT_FOUND, "해당 공유 URL이 존재하지 않습니다."),
     NOT_FOUND_ALBUM(40404, HttpStatus.NOT_FOUND, "해당 앨범이 존재하지 않습니다."),
     NOT_FOUND_FUNDING(40405, HttpStatus.NOT_FOUND, "펀딩이 존재하지 않습니다."),
-    NOT_FOUND_GIFTHUB_ITEM(40406, HttpStatus.NOT_FOUND, "장바구니에 아이템이 존재하지 않습니다."),
+    NOT_FOUND_FUNDING_ITEM(40406, HttpStatus.NOT_FOUND, "펀딩 상품이 r존재하지 않습니다."),
+    NOT_FOUND_ITEM(40407, HttpStatus.NOT_FOUND, "상품이 존재하지 않습니다."),
+    NOT_FOUND_GIFTHUB_ITEM(40408, HttpStatus.NOT_FOUND, "장바구니에 아이템이 존재하지 않습니다."),
+
 
     // Invalid Argument Error
     MISSING_REQUEST_PARAMETER(40000, HttpStatus.BAD_REQUEST, "필수 요청 파라미터가 누락되었습니다."),
@@ -31,8 +34,9 @@ public enum ErrorCode {
     BAD_REQUEST_PARAMETER(40005, HttpStatus.BAD_REQUEST, "잘못된 요청 파라미터입니다."),
     BAD_REQUEST_JSON(40006, HttpStatus.BAD_REQUEST, "잘못된 JSON 형식입니다."),
     SEARCH_SHORT_LENGTH_ERROR(40007, HttpStatus.BAD_REQUEST, "검색어는 2글자 이상이어야 합니다."),
-    ALREADY_SHARED_DIARY(40008, HttpStatus.BAD_REQUEST, "이미 공유 중인 일기입니다."),
     INVALID_FUNDING_STATUS(40009, HttpStatus.BAD_REQUEST, "펀딩이 정상적이지 않습니다."),
+    INVALID_FUNDINGITEM_STATUS(40010, HttpStatus.BAD_REQUEST, "펀딩아이템이 정상적이지 않습니다."),
+    ONGOING_FUNDING_ERROR(40011, HttpStatus.BAD_REQUEST, "현재 진행중인 펀딩입니다."),
 
     // Gone Error
     GONE_SHARED_URL(41001, HttpStatus.GONE, "해당 공유 URL이 만료되었습니다."),
