@@ -1,12 +1,11 @@
 package kcs.funding.fundingboost.domain.controller;
 
+import java.util.List;
 import kcs.funding.fundingboost.domain.dto.common.CommonSuccessDto;
 import kcs.funding.fundingboost.domain.dto.global.ResponseDto;
 import kcs.funding.fundingboost.domain.dto.request.FriendPayProcessDto;
-import kcs.funding.fundingboost.domain.dto.request.OrderItemsDto;
 import kcs.funding.fundingboost.domain.dto.request.PaymentDto;
 import kcs.funding.fundingboost.domain.dto.response.FriendFundingPayingDto;
-import kcs.funding.fundingboost.domain.dto.response.ItemDto;
 import kcs.funding.fundingboost.domain.dto.response.MyFundingPayViewDto;
 import kcs.funding.fundingboost.domain.dto.response.MyNowOrderPayViewDto;
 import kcs.funding.fundingboost.domain.dto.response.MyOrderPayViewDto;
@@ -32,29 +31,29 @@ public class PayController {
     /**
      * 마이 페이 주문 페이지 조회
      */
-    @PostMapping("/order")
+    @GetMapping("/order")
     public ResponseDto<MyOrderPayViewDto> myOrderPayView(
-            @RequestBody OrderItemsDto orderItemDto,
+            @RequestParam(name = "itemId") List<Long> itemIds,
             @RequestParam(name = "memberId") Long memberId) {
-        return ResponseDto.ok(myPayService.orderPay(orderItemDto, memberId));
+        return ResponseDto.ok(myPayService.myOrderPayView(itemIds, memberId));
     }
 
-    @PostMapping("/order/now")
-    public ResponseDto<MyNowOrderPayViewDto> orderNowPayView(
-            @RequestBody ItemDto itemDto,
+    @GetMapping("/order/now")
+    public ResponseDto<MyNowOrderPayViewDto> MyOrderNowPayView(
+            @RequestParam(name = "itemId") Long itemDto,
             @RequestParam(name = "memberId") Long memberId) {
-        return ResponseDto.ok(myPayService.orderNowPayView(itemDto, memberId));
+        return ResponseDto.ok(myPayService.MyOrderNowPayView(itemDto, memberId));
     }
 
     /**
      * 마이 페이 펀딩 페이지 조회
      */
-    @PostMapping("/funding/{fundingItemId}")
+    @GetMapping("/funding/{fundingItemId}")
     public ResponseDto<MyFundingPayViewDto> myFundingPayView(
             @PathVariable(name = "fundingItemId") Long fundingItemId,
             @RequestParam(name = "memberId") Long memberId) {
 
-        return ResponseDto.ok(myPayService.fundingPay(fundingItemId, memberId));
+        return ResponseDto.ok(myPayService.myFundingPayView(fundingItemId, memberId));
     }
 
     /**
