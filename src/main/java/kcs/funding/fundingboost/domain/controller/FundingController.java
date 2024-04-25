@@ -3,6 +3,7 @@ package kcs.funding.fundingboost.domain.controller;
 import java.util.List;
 import kcs.funding.fundingboost.domain.dto.common.CommonSuccessDto;
 import kcs.funding.fundingboost.domain.dto.global.ResponseDto;
+import kcs.funding.fundingboost.domain.dto.request.PayRemainDto;
 import kcs.funding.fundingboost.domain.dto.request.RegisterFundingDto;
 import kcs.funding.fundingboost.domain.dto.response.FriendFundingDetailDto;
 import kcs.funding.fundingboost.domain.dto.response.FriendFundingDto;
@@ -81,5 +82,12 @@ public class FundingController {
     public ResponseDto<CommonSuccessDto> extendMyFunding(@PathVariable("fundingId") Long fundingId,
                                                          @RequestParam("memberId") Long memberId) {
         return ResponseDto.ok(fundingService.extendFunding(fundingId));
+    }
+
+    @PostMapping("/remain/{fundingItemId}")
+    public ResponseDto<CommonSuccessDto> payRemain(@PathVariable("fundingItemId") Long fundingItemId,
+                                                   @RequestBody PayRemainDto payRemainDto,
+                                                   @RequestParam("memeberId") Long memberId) {
+        return ResponseDto.ok(fundingService.payRemain(fundingItemId, payRemainDto, memberId));
     }
 }

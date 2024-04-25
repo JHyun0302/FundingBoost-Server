@@ -1,11 +1,22 @@
 package kcs.funding.fundingboost.domain.service;
 
+import static kcs.funding.fundingboost.domain.exception.ErrorCode.ALREADY_EXIST_FUNDING;
+import static kcs.funding.fundingboost.domain.exception.ErrorCode.INVALID_FUNDINGITEM_STATUS;
+import static kcs.funding.fundingboost.domain.exception.ErrorCode.INVALID_FUNDING_STATUS;
+import static kcs.funding.fundingboost.domain.exception.ErrorCode.LOW_POINT_ERROR;
+import static kcs.funding.fundingboost.domain.exception.ErrorCode.NOT_FOUND_DELIVERY;
+import static kcs.funding.fundingboost.domain.exception.ErrorCode.NOT_FOUND_FUNDING;
+import static kcs.funding.fundingboost.domain.exception.ErrorCode.NOT_FOUND_FUNDING_ITEM;
+import static kcs.funding.fundingboost.domain.exception.ErrorCode.NOT_FOUND_MEMBER;
+
+import jakarta.persistence.EntityManager;
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.IntStream;
 import kcs.funding.fundingboost.domain.dto.common.CommonSuccessDto;
+import kcs.funding.fundingboost.domain.dto.request.PayRemainDto;
 import kcs.funding.fundingboost.domain.dto.request.RegisterFundingDto;
 import kcs.funding.fundingboost.domain.dto.response.CommonFriendFundingDto;
 import kcs.funding.fundingboost.domain.dto.response.ContributorDto;
@@ -14,14 +25,18 @@ import kcs.funding.fundingboost.domain.dto.response.FriendFundingDto;
 import kcs.funding.fundingboost.domain.dto.response.FriendFundingItemDto;
 import kcs.funding.fundingboost.domain.dto.response.FriendFundingPageItemDto;
 import kcs.funding.fundingboost.domain.dto.response.FundingRegistrationItemDto;
+import kcs.funding.fundingboost.domain.entity.Delivery;
 import kcs.funding.fundingboost.domain.entity.Funding;
 import kcs.funding.fundingboost.domain.entity.FundingItem;
 import kcs.funding.fundingboost.domain.entity.Item;
+import kcs.funding.fundingboost.domain.entity.Member;
+import kcs.funding.fundingboost.domain.entity.Order;
+import kcs.funding.fundingboost.domain.entity.OrderItem;
 import kcs.funding.fundingboost.domain.entity.Relationship;
 import kcs.funding.fundingboost.domain.entity.Tag;
 import kcs.funding.fundingboost.domain.exception.CommonException;
-import kcs.funding.fundingboost.domain.exception.ErrorCode;
 import kcs.funding.fundingboost.domain.repository.Contributor.ContributorRepository;
+import kcs.funding.fundingboost.domain.repository.DeliveryRepository;
 import kcs.funding.fundingboost.domain.repository.FundingItem.FundingItemRepository;
 import kcs.funding.fundingboost.domain.repository.ItemRepository;
 import kcs.funding.fundingboost.domain.repository.MemberRepository;
@@ -37,6 +52,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional(readOnly = true)
 @RequiredArgsConstructor
 public class FundingService {
+    private final EntityManager em;
 
     private final ItemRepository itemRepository;
     private final MemberRepository memberRepository;
@@ -44,13 +60,14 @@ public class FundingService {
     private final FundingItemRepository fundingItemRepository;
     private final ContributorRepository contributorRepository;
     private final RelationshipRepository relationshipRepository;
+    private final DeliveryRepository deliveryRepository;
 
     public List<FundingRegistrationItemDto> getFundingRegister(List<Long> registerFundingBringItemDto, Long memberId) {
 
         Funding funding = fundingRepository.findByMemberIdAndStatus(memberId, true);
 
         if (funding != null) {
-            throw new CommonException(ErrorCode.ALREADY_EXIST_FUNDING);
+            throw new CommonException(ALREADY_EXIST_FUNDING);
         }
 
         return IntStream.range(0, registerFundingBringItemDto.size())
@@ -144,7 +161,7 @@ public class FundingService {
             int totalPrice = friendFunding.getTotalPrice();
 
             if (totalPrice == 0) {
-                throw new CommonException(ErrorCode.INVALID_FUNDING_STATUS);
+                throw new CommonException(INVALID_FUNDING_STATUS);
             }
             int fundingTotalPercent = friendFunding.getCollectPrice() * 100 / totalPrice;
             commonFriendFundingDtoList.add(CommonFriendFundingDto.fromEntity(
@@ -172,8 +189,38 @@ public class FundingService {
     @Transactional
     public CommonSuccessDto extendFunding(Long fundingId) {
         Funding funding = fundingRepository.findById(fundingId)
-                .orElseThrow(() -> new CommonException(ErrorCode.NOT_FOUND_FUNDING));
+                .orElseThrow(() -> new CommonException(NOT_FOUND_FUNDING));
         funding.extendDeadline(FundingConst.EXTEND_DEADLINE);
+        return CommonSuccessDto.fromEntity(true);
+    }
+
+    @Transactional
+    public CommonSuccessDto payRemain(Long fundingItemId, PayRemainDto payRemainDto, Long memberId) {
+
+        FundingItem fundingItem = fundingItemRepository.findById(fundingItemId)
+                .orElseThrow(() -> new CommonException(NOT_FOUND_FUNDING_ITEM));
+        Member member = memberRepository.findById(memberId)
+                .orElseThrow(() -> new CommonException(NOT_FOUND_MEMBER));
+        Delivery delivery = deliveryRepository.findById(payRemainDto.deliveryId())
+                .orElseThrow(() -> new CommonException(NOT_FOUND_DELIVERY));
+
+        if (!fundingItem.isFinishedStatus()) {
+            throw new CommonException(INVALID_FUNDINGITEM_STATUS);
+        } else {
+            fundingItem.finishFunding();
+        }
+
+        if (member.getPoint() - payRemainDto.usingPoint() >= 0) {
+            member.minusPoint(payRemainDto.usingPoint());
+        } else {
+            throw new CommonException(LOW_POINT_ERROR);
+        }
+
+        Order newOrder = Order.createOrder(fundingItem.getItem().getItemPrice(), member, delivery);
+        OrderItem newOrderItem = OrderItem.createOrderItem(newOrder, fundingItem.getItem());
+        em.persist(newOrder);
+        em.persist(newOrderItem);
+
         return CommonSuccessDto.fromEntity(true);
     }
 }
