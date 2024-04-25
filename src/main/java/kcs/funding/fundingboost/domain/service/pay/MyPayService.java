@@ -6,60 +6,111 @@ import kcs.funding.fundingboost.domain.dto.request.FundingPaymentDto;
 import kcs.funding.fundingboost.domain.dto.request.MyPayDto;
 import kcs.funding.fundingboost.domain.dto.response.DeliveryDto;
 import kcs.funding.fundingboost.domain.dto.response.ItemDto;
-import kcs.funding.fundingboost.domain.dto.response.MyPayViewDto;
-import kcs.funding.fundingboost.domain.entity.Delivery;
-import kcs.funding.fundingboost.domain.entity.Funding;
+import kcs.funding.fundingboost.domain.dto.response.MyFundingPayViewDto;
+import kcs.funding.fundingboost.domain.dto.response.MyNowOrderPayViewDto;
+import kcs.funding.fundingboost.domain.dto.response.MyOrderPayViewDto;
 import kcs.funding.fundingboost.domain.entity.FundingItem;
+import kcs.funding.fundingboost.domain.entity.GiftHubItem;
+import kcs.funding.fundingboost.domain.entity.Item;
 import kcs.funding.fundingboost.domain.entity.Member;
-import kcs.funding.fundingboost.domain.entity.Order;
 import kcs.funding.fundingboost.domain.exception.CommonException;
 import kcs.funding.fundingboost.domain.exception.ErrorCode;
 import kcs.funding.fundingboost.domain.repository.DeliveryRepository;
 import kcs.funding.fundingboost.domain.repository.FundingItem.FundingItemRepository;
+import kcs.funding.fundingboost.domain.repository.GiftHubItemRepository;
+import kcs.funding.fundingboost.domain.repository.ItemRepository;
 import kcs.funding.fundingboost.domain.repository.MemberRepository;
-import kcs.funding.fundingboost.domain.repository.OrderRepository;
 import kcs.funding.fundingboost.domain.repository.funding.FundingRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
 public class MyPayService {
-    private final FundingRepository fundingRepository;
+
     private final DeliveryRepository deliveryRepository;
-    private final OrderRepository orderRepository;
     private final MemberRepository memberRepository;
     private final FundingItemRepository fundingItemRepository;
+    private final FundingRepository fundingRepository;
+    private final GiftHubItemRepository giftHubItemRepository;
+    private final ItemRepository itemRepository;
 
-    public MyPayViewDto getMyFundingPay(Long memberId) {
-        Funding funding = fundingRepository.findByMemberIdAndStatus(memberId, true);
-        List<ItemDto> itemDtoList = funding.getFundingItems()
-                .stream()
-                .map(ItemDto::fromEntity)
-                .toList();
+    public MyFundingPayViewDto myFundingPayView(Long fundingItemId, Long memberId) {
+
+        FundingItem fundingItem = fundingItemRepository.findById(fundingItemId)
+                .orElseThrow(() -> new CommonException(ErrorCode.NOT_FOUND_FUNDINGITEM));
 
         List<DeliveryDto> deliveryDtoList = deliveryRepository.findAllByMemberId(memberId)
                 .stream()
                 .map(DeliveryDto::fromEntity)
                 .toList();
 
-        return MyPayViewDto.fromEntity(itemDtoList, deliveryDtoList, funding);
+        if (!fundingItem.isFinishedStatus()) {
+            throw new CommonException(ErrorCode.INVALID_FUNDINGITEM_STATUS);
+        }
+
+        if (fundingItem.getFunding().isFundingStatus()) {
+            throw new CommonException(ErrorCode.ONGOING_FUNDING_ERROR);
+        }
+
+        if (!fundingItem.getFunding().getMember().getMemberId().equals(memberId)) {
+            throw new CommonException(ErrorCode.BAD_REQUEST_PARAMETER);
+        }
+
+        return MyFundingPayViewDto.fromEntity(fundingItem, deliveryDtoList);
     }
 
-    public MyPayViewDto getMyOrderPay(Long memberId) {
-        List<Order> orders = orderRepository.findAllByMemberId(memberId);
-        List<ItemDto> itemDtoList = orders.stream()
-                .map(ItemDto::fromEntity)
-                .toList();
+    public MyOrderPayViewDto myOrderPayView(List<Long> itemIds, Long memberId) {
 
-        List<Delivery> deliveries = deliveryRepository.findAllByMemberId(memberId);
-        List<DeliveryDto> deliveryDtoList = deliveries.stream()
+        List<DeliveryDto> deliveryDtoList = deliveryRepository.findAllByMemberId(memberId)
+                .stream()
                 .map(DeliveryDto::fromEntity)
                 .toList();
 
-        return MyPayViewDto.fromEntity(itemDtoList, deliveryDtoList, orders.get(0));
+        List<Long> giftHubItemIds = giftHubItemRepository.findGiftHubItemByMemberIdAndItemIds(memberId, itemIds)
+                .stream().map(GiftHubItem::getGiftHunItemId)
+                .toList();
+
+        List<ItemDto> itemDtoList = itemIds.stream()
+                .flatMap(i -> itemRepository.findById(i).stream())
+                .map(item -> ItemDto.fromEntity(item.getItemId(),
+                        item.getItemImageUrl(),
+                        item.getItemName(),
+                        item.getOptionName(),
+                        item.getItemPrice()))
+                .toList();
+
+        int point = memberRepository.findById(memberId)
+                .orElseThrow(() -> new CommonException(ErrorCode.NOT_FOUND_MEMBER))
+                .getPoint();
+
+        return MyOrderPayViewDto.fromEntity(itemDtoList, giftHubItemIds, deliveryDtoList, point);
+    }
+
+    public MyNowOrderPayViewDto MyOrderNowPayView(Long itemId, Long memberId) {
+
+        Item item = itemRepository.findById(itemId).orElseThrow(() -> new CommonException(ErrorCode.NOT_FOUND_ITEM));
+        ItemDto itemDto = ItemDto.fromEntity(item.getItemId(),
+                item.getItemImageUrl(),
+                item.getItemName(),
+                item.getOptionName(),
+                item.getItemPrice()
+        );
+
+        int point = memberRepository.findById(memberId)
+                .orElseThrow(() -> new CommonException(ErrorCode.NOT_FOUND_MEMBER))
+                .getPoint();
+
+        List<DeliveryDto> deliveryDtoList = deliveryRepository.findAllByMemberId(memberId)
+                .stream()
+                .map(DeliveryDto::fromEntity)
+                .toList();
+
+        return MyNowOrderPayViewDto.fromEntity(itemDto, deliveryDtoList, point);
     }
 
     @Transactional

@@ -87,8 +87,8 @@ public class InitH2DB {
             Delivery delivery1 = deliveries.get(0);
             Delivery delivery2 = deliveries.get(1);
 
-            Order order1 = Order.createOrder(1, 10700, item1, member1, delivery1);
-            Order order2 = Order.createOrder(1, 17820, item2, member2, delivery2);
+            Order order1 = Order.createOrder(110000, member1, delivery1);
+            Order order2 = Order.createOrder(120000, member2, delivery2);
             em.persist(order1);
             em.persist(order2);
         }
