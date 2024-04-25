@@ -1,6 +1,5 @@
 package kcs.funding.fundingboost.domain.dto.response;
 
-import kcs.funding.fundingboost.domain.entity.FundingItem;
 import lombok.Builder;
 
 @Builder
@@ -13,13 +12,19 @@ public record ItemDto(
         int quantity) {
 
 
-    public static ItemDto fromEntity(FundingItem fundingItem) {
+    public static ItemDto fromEntity(
+            Long itemId,
+            String itemThumbnailImageUrl,
+            String itemName,
+            String itemOption,
+            int itemPrice
+    ) {
         return ItemDto.builder()
-                .itemId(fundingItem.getItem().getItemId())
-                .itemThumbnailImageUrl(fundingItem.getItem().getItemImageUrl())
-                .itemName(fundingItem.getItem().getItemName())
-                .itemOption(fundingItem.getItem().getOptionName())
-                .itemPrice(fundingItem.getItem().getItemPrice())
+                .itemId(itemId)
+                .itemThumbnailImageUrl(itemThumbnailImageUrl)
+                .itemName(itemName)
+                .itemOption(itemOption)
+                .itemPrice(itemPrice)
                 .quantity(1)
                 .build();
     }
