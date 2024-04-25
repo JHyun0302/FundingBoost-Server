@@ -19,6 +19,11 @@ public enum ErrorCode {
     NOT_FOUND_SHARED_URL(40403, HttpStatus.NOT_FOUND, "해당 공유 URL이 존재하지 않습니다."),
     NOT_FOUND_FUNDING(40404, HttpStatus.NOT_FOUND, "펀딩이 존재하지 않습니다."),
     NOT_FOUND_ITEM(40405, HttpStatus.NOT_FOUND, "상품이 존재하지 않습니다."),
+    NOT_FOUND_ALBUM(40406, HttpStatus.NOT_FOUND, "해당 앨범이 존재하지 않습니다."),
+    NOT_FOUND_FUNDING(40407, HttpStatus.NOT_FOUND, "펀딩이 존재하지 않습니다."),
+    NOT_FOUND_FUNDING_ITEM(40408, HttpStatus.NOT_FOUND, "펀딩 상품이 존재하지 않습니다."),
+    NOT_FOUND_ITEM(40409, HttpStatus.NOT_FOUND, "상품이 존재하지 않습니다."),
+    NOT_FOUND_GIFTHUB_ITEM(40410, HttpStatus.NOT_FOUND, "장바구니에 아이템이 존재하지 않습니다."),
 
 
     // Invalid Argument Error
@@ -34,6 +39,8 @@ public enum ErrorCode {
     INVALID_POINT_LACK(40010, HttpStatus.BAD_REQUEST, "point가 부족합니다."),
     INVALID_FUNDING_MONEY(40011, HttpStatus.BAD_REQUEST, "설정된 펀딩액 이상을 후원할 수 없습니다"),
     INVALID_FUNDING_OR_PRICE(40012, HttpStatus.BAD_REQUEST, "펀딩에 담긴 상품이 없거나, 상품의 가격이 이상합니다."),
+    INVALID_FUNDINGITEM_STATUS(40013, HttpStatus.BAD_REQUEST, "펀딩아이템이 정상적이지 않습니다."),
+    ONGOING_FUNDING_ERROR(40014, HttpStatus.BAD_REQUEST, "현재 진행중인 펀딩입니다."),
 
     // Gone Error
     GONE_SHARED_URL(41001, HttpStatus.GONE, "해당 공유 URL이 만료되었습니다."),

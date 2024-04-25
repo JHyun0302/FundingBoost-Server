@@ -10,6 +10,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 import kcs.funding.fundingboost.domain.dto.common.CommonSuccessDto;
 import kcs.funding.fundingboost.domain.dto.request.TransformPointDto;
+import kcs.funding.fundingboost.domain.dto.response.MyFundingHistoryDetailDto;
 import kcs.funding.fundingboost.domain.dto.response.MyFundingHistoryDto;
 import kcs.funding.fundingboost.domain.dto.response.MyFundingResponseDto;
 import kcs.funding.fundingboost.domain.dto.response.MyFundingStatusDto;
@@ -128,5 +129,24 @@ public class MyPageService {
                 .toList();
 
         return MyFundingHistoryDto.fromEntity(myPageMemberDto, myFundingResponseDtos);
+    }
+
+    public MyFundingHistoryDetailDto getMyFundingHistoryDetails(Long memberId, Long fundingId) {
+        Funding funding = fundingRepository.findByFundingId(fundingId);
+        MyPageMemberDto myPageMemberDto = MyPageMemberDto.fromEntity(funding.getMember());
+        if (funding.isFundingStatus()) {
+            // 펀딩이 진행중인 상황
+            throw new CommonException(ErrorCode.INVALID_FUNDING_STATUS);
+        }
+        List<MyPageFundingItemDto> myPageFundingItemDtoList = getMyPageFundingItemDtoList(funding);
+        List<ParticipateFriendDto> participateFriendDtoList = getParticipateFriendDtoList(funding);
+        int totalPercent = funding.getCollectPrice() * 100 / funding.getTotalPrice();
+        return MyFundingHistoryDetailDto.createMyFundingHistoryDetailDto(
+                myPageMemberDto,
+                myPageFundingItemDtoList,
+                participateFriendDtoList,
+                totalPercent,
+                funding.getCreatedDate().format(DateTimeFormatter.ofPattern("yyyy-MM-dd")),
+                funding.getDeadline().format(DateTimeFormatter.ofPattern("yyyy-MM-dd")));
     }
 }
