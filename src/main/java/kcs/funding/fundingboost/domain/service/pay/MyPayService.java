@@ -24,7 +24,7 @@ import kcs.funding.fundingboost.domain.exception.CommonException;
 import kcs.funding.fundingboost.domain.exception.ErrorCode;
 import kcs.funding.fundingboost.domain.repository.DeliveryRepository;
 import kcs.funding.fundingboost.domain.repository.FundingItem.FundingItemRepository;
-import kcs.funding.fundingboost.domain.repository.GiftHubItemRepository;
+import kcs.funding.fundingboost.domain.repository.GiftHubItem.GiftHubItemRepository;
 import kcs.funding.fundingboost.domain.repository.ItemRepository;
 import kcs.funding.fundingboost.domain.repository.MemberRepository;
 import kcs.funding.fundingboost.domain.repository.OrderRepository;
