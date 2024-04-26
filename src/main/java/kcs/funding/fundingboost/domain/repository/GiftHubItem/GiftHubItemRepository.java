@@ -1,16 +1,13 @@
-package kcs.funding.fundingboost.domain.repository;
+package kcs.funding.fundingboost.domain.repository.GiftHubItem;
 
 import java.util.List;
 import kcs.funding.fundingboost.domain.entity.GiftHubItem;
-import kcs.funding.fundingboost.domain.entity.Member;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
-public interface GiftHubItemRepository extends JpaRepository<GiftHubItem, Long> {
-
-    List<GiftHubItem> findGiftHubItemsByMember(Member member);
-
+public interface GiftHubItemRepository extends JpaRepository<GiftHubItem, Long>, GiftHubItemRepositoryCustom {
+    
     @Query("select g from GiftHubItem g" +
             " join fetch g.item i" +
             " join fetch g.member m" +
