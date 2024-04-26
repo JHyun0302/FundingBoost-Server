@@ -21,6 +21,7 @@ import kcs.funding.fundingboost.domain.repository.Bookmark.BookmarkRepository;
 import kcs.funding.fundingboost.domain.repository.ItemRepository;
 import kcs.funding.fundingboost.domain.repository.MemberRepository;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
@@ -43,17 +44,23 @@ class ItemServiceTest {
     @InjectMocks
     private ItemService itemService;
 
+    private Member member;
+
+    @BeforeEach
+    void setUp() {
+        member = createMember();
+    }
+
     @DisplayName("아이템 조회")
     @ParameterizedTest(name = "{index} {displayName} arguments = {arguments}")
     @CsvSource({
             "'NEW 루쥬 알뤼르 벨벳 뉘 블랑쉬 리미티드 에디션', 61000, 'https://img1.kakaocdn.net/thumb/C320x320@2x.fwebp.q82/?fname=https%3A%2F%2Fst.kakaocdn.net%2Fproduct%2Fgift%2Fproduct%2F20240319133310_1fda0cf74e4f43608184bce3050ae22a.jpg', '샤넬', '뷰티', '00:00'",
             "'NEW 루쥬 코코 밤(+샤넬 기프트 카드)', 51000, 'https://img1.kakaocdn.net/thumb/C320x320@2x.fwebp.q82/?fname=https%3A%2F%2Fst.kakaocdn.net%2Fproduct%2Fgift%2Fproduct%2F20220111185052_b92447cb764d470ead70b2d0fe75fe5c.jpg', '샤넬', '뷰티', '934 코랄린 [NEW]'"
     })
-    void getItems(String itemName, int itemPrice, String itemImageUrl, String brandName, String category,
-                  String optionName) {
+    void getItems(String itemName, int itemPrice, String itemImageUrl, String brandName,
+                  String category, String optionName) {
         //given
-        Item item = createItem(itemName, itemPrice, itemImageUrl, brandName, category,
-                optionName);
+        Item item = createItem(itemName, itemPrice, itemImageUrl, brandName, category, optionName);
         List<Item> items = Collections.singletonList(item);
         when(itemRepository.findAll()).thenReturn(items);
 
@@ -75,9 +82,7 @@ class ItemServiceTest {
     void getItemDetail_WhenBookmarkExists(String itemName, int itemPrice, String itemImageUrl, String brandName,
                                           String category, String optionName) {
         //given
-        Member member = createMember();
-        Item item = createItem(itemName, itemPrice, itemImageUrl, brandName, category,
-                optionName);
+        Item item = createItem(itemName, itemPrice, itemImageUrl, brandName, category, optionName);
         Bookmark bookmark = Bookmark.createBookmark(member, item);
 
         when(bookmarkRepository.findBookmarkByMemberAndItem(member.getMemberId(), item.getItemId())).thenReturn(
@@ -101,9 +106,7 @@ class ItemServiceTest {
     void getItemDetail_WhenBookmarkDoesNotExist(String itemName, int itemPrice, String itemImageUrl, String brandName,
                                                 String category, String optionName) {
         //given
-        Member member = createMember();
-        Item item = createItem(itemName, itemPrice, itemImageUrl, brandName, category,
-                optionName);
+        Item item = createItem(itemName, itemPrice, itemImageUrl, brandName, category, optionName);
 
         when(bookmarkRepository.findBookmarkByMemberAndItem(member.getMemberId(), item.getItemId()))
                 .thenReturn(Optional.empty());
@@ -125,13 +128,11 @@ class ItemServiceTest {
             "'NEW 루쥬 알뤼르 벨벳 뉘 블랑쉬 리미티드 에디션', 61000, 'https://img1.kakaocdn.net/thumb/C320x320@2x.fwebp.q82/?fname=https%3A%2F%2Fst.kakaocdn.net%2Fproduct%2Fgift%2Fproduct%2F20240319133310_1fda0cf74e4f43608184bce3050ae22a.jpg', '샤넬', '뷰티', '00:00'",
             "'NEW 루쥬 코코 밤(+샤넬 기프트 카드)', 51000, 'https://img1.kakaocdn.net/thumb/C320x320@2x.fwebp.q82/?fname=https%3A%2F%2Fst.kakaocdn.net%2Fproduct%2Fgift%2Fproduct%2F20220111185052_b92447cb764d470ead70b2d0fe75fe5c.jpg', '샤넬', '뷰티', '934 코랄린 [NEW]'"
     })
-    void givenBookmarkExists_whenToggleItemLike_thenDeleteBookmark(String itemName, int itemPrice, String itemImageUrl,
-                                                                   String brandName,
+    void givenBookmarkExists_whenToggleItemLike_thenDeleteBookmark(String itemName, int itemPrice,
+                                                                   String itemImageUrl, String brandName,
                                                                    String category, String optionName) {
         //given
-        Member member = createMember();
-        Item item = createItem(itemName, itemPrice, itemImageUrl, brandName, category,
-                optionName);
+        Item item = createItem(itemName, itemPrice, itemImageUrl, brandName, category, optionName);
         Bookmark bookmark = Bookmark.createBookmark(member, item);
 
         when(bookmarkRepository.findBookmarkByMemberAndItem(member.getMemberId(), item.getItemId()))
@@ -151,13 +152,10 @@ class ItemServiceTest {
             "'NEW 루쥬 알뤼르 벨벳 뉘 블랑쉬 리미티드 에디션', 61000, 'https://img1.kakaocdn.net/thumb/C320x320@2x.fwebp.q82/?fname=https%3A%2F%2Fst.kakaocdn.net%2Fproduct%2Fgift%2Fproduct%2F20240319133310_1fda0cf74e4f43608184bce3050ae22a.jpg', '샤넬', '뷰티', '00:00'",
             "'NEW 루쥬 코코 밤(+샤넬 기프트 카드)', 51000, 'https://img1.kakaocdn.net/thumb/C320x320@2x.fwebp.q82/?fname=https%3A%2F%2Fst.kakaocdn.net%2Fproduct%2Fgift%2Fproduct%2F20220111185052_b92447cb764d470ead70b2d0fe75fe5c.jpg', '샤넬', '뷰티', '934 코랄린 [NEW]'"})
     void givenBookmarkNotExists_whenToggleItemLike_thenCreateBookmark(String itemName, int itemPrice,
-                                                                      String itemImageUrl,
-                                                                      String brandName,
+                                                                      String itemImageUrl, String brandName,
                                                                       String category, String optionName) {
         //given
-        Member member = createMember();
-        Item item = createItem(itemName, itemPrice, itemImageUrl, brandName, category,
-                optionName);
+        Item item = createItem(itemName, itemPrice, itemImageUrl, brandName, category, optionName);
 
         when(bookmarkRepository.findBookmarkByMemberAndItem(member.getMemberId(), item.getItemId())).thenReturn(
                 Optional.empty());
@@ -174,17 +172,14 @@ class ItemServiceTest {
     }
 
     private static Member createMember() {
-        Member member = Member.createMemberWithPoint("임창희", "dlackdgml3710@gmail.com", "",
+        return Member.createMemberWithPoint("임창희", "dlackdgml3710@gmail.com", "",
                 "https://p.kakaocdn.net/th/talkp/wnbbRhlyRW/XaGAXxS1OkUtXnomt6S4IK/ky0f9a_110x110_c.jpg",
                 46000,
                 "", "aFxoWGFUZlV5SH9MfE9-TH1PY1JiV2JRaF83");
-        return member;
     }
 
     private static Item createItem(String itemName, int itemPrice, String itemImageUrl, String brandName,
-                                   String category,
-                                   String optionName) {
-        Item item = Item.createItem(itemName, itemPrice, itemImageUrl, brandName, category, optionName);
-        return item;
+                                   String category, String optionName) {
+        return Item.createItem(itemName, itemPrice, itemImageUrl, brandName, category, optionName);
     }
 }
