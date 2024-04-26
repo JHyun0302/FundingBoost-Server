@@ -4,8 +4,8 @@ import java.util.List;
 import kcs.funding.fundingboost.domain.dto.common.CommonSuccessDto;
 import kcs.funding.fundingboost.domain.dto.global.ResponseDto;
 import kcs.funding.fundingboost.domain.dto.request.FriendPayProcessDto;
-import kcs.funding.fundingboost.domain.dto.request.FundingPaymentDto;
 import kcs.funding.fundingboost.domain.dto.request.MyPayDto;
+import kcs.funding.fundingboost.domain.dto.request.PayRemainDto;
 import kcs.funding.fundingboost.domain.dto.response.FriendFundingPayingDto;
 import kcs.funding.fundingboost.domain.dto.response.MyFundingPayViewDto;
 import kcs.funding.fundingboost.domain.dto.response.MyNowOrderPayViewDto;
@@ -69,10 +69,11 @@ public class PayController {
     /**
      * 펀딩 상품 구매하기
      */
-    @PostMapping("/funding")
-    public ResponseDto<CommonSuccessDto> payMyFunding(@RequestBody FundingPaymentDto fundingPaymentDto,
-                                                      @RequestParam("memberId") Long memberId) {
-        return ResponseDto.ok(myPayService.payMyFunding(fundingPaymentDto, memberId));
+    @PostMapping("/funding/{fundingItemId}")
+    public ResponseDto<CommonSuccessDto> payMyFunding(@PathVariable("fundingItemId") Long fundingItemId,
+                                                      @RequestBody PayRemainDto payRemainDto,
+                                                      @RequestParam("memeberId") Long memberId) {
+        return ResponseDto.ok(myPayService.payMyFunding(fundingItemId, payRemainDto, memberId));
     }
 
     /**

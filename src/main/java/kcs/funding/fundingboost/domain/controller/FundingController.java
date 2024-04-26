@@ -82,4 +82,11 @@ public class FundingController {
                                                          @RequestParam("memberId") Long memberId) {
         return ResponseDto.ok(fundingService.extendFunding(fundingId));
     }
+// 잔여금액 결제하기
+//    @PostMapping("/remain/{fundingItemId}")
+//    public ResponseDto<CommonSuccessDto> payRemain(@PathVariable("fundingItemId") Long fundingItemId,
+//                                                   @RequestBody PayRemainDto payRemainDto,
+//                                                   @RequestParam("memeberId") Long memberId) {
+//        return ResponseDto.ok(fundingService.payRemain(fundingItemId, payRemainDto, memberId));
+//    }
 }

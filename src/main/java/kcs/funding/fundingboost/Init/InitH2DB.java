@@ -13,6 +13,7 @@ import kcs.funding.fundingboost.domain.entity.GiftHubItem;
 import kcs.funding.fundingboost.domain.entity.Item;
 import kcs.funding.fundingboost.domain.entity.Member;
 import kcs.funding.fundingboost.domain.entity.Order;
+import kcs.funding.fundingboost.domain.entity.OrderItem;
 import kcs.funding.fundingboost.domain.entity.Relationship;
 import kcs.funding.fundingboost.domain.entity.Tag;
 import lombok.RequiredArgsConstructor;
@@ -69,9 +70,14 @@ public class InitH2DB {
             Delivery delivery2 = deliveries.get(1);
 
             Order order1 = Order.createOrder(110000, member1, delivery1);
-            Order order2 = Order.createOrder(120000, member2, delivery2);
+//            Order order2 = Order.createOrder(120000, member2, delivery2);
             em.persist(order1);
-            em.persist(order2);
+//            em.persist(order2);
+
+            OrderItem orderItem1 = OrderItem.createOrderItem(order1, item1, 1);
+            OrderItem orderItem2 = OrderItem.createOrderItem(order1, item2, 2);
+            em.persist(orderItem1);
+            em.persist(orderItem2);
         }
 
         public List<Delivery> initDelivery(List<Member> members) {
