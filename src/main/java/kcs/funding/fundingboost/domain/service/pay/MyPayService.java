@@ -137,7 +137,7 @@ public class MyPayService {
 
         List<Long> itemIds = myPayDto.itemPayDtoList().stream()
                 .map(ItemPayDto::itemId)
-                .collect(Collectors.toList());
+                .toList();
 
         Map<Long, Item> itemMap = itemRepository.findItemsByItemIds(itemIds).stream()
                 .collect(Collectors.toMap(Item::getItemId, item -> item));
