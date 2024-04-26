@@ -2,10 +2,14 @@ package kcs.funding.fundingboost.domain.service.pay;
 
 import static kcs.funding.fundingboost.domain.exception.ErrorCode.INVALID_FUNDINGITEM_STATUS;
 import static kcs.funding.fundingboost.domain.exception.ErrorCode.NOT_FOUND_DELIVERY;
+import static kcs.funding.fundingboost.domain.exception.ErrorCode.NOT_FOUND_ITEM;
 import static kcs.funding.fundingboost.domain.exception.ErrorCode.NOT_FOUND_MEMBER;
 
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 import kcs.funding.fundingboost.domain.dto.common.CommonSuccessDto;
+import kcs.funding.fundingboost.domain.dto.request.ItemPayDto;
 import kcs.funding.fundingboost.domain.dto.request.MyPayDto;
 import kcs.funding.fundingboost.domain.dto.request.PayRemainDto;
 import kcs.funding.fundingboost.domain.dto.response.DeliveryDto;
@@ -46,8 +50,8 @@ public class MyPayService {
     private final FundingItemRepository fundingItemRepository;
     private final GiftHubItemRepository giftHubItemRepository;
     private final ItemRepository itemRepository;
-    private final OrderRepository orderRepository;
     private final OrderItemRepository orderItemRepository;
+    private final OrderRepository orderRepository;
 
     public MyFundingPayViewDto myFundingPayView(Long fundingItemId, Long memberId) {
         FundingItem fundingItem = fundingItemRepository.findById(fundingItemId)
@@ -59,7 +63,7 @@ public class MyPayService {
                 .toList();
 
         if (!fundingItem.isFinishedStatus()) {
-            throw new CommonException(ErrorCode.INVALID_FUNDINGITEM_STATUS);
+            throw new CommonException(INVALID_FUNDINGITEM_STATUS);
         }
 
         if (fundingItem.getFunding().isFundingStatus()) {
@@ -94,7 +98,7 @@ public class MyPayService {
                 .toList();
 
         int point = memberRepository.findById(memberId)
-                .orElseThrow(() -> new CommonException(ErrorCode.NOT_FOUND_MEMBER))
+                .orElseThrow(() -> new CommonException(NOT_FOUND_MEMBER))
                 .getPoint();
 
         return MyOrderPayViewDto.fromEntity(itemDtoList, giftHubItemIds, deliveryDtoList, point);
@@ -103,7 +107,7 @@ public class MyPayService {
     public MyNowOrderPayViewDto MyOrderNowPayView(Long itemId, Long memberId) {
 
         Item item = itemRepository.findById(itemId)
-                .orElseThrow(() -> new CommonException(ErrorCode.NOT_FOUND_ITEM));
+                .orElseThrow(() -> new CommonException(NOT_FOUND_ITEM));
         ItemDto itemDto = ItemDto.fromEntity(item.getItemId(),
                 item.getItemImageUrl(),
                 item.getItemName(),
@@ -112,7 +116,7 @@ public class MyPayService {
         );
 
         int point = memberRepository.findById(memberId)
-                .orElseThrow(() -> new CommonException(ErrorCode.NOT_FOUND_MEMBER))
+                .orElseThrow(() -> new CommonException(NOT_FOUND_MEMBER))
                 .getPoint();
 
         List<DeliveryDto> deliveryDtoList = deliveryRepository.findAllByMemberId(memberId)
@@ -124,10 +128,36 @@ public class MyPayService {
     }
 
     @Transactional
-    public CommonSuccessDto payMyItem(MyPayDto paymentDto, Long memberId) {
-        Member findMember = memberRepository.findById(memberId)
-                .orElseThrow(() -> new CommonException(ErrorCode.NOT_FOUND_MEMBER));
-        PayUtils.deductPointsIfPossible(findMember, paymentDto.usingPoint());
+    public CommonSuccessDto payMyItem(MyPayDto myPayDto, Long memberId) {
+        Member member = memberRepository.findById(memberId)
+                .orElseThrow(() -> new CommonException(NOT_FOUND_MEMBER));
+        Delivery delivery = deliveryRepository.findById(myPayDto.deliveryId())
+                .orElseThrow(() -> new CommonException((NOT_FOUND_DELIVERY)));
+        PayUtils.deductPointsIfPossible(member, myPayDto.usingPoint());
+
+        List<Long> itemIds = myPayDto.itemPayDtoList().stream()
+                .map(ItemPayDto::itemId)
+                .collect(Collectors.toList());
+
+        Map<Long, Item> itemMap = itemRepository.findItemsByItemIds(itemIds).stream()
+                .collect(Collectors.toMap(Item::getItemId, item -> item));
+
+        Order order = Order.createOrder(0, member, delivery);
+        List<OrderItem> orderItems = myPayDto.itemPayDtoList().stream()
+                .map(itemPayDto -> {
+                    Item item = itemMap.get(itemPayDto.itemId());
+                    if (item == null) {
+                        throw new CommonException(NOT_FOUND_ITEM);
+                    }
+                    int quantity = itemPayDto.quantity();
+                    order.plusTotalPrice(item.getItemPrice() * quantity);
+                    return OrderItem.createOrderItem(order, item, quantity);
+                })
+                .toList();
+
+        orderItemRepository.saveAll(orderItems);
+        orderRepository.save(order);
+
         return CommonSuccessDto.fromEntity(true);
     }
 

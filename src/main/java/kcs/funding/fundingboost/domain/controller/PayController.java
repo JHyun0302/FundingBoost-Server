@@ -32,14 +32,14 @@ public class PayController {
     /**
      * 마이 페이 주문 페이지 조회
      */
-    @GetMapping("/order")
+    @GetMapping("/view/order")
     public ResponseDto<MyOrderPayViewDto> myOrderPayView(
             @RequestParam(name = "itemId") List<Long> itemIds,
             @RequestParam(name = "memberId") Long memberId) {
         return ResponseDto.ok(myPayService.myOrderPayView(itemIds, memberId));
     }
 
-    @GetMapping("/order/now")
+    @GetMapping("/view/order/now")
     public ResponseDto<MyNowOrderPayViewDto> MyOrderNowPayView(
             @RequestParam(name = "itemId") Long itemDto,
             @RequestParam(name = "memberId") Long memberId) {
@@ -49,7 +49,7 @@ public class PayController {
     /**
      * 마이 페이 펀딩 페이지 조회
      */
-    @GetMapping("/funding/{fundingItemId}")
+    @GetMapping("/view/funding/{fundingItemId}")
     public ResponseDto<MyFundingPayViewDto> myFundingPayView(
             @PathVariable(name = "fundingItemId") Long fundingItemId,
             @RequestParam(name = "memberId") Long memberId) {
