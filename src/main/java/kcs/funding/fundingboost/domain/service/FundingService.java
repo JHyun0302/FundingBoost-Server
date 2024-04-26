@@ -6,7 +6,6 @@ import static kcs.funding.fundingboost.domain.exception.ErrorCode.INVALID_FUNDIN
 import static kcs.funding.fundingboost.domain.exception.ErrorCode.NOT_FOUND_FUNDING;
 import static kcs.funding.fundingboost.domain.exception.ErrorCode.NOT_FOUND_ITEM;
 import static kcs.funding.fundingboost.domain.exception.ErrorCode.NOT_FOUND_MEMBER;
-import static kcs.funding.fundingboost.domain.service.FundingConst.EXTEND_DEADLINE;
 
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
@@ -30,11 +29,15 @@ import kcs.funding.fundingboost.domain.entity.Relationship;
 import kcs.funding.fundingboost.domain.entity.Tag;
 import kcs.funding.fundingboost.domain.exception.CommonException;
 import kcs.funding.fundingboost.domain.repository.Contributor.ContributorRepository;
+import kcs.funding.fundingboost.domain.repository.DeliveryRepository;
 import kcs.funding.fundingboost.domain.repository.FundingItem.FundingItemRepository;
 import kcs.funding.fundingboost.domain.repository.ItemRepository;
 import kcs.funding.fundingboost.domain.repository.MemberRepository;
+import kcs.funding.fundingboost.domain.repository.OrderRepository;
 import kcs.funding.fundingboost.domain.repository.funding.FundingRepository;
+import kcs.funding.fundingboost.domain.repository.orderItem.OrderItemRepository;
 import kcs.funding.fundingboost.domain.repository.relationship.RelationshipRepository;
+import kcs.funding.fundingboost.domain.service.utils.FundingConst;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -52,6 +55,9 @@ public class FundingService {
     private final FundingItemRepository fundingItemRepository;
     private final ContributorRepository contributorRepository;
     private final RelationshipRepository relationshipRepository;
+    private final DeliveryRepository deliveryRepository;
+    private final OrderRepository orderRepository;
+    private final OrderItemRepository orderItemRepository;
 
     public List<FundingRegistrationItemDto> getFundingRegister(List<Long> registerFundingBringItemDto, Long memberId) {
 
@@ -182,7 +188,36 @@ public class FundingService {
     public CommonSuccessDto extendFunding(Long fundingId) {
         Funding funding = fundingRepository.findById(fundingId)
                 .orElseThrow(() -> new CommonException(NOT_FOUND_FUNDING));
-        funding.extendDeadline(EXTEND_DEADLINE);
+        funding.extendDeadline(FundingConst.EXTEND_DEADLINE);
         return CommonSuccessDto.fromEntity(true);
     }
+//  잔여금액 결제하기
+//    @Transactional
+//    public CommonSuccessDto payRemain(Long fundingItemId, PayRemainDto payRemainDto, Long memberId) {
+//
+//        FundingItem fundingItem = fundingItemRepository.findFundingItemAndItemByFundingItemId(fundingItemId);
+//        Member member = memberRepository.findById(memberId)
+//                .orElseThrow(() -> new CommonException(NOT_FOUND_MEMBER));
+//        Delivery delivery = deliveryRepository.findById(payRemainDto.deliveryId())
+//                .orElseThrow(() -> new CommonException(NOT_FOUND_DELIVERY));
+//
+//        if (!fundingItem.isFinishedStatus()) {
+//            throw new CommonException(INVALID_FUNDINGITEM_STATUS);
+//        } else {
+//            fundingItem.finishFunding();
+//        }
+//
+//        if (member.getPoint() - payRemainDto.usingPoint() >= 0) {
+//            member.minusPoint(payRemainDto.usingPoint());
+//        } else {
+//            throw new CommonException(INVALID_POINT_LACK);
+//        }
+//
+//        Order order = Order.createOrder(fundingItem.getItem().getItemPrice(), member, delivery);
+//        OrderItem orderItem = OrderItem.createOrderItem(order, fundingItem.getItem(), 1);
+//        orderRepository.save(order);
+//        orderItemRepository.save(orderItem);
+//
+//        return CommonSuccessDto.fromEntity(true);
+//    }
 }

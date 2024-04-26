@@ -21,6 +21,7 @@ public enum ErrorCode {
     NOT_FOUND_ITEM(40405, HttpStatus.NOT_FOUND, "상품이 존재하지 않습니다."),
     NOT_FOUND_FUNDING_ITEM(40406, HttpStatus.NOT_FOUND, "펀딩 상품이 존재하지 않습니다."),
     NOT_FOUND_GIFTHUB_ITEM(40407, HttpStatus.NOT_FOUND, "장바구니에 아이템이 존재하지 않습니다."),
+    NOT_FOUND_DELIVERY(40408, HttpStatus.NOT_FOUND, "배송지 목록에 존재하지 않습니다."),
 
 
     // Invalid Argument Error

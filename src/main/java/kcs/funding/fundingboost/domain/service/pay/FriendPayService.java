@@ -1,7 +1,6 @@
 package kcs.funding.fundingboost.domain.service.pay;
 
 import static kcs.funding.fundingboost.domain.exception.ErrorCode.INVALID_FUNDING_MONEY;
-import static kcs.funding.fundingboost.domain.exception.ErrorCode.INVALID_POINT_LACK;
 import static kcs.funding.fundingboost.domain.exception.ErrorCode.NOT_FOUND_FUNDING;
 import static kcs.funding.fundingboost.domain.exception.ErrorCode.NOT_FOUND_MEMBER;
 
@@ -13,6 +12,7 @@ import kcs.funding.fundingboost.domain.entity.Member;
 import kcs.funding.fundingboost.domain.exception.CommonException;
 import kcs.funding.fundingboost.domain.repository.MemberRepository;
 import kcs.funding.fundingboost.domain.repository.funding.FundingRepository;
+import kcs.funding.fundingboost.domain.service.utils.PayUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -39,11 +39,8 @@ public class FriendPayService {
         Member findMember = memberRepository.findById(memberId)
                 .orElseThrow(() -> new CommonException(NOT_FOUND_MEMBER));
         int point = friendPayProcessDto.myPoint();
-        if (findMember.getPoint() - point >= 0) {
-            findMember.minusPoint(point);
-        } else {
-            throw new CommonException(INVALID_POINT_LACK);
-        }
+        PayUtils.deductPointsIfPossible(findMember, point);
+
         Funding friendFunding = fundingRepository.findById(fundingId)
                 .orElseThrow(() -> new CommonException(NOT_FOUND_FUNDING));
         if (friendFunding.getCollectPrice() + point <= friendFunding.getTotalPrice()) {
