@@ -1,7 +1,6 @@
 package kcs.funding.fundingboost.domain.service.pay;
 
 import static kcs.funding.fundingboost.domain.exception.ErrorCode.INVALID_FUNDINGITEM_STATUS;
-import static kcs.funding.fundingboost.domain.exception.ErrorCode.INVALID_POINT_LACK;
 import static kcs.funding.fundingboost.domain.exception.ErrorCode.NOT_FOUND_DELIVERY;
 import static kcs.funding.fundingboost.domain.exception.ErrorCode.NOT_FOUND_MEMBER;
 
@@ -30,6 +29,7 @@ import kcs.funding.fundingboost.domain.repository.ItemRepository;
 import kcs.funding.fundingboost.domain.repository.MemberRepository;
 import kcs.funding.fundingboost.domain.repository.OrderRepository;
 import kcs.funding.fundingboost.domain.repository.orderItem.OrderItemRepository;
+import kcs.funding.fundingboost.domain.service.utils.PayUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -127,7 +127,7 @@ public class MyPayService {
     public CommonSuccessDto payMyItem(MyPayDto paymentDto, Long memberId) {
         Member findMember = memberRepository.findById(memberId)
                 .orElseThrow(() -> new CommonException(ErrorCode.NOT_FOUND_MEMBER));
-        deductPointsIfPossible(findMember, paymentDto.usingPoint());
+        PayUtils.deductPointsIfPossible(findMember, paymentDto.usingPoint());
         return CommonSuccessDto.fromEntity(true);
     }
 
@@ -145,11 +145,7 @@ public class MyPayService {
             fundingItem.finishFunding();
         }
 
-        if (member.getPoint() - payRemainDto.usingPoint() >= 0) {
-            member.minusPoint(payRemainDto.usingPoint());
-        } else {
-            throw new CommonException(INVALID_POINT_LACK);
-        }
+        PayUtils.deductPointsIfPossible(member, payRemainDto.usingPoint());
 
         Order order = Order.createOrder(fundingItem.getItem().getItemPrice(), member, delivery);
         OrderItem orderItem = OrderItem.createOrderItem(order, fundingItem.getItem(), 1);
@@ -157,13 +153,5 @@ public class MyPayService {
         orderItemRepository.save(orderItem);
 
         return CommonSuccessDto.fromEntity(true);
-    }
-
-    private void deductPointsIfPossible(Member member, int points) {
-        if (member.getPoint() - points >= 0) {
-            member.minusPoint(points);
-        } else {
-            throw new CommonException(INVALID_POINT_LACK);
-        }
     }
 }
