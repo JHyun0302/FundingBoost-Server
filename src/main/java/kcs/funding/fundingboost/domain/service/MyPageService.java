@@ -29,16 +29,13 @@ import kcs.funding.fundingboost.domain.entity.Funding;
 import kcs.funding.fundingboost.domain.entity.FundingItem;
 import kcs.funding.fundingboost.domain.entity.Member;
 import kcs.funding.fundingboost.domain.exception.CommonException;
-import kcs.funding.fundingboost.domain.repository.Contributor.ContributorRepository;
 import kcs.funding.fundingboost.domain.repository.MemberRepository;
+import kcs.funding.fundingboost.domain.repository.contributor.ContributorRepository;
 import kcs.funding.fundingboost.domain.repository.funding.FundingRepository;
-import kcs.funding.fundingboost.domain.repository.relationship.RelationshipRepository;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-@Slf4j
 @Service
 @RequiredArgsConstructor
 public class MyPageService {
@@ -46,7 +43,6 @@ public class MyPageService {
     private final FundingRepository fundingRepository;
     private final MemberRepository memberRepository;
     private final ContributorRepository contributorRepository;
-    private final RelationshipRepository relationshipRepository;
 
     @Transactional
     public CommonSuccessDto exchangePoint(TransformPointDto transformPointDto) {
