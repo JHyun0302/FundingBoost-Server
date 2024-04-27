@@ -58,8 +58,8 @@ public class MyPageController {
     /**
      * 친구 펀딩 이력 조회
      */
-    @GetMapping("/friend/friend/funding-history")
-    public ResponseDto<FriendFundingHistoryDto> viewFreindFundingHistoory(@RequestParam("memberId") Long memberId) {
+    @GetMapping("/friend/funding-history")
+    public ResponseDto<FriendFundingHistoryDto> viewFreindFundingHistory(@RequestParam("memberId") Long memberId) {
         return ResponseDto.ok(myPageService.getFreindFundingHistory(memberId));
     }
 }

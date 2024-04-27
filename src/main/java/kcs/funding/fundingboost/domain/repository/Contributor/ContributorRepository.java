@@ -21,10 +21,7 @@ public interface ContributorRepository extends JpaRepository<Contributor, Long>,
 
 
     @Query("select c from Contributor c" +
-            " join fetch c.funding f" +
             " join fetch c.member m" +
-            " join fetch f.fundingItems fi" +
-            " join fetch fi.item" +
             " where c.member.memberId = :memberId")
     List<Contributor> findAllByMemberId(@Param("memberId") Long memberId);
 }
