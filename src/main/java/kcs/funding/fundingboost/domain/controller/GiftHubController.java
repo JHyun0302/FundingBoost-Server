@@ -28,7 +28,7 @@ public class GiftHubController {
     private final GiftHubItemService giftHubItemService;
 
     /**
-     * Gifthub 페이지 조회
+     * Gifthub 페이지 조회r
      */
     @GetMapping("")
     public ResponseDto<List<GiftHubDto>> giftHubPage(@RequestParam(name = "memberId") Long memberId) {

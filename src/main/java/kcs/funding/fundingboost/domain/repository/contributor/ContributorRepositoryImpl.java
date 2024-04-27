@@ -1,4 +1,4 @@
-package kcs.funding.fundingboost.domain.repository.Contributor;
+package kcs.funding.fundingboost.domain.repository.contributor;
 
 import static kcs.funding.fundingboost.domain.entity.QContributor.contributor;
 

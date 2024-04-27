@@ -28,14 +28,11 @@ import kcs.funding.fundingboost.domain.entity.Item;
 import kcs.funding.fundingboost.domain.entity.Relationship;
 import kcs.funding.fundingboost.domain.entity.Tag;
 import kcs.funding.fundingboost.domain.exception.CommonException;
-import kcs.funding.fundingboost.domain.repository.Contributor.ContributorRepository;
-import kcs.funding.fundingboost.domain.repository.DeliveryRepository;
-import kcs.funding.fundingboost.domain.repository.FundingItem.FundingItemRepository;
 import kcs.funding.fundingboost.domain.repository.ItemRepository;
 import kcs.funding.fundingboost.domain.repository.MemberRepository;
-import kcs.funding.fundingboost.domain.repository.OrderRepository;
+import kcs.funding.fundingboost.domain.repository.contributor.ContributorRepository;
 import kcs.funding.fundingboost.domain.repository.funding.FundingRepository;
-import kcs.funding.fundingboost.domain.repository.orderItem.OrderItemRepository;
+import kcs.funding.fundingboost.domain.repository.fundingItem.FundingItemRepository;
 import kcs.funding.fundingboost.domain.repository.relationship.RelationshipRepository;
 import kcs.funding.fundingboost.domain.service.utils.FundingConst;
 import lombok.RequiredArgsConstructor;
@@ -55,9 +52,6 @@ public class FundingService {
     private final FundingItemRepository fundingItemRepository;
     private final ContributorRepository contributorRepository;
     private final RelationshipRepository relationshipRepository;
-    private final DeliveryRepository deliveryRepository;
-    private final OrderRepository orderRepository;
-    private final OrderItemRepository orderItemRepository;
 
     public List<FundingRegistrationItemDto> getFundingRegister(List<Long> registerFundingBringItemDto, Long memberId) {
 

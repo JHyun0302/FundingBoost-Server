@@ -1,5 +1,6 @@
 package kcs.funding.fundingboost.domain.service.pay;
 
+
 import static kcs.funding.fundingboost.domain.exception.ErrorCode.INVALID_FUNDINGITEM_STATUS;
 import static kcs.funding.fundingboost.domain.exception.ErrorCode.NOT_FOUND_DELIVERY;
 import static kcs.funding.fundingboost.domain.exception.ErrorCode.NOT_FOUND_MEMBER;
@@ -23,11 +24,11 @@ import kcs.funding.fundingboost.domain.entity.OrderItem;
 import kcs.funding.fundingboost.domain.exception.CommonException;
 import kcs.funding.fundingboost.domain.exception.ErrorCode;
 import kcs.funding.fundingboost.domain.repository.DeliveryRepository;
-import kcs.funding.fundingboost.domain.repository.FundingItem.FundingItemRepository;
 import kcs.funding.fundingboost.domain.repository.GiftHubItemRepository;
 import kcs.funding.fundingboost.domain.repository.ItemRepository;
 import kcs.funding.fundingboost.domain.repository.MemberRepository;
 import kcs.funding.fundingboost.domain.repository.OrderRepository;
+import kcs.funding.fundingboost.domain.repository.fundingItem.FundingItemRepository;
 import kcs.funding.fundingboost.domain.repository.orderItem.OrderItemRepository;
 import kcs.funding.fundingboost.domain.service.utils.PayUtils;
 import lombok.RequiredArgsConstructor;
@@ -59,7 +60,7 @@ public class MyPayService {
                 .toList();
 
         if (!fundingItem.isFinishedStatus()) {
-            throw new CommonException(ErrorCode.INVALID_FUNDINGITEM_STATUS);
+            throw new CommonException(INVALID_FUNDINGITEM_STATUS);
         }
 
         if (fundingItem.getFunding().isFundingStatus()) {
@@ -94,7 +95,7 @@ public class MyPayService {
                 .toList();
 
         int point = memberRepository.findById(memberId)
-                .orElseThrow(() -> new CommonException(ErrorCode.NOT_FOUND_MEMBER))
+                .orElseThrow(() -> new CommonException(NOT_FOUND_MEMBER))
                 .getPoint();
 
         return MyOrderPayViewDto.fromEntity(itemDtoList, giftHubItemIds, deliveryDtoList, point);
@@ -112,7 +113,7 @@ public class MyPayService {
         );
 
         int point = memberRepository.findById(memberId)
-                .orElseThrow(() -> new CommonException(ErrorCode.NOT_FOUND_MEMBER))
+                .orElseThrow(() -> new CommonException(NOT_FOUND_MEMBER))
                 .getPoint();
 
         List<DeliveryDto> deliveryDtoList = deliveryRepository.findAllByMemberId(memberId)
@@ -126,7 +127,7 @@ public class MyPayService {
     @Transactional
     public CommonSuccessDto payMyItem(MyPayDto paymentDto, Long memberId) {
         Member findMember = memberRepository.findById(memberId)
-                .orElseThrow(() -> new CommonException(ErrorCode.NOT_FOUND_MEMBER));
+                .orElseThrow(() -> new CommonException(NOT_FOUND_MEMBER));
         PayUtils.deductPointsIfPossible(findMember, paymentDto.usingPoint());
         return CommonSuccessDto.fromEntity(true);
     }
