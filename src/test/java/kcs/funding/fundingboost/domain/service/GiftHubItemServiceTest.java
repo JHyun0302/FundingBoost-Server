@@ -123,7 +123,7 @@ class GiftHubItemServiceTest {
         Item item2 = createItem(itemName2, itemPrice2, itemImageUrl2, brandName2, category2, optionName2);
         Field itemId2 = item1.getClass().getDeclaredField("itemId");
         itemId2.setAccessible(true);
-        itemId2.set(item1, 2L);
+        itemId2.set(item2, 2L);
         AddGiftHubDto addGiftHubDto = new AddGiftHubDto(member.getMemberId(), 1);
 
         when(itemRepository.findById(item1.getItemId())).thenReturn(Optional.of(item1));
