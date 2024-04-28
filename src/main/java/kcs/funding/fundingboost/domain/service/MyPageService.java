@@ -158,10 +158,6 @@ public class MyPageService {
 
     public FriendFundingHistoryDto getFreindFundingHistory(Long memberId) {
 
-        Member member = memberRepository.findById(memberId)
-                .orElseThrow(() -> new CommonException(NOT_FOUND_MEMBER));
-        MyPageMemberDto myPageMemberDto = MyPageMemberDto.fromEntity(member);
-
         List<FriendFundingContributionDto> friendFundingContributionDtoList =
                 contributorRepository.findAllByMemberId(memberId).stream()
                         .map(contributor -> {
@@ -173,6 +169,10 @@ public class MyPageService {
         if (friendFundingContributionDtoList.isEmpty()) {
             throw new CommonException(NOT_FOUND_CONTRIBUTOR);
         }
+
+        Member member = memberRepository.findById(memberId)
+                .orElseThrow(() -> new CommonException(NOT_FOUND_MEMBER));
+        MyPageMemberDto myPageMemberDto = MyPageMemberDto.fromEntity(member);
 
         return FriendFundingHistoryDto.fromEntity(myPageMemberDto, friendFundingContributionDtoList);
     }
