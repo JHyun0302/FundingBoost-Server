@@ -1,11 +1,12 @@
 package kcs.funding.fundingboost.domain.service;
 
 import static kcs.funding.fundingboost.domain.dto.response.GiftHubDto.createGiftHubDto;
+import static kcs.funding.fundingboost.domain.exception.ErrorCode.NOT_FOUND_GIFTHUB_ITEM;
 import static kcs.funding.fundingboost.domain.exception.ErrorCode.NOT_FOUND_ITEM;
 import static kcs.funding.fundingboost.domain.exception.ErrorCode.NOT_FOUND_MEMBER;
-import static kcs.funding.fundingboost.domain.exception.ErrorCode.NOT_FOUND_GIFTHUB_ITEM;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import kcs.funding.fundingboost.domain.dto.common.CommonSuccessDto;
 import kcs.funding.fundingboost.domain.dto.request.AddGiftHubDto;
@@ -65,6 +66,17 @@ public class GiftHubItemService {
         GiftHubItem giftHubItem = giftHubItemRepository.findById(gifthubItemId)
                 .orElseThrow(() -> new CommonException(NOT_FOUND_GIFTHUB_ITEM));
         giftHubItem.updateQuantity(itemQuantity.quantity());
+        return CommonSuccessDto.fromEntity(true);
+    }
+
+    @Transactional
+    public CommonSuccessDto deleteGiftHubItem(Long memberId, Long giftHubItemId) {
+        Optional<GiftHubItem> giftHubItem = giftHubItemRepository.findGiftHubItemByGiftHubItemIdAndMemberId(
+                giftHubItemId, memberId);
+        if (giftHubItem.isEmpty()) {
+            throw new CommonException(NOT_FOUND_GIFTHUB_ITEM);
+        }
+        giftHubItemRepository.deleteById(giftHubItemId);
         return CommonSuccessDto.fromEntity(true);
     }
 }
