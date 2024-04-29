@@ -1,8 +1,5 @@
 package kcs.funding.fundingboost.domain.service;
 
-import static kcs.funding.fundingboost.domain.exception.ErrorCode.INVALID_FUNDING_STATUS;
-import static kcs.funding.fundingboost.domain.exception.ErrorCode.NOT_FOUND_CONTRIBUTOR;
-import static kcs.funding.fundingboost.domain.exception.ErrorCode.NOT_FOUND_FUNDING;
 import static kcs.funding.fundingboost.domain.exception.ErrorCode.NOT_FOUND_MEMBER;
 
 import java.time.LocalDate;
@@ -167,14 +164,10 @@ public class MyPageService {
         List<FriendFundingContributionDto> friendFundingContributionDtoList =
                 contributorRepository.findAllByMemberId(memberId).stream()
                         .map(contributor -> {
-                            Funding contributeFunding = Optional.ofNullable(contributor.getFunding())
-                                    .orElseThrow(() -> new CommonException(NOT_FOUND_FUNDING));
+                            Funding contributeFunding = contributor.getFunding();
                             return FriendFundingContributionDto.fromEntity(contributor, contributeFunding);
                         })
                         .toList();
-        if (friendFundingContributionDtoList.isEmpty()) {
-            throw new CommonException(NOT_FOUND_CONTRIBUTOR);
-        }
 
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new CommonException(NOT_FOUND_MEMBER));
