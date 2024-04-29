@@ -59,7 +59,7 @@ public class GiftHubController {
      */
     @DeleteMapping("{giftHubItemId}")
     public ResponseDto<CommonSuccessDto> deleteGiftHubItem(@RequestParam(name = "memberId") Long memberId,
-                                                           @RequestParam(name = "giftHubItemId") Long giftHubItemId) {
+                                                           @PathVariable(name = "giftHubItemId") Long giftHubItemId) {
         return ResponseDto.ok(giftHubItemService.deleteGiftHubItem(memberId, giftHubItemId));
     }
 }
