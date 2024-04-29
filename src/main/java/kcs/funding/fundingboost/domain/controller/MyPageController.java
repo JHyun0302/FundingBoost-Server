@@ -59,7 +59,7 @@ public class MyPageController {
      * 배송지 관리 조회
      */
     @GetMapping("/delivery")
-    public ResponseDto<MyPageDeliveryManageDto> viewMyDeliveryManageList(@RequestParam("memberId") Long memberId) {
+    public ResponseDto<MyPageDeliveryManageDto> viewMyDeliveryManagement(@RequestParam("memberId") Long memberId) {
         return ResponseDto.ok(myPageService.getMyDeliveryManageList(memberId));
     }
 }
