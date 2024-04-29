@@ -11,7 +11,6 @@ public record ItemDto(
         int itemPrice,
         int quantity) {
 
-
     public static ItemDto fromEntity(
             Long itemId,
             String itemThumbnailImageUrl,

@@ -6,6 +6,7 @@ import kcs.funding.fundingboost.domain.dto.request.TransformPointDto;
 import kcs.funding.fundingboost.domain.dto.response.MyFundingHistoryDetailDto;
 import kcs.funding.fundingboost.domain.dto.response.MyFundingHistoryDto;
 import kcs.funding.fundingboost.domain.dto.response.MyFundingStatusDto;
+import kcs.funding.fundingboost.domain.dto.response.MyWishListDto;
 import kcs.funding.fundingboost.domain.service.MyPageService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -52,5 +53,10 @@ public class MyPageController {
     public ResponseDto<MyFundingHistoryDetailDto> viewMyFundingHistoryDetail(@RequestParam("memberId") Long memberId,
                                                                              @PathVariable("fundingId") Long fundingId) {
         return ResponseDto.ok(myPageService.getMyFundingHistoryDetails(memberId, fundingId));
+    }
+
+    @GetMapping("/favorite")
+    public ResponseDto<MyWishListDto> viewMyFavoriteListDto(@RequestParam("memberId") Long memberId) {
+        return ResponseDto.ok(myPageService.getMyWishList(memberId));
     }
 }
