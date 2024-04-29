@@ -8,7 +8,6 @@ import static kcs.funding.fundingboost.domain.exception.ErrorCode.NOT_FOUND_MEMB
 
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.stream.Collectors;
 import kcs.funding.fundingboost.domain.dto.common.CommonSuccessDto;
 import kcs.funding.fundingboost.domain.dto.request.ItemPayDto;
@@ -29,11 +28,11 @@ import kcs.funding.fundingboost.domain.entity.OrderItem;
 import kcs.funding.fundingboost.domain.exception.CommonException;
 import kcs.funding.fundingboost.domain.exception.ErrorCode;
 import kcs.funding.fundingboost.domain.repository.DeliveryRepository;
-import kcs.funding.fundingboost.domain.repository.FundingItem.FundingItemRepository;
 import kcs.funding.fundingboost.domain.repository.GiftHubItemRepository;
 import kcs.funding.fundingboost.domain.repository.ItemRepository;
 import kcs.funding.fundingboost.domain.repository.MemberRepository;
 import kcs.funding.fundingboost.domain.repository.OrderRepository;
+import kcs.funding.fundingboost.domain.repository.fundingItem.FundingItemRepository;
 import kcs.funding.fundingboost.domain.repository.orderItem.OrderItemRepository;
 import kcs.funding.fundingboost.domain.service.utils.PayUtils;
 import lombok.RequiredArgsConstructor;
@@ -156,10 +155,14 @@ public class MyPayService {
         Order order = Order.createOrder(0, member, delivery);
         List<OrderItem> orderItems = myPayDto.itemPayDtoList().stream()
                 .map(itemPayDto -> {
-                    Item item = Optional.ofNullable(itemMap.get(itemPayDto.itemId()))
-                            .orElseThrow(() -> new CommonException(NOT_FOUND_ITEM));
-                    int quantity = Optional.of(itemPayDto.quantity())
-                            .orElseThrow(() -> new CommonException(BAD_REQUEST_PARAMETER));
+                    Item item = itemMap.get(itemPayDto.itemId());
+                    if (item == null) {
+                        throw new CommonException(NOT_FOUND_ITEM);
+                    }
+                    int quantity = itemPayDto.quantity();
+                    if (quantity <= 0) {
+                        throw new CommonException(BAD_REQUEST_PARAMETER);
+                    }
                     order.plusTotalPrice(item.getItemPrice() * quantity);
                     return OrderItem.createOrderItem(order, item, quantity);
                 })
