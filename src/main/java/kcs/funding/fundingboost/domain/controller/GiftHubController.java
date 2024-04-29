@@ -57,9 +57,9 @@ public class GiftHubController {
     /**
      * GiftHub 상품 삭제
      */
-    @DeleteMapping("{gifthubItemId}")
+    @DeleteMapping("{giftHubItemId}")
     public ResponseDto<CommonSuccessDto> deleteGiftHubItem(@RequestParam(name = "memberId") Long memberId,
-                                                           @RequestParam(name = "gifthubItemId") Long gifthubItemId) {
-        return ResponseDto.ok(giftHubItemService.deleteGiftHubItem(memberId, gifthubItemId));
+                                                           @RequestParam(name = "giftHubItemId") Long giftHubItemId) {
+        return ResponseDto.ok(giftHubItemService.deleteGiftHubItem(memberId, giftHubItemId));
     }
 }

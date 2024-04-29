@@ -22,8 +22,8 @@ public interface GiftHubItemRepository extends JpaRepository<GiftHubItem, Long> 
 
     @Query("select g from GiftHubItem g" +
             " join fetch g.member m" +
-            " where m.memberId = :memberId " +
-            " and g.giftHunItemId = :giftHunItemId")
-    Optional<GiftHubItem> findGiftHubItemByGiftHunItemIdAndMemberId(@Param("giftHubItemId") Long giftHubItemId,
+            " where g.giftHunItemId = :giftHubItemId" +
+            " and m.memberId = :memberId ")
+    Optional<GiftHubItem> findGiftHubItemByGiftHubItemIdAndMemberId(@Param("giftHubItemId") Long giftHubItemId,
                                                                     @Param("memberId") Long memberId);
 }

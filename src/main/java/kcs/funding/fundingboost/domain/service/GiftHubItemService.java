@@ -71,7 +71,7 @@ public class GiftHubItemService {
 
     @Transactional
     public CommonSuccessDto deleteGiftHubItem(Long memberId, Long giftHubItemId) {
-        Optional<GiftHubItem> giftHubItem = giftHubItemRepository.findGiftHubItemByGiftHunItemIdAndMemberId(
+        Optional<GiftHubItem> giftHubItem = giftHubItemRepository.findGiftHubItemByGiftHubItemIdAndMemberId(
                 giftHubItemId, memberId);
         if (giftHubItem.isEmpty()) {
             throw new CommonException(NOT_FOUND_GIFTHUB_ITEM);
