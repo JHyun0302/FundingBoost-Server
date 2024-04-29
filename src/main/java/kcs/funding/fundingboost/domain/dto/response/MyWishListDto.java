@@ -4,12 +4,12 @@ import java.util.List;
 import lombok.Builder;
 
 @Builder
-public record MyWishListDto(MyPageMemberDto myPageMemberDto, List<ItemDto> itemDtoList) {
+public record MyWishListDto(MyPageMemberDto myPageMemberDto, List<WishtListItemDto> wishtListItemDtos) {
 
-    public static MyWishListDto fromEntity(MyPageMemberDto myPageMemberDto, List<ItemDto> itemDtoList) {
+    public static MyWishListDto fromEntity(MyPageMemberDto myPageMemberDto, List<WishtListItemDto> wishtListItemDtos) {
         return MyWishListDto.builder()
                 .myPageMemberDto(myPageMemberDto)
-                .itemDtoList(itemDtoList)
+                .wishtListItemDtos(wishtListItemDtos)
                 .build();
     }
 
