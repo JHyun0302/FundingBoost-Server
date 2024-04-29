@@ -6,6 +6,7 @@ import kcs.funding.fundingboost.domain.dto.request.TransformPointDto;
 import kcs.funding.fundingboost.domain.dto.response.MyFundingHistoryDetailDto;
 import kcs.funding.fundingboost.domain.dto.response.MyFundingHistoryDto;
 import kcs.funding.fundingboost.domain.dto.response.MyFundingStatusDto;
+import kcs.funding.fundingboost.domain.dto.response.myPage.deliveryManage.MyPageDeliveryManageDto;
 import kcs.funding.fundingboost.domain.dto.response.myPage.friendFundingHistory.FriendFundingHistoryDto;
 import kcs.funding.fundingboost.domain.service.MyPageService;
 import lombok.RequiredArgsConstructor;
@@ -61,5 +62,13 @@ public class MyPageController {
     @GetMapping("/friend/funding-history")
     public ResponseDto<FriendFundingHistoryDto> viewFreindFundingHistory(@RequestParam("memberId") Long memberId) {
         return ResponseDto.ok(myPageService.getFreindFundingHistory(memberId));
+    }
+
+    /**
+     * 배송지 관리 조회
+     */
+    @GetMapping("/delivery")
+    public ResponseDto<MyPageDeliveryManageDto> viewMyDeliveryManagement(@RequestParam("memberId") Long memberId) {
+        return ResponseDto.ok(myPageService.getMyDeliveryManageList(memberId));
     }
 }
