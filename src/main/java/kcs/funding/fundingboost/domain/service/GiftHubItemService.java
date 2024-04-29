@@ -70,12 +70,13 @@ public class GiftHubItemService {
     }
 
     @Transactional
-    public CommonSuccessDto deleteGiftHubItem(Long memberId, Long gifthubItemId) {
-        Optional<GiftHubItem> gifthubItem = giftHubItemRepository.findById(gifthubItemId);
-        if (gifthubItem.isEmpty()) {
+    public CommonSuccessDto deleteGiftHubItem(Long memberId, Long giftHubItemId) {
+        Optional<GiftHubItem> giftHubItem = giftHubItemRepository.findGiftHubItemByGiftHunItemIdAndMemberId(
+                giftHubItemId, memberId);
+        if (giftHubItem.isEmpty()) {
             throw new CommonException(NOT_FOUND_GIFTHUB_ITEM);
         }
-        giftHubItemRepository.deleteById(gifthubItemId);
+        giftHubItemRepository.deleteById(giftHubItemId);
         return CommonSuccessDto.fromEntity(true);
     }
 }
