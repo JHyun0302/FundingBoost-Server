@@ -19,16 +19,17 @@ import kcs.funding.fundingboost.domain.dto.response.MyFundingResponseDto;
 import kcs.funding.fundingboost.domain.dto.response.MyFundingStatusDto;
 import kcs.funding.fundingboost.domain.dto.response.MyPageFundingItemDto;
 import kcs.funding.fundingboost.domain.dto.response.MyPageMemberDto;
-import kcs.funding.fundingboost.domain.dto.response.MyWishListDto;
 import kcs.funding.fundingboost.domain.dto.response.ParticipateFriendDto;
-import kcs.funding.fundingboost.domain.dto.response.WishtListItemDto;
+import kcs.funding.fundingboost.domain.dto.response.myPage.deliveryManage.MyPageDeliveryDto;
+import kcs.funding.fundingboost.domain.dto.response.myPage.deliveryManage.MyPageDeliveryManageDto;
 import kcs.funding.fundingboost.domain.entity.Contributor;
+import kcs.funding.fundingboost.domain.entity.Delivery;
 import kcs.funding.fundingboost.domain.entity.Funding;
 import kcs.funding.fundingboost.domain.entity.FundingItem;
 import kcs.funding.fundingboost.domain.entity.Member;
 import kcs.funding.fundingboost.domain.exception.CommonException;
+import kcs.funding.fundingboost.domain.repository.DeliveryRepository;
 import kcs.funding.fundingboost.domain.repository.MemberRepository;
-import kcs.funding.fundingboost.domain.repository.bookmark.BookmarkRepository;
 import kcs.funding.fundingboost.domain.repository.contributor.ContributorRepository;
 import kcs.funding.fundingboost.domain.repository.funding.FundingRepository;
 import lombok.RequiredArgsConstructor;
@@ -44,7 +45,7 @@ public class MyPageService {
     private final FundingRepository fundingRepository;
     private final MemberRepository memberRepository;
     private final ContributorRepository contributorRepository;
-    private final BookmarkRepository bookmarkRepository;
+    private final DeliveryRepository deliveryRepository;
 
     @Transactional
     public CommonSuccessDto exchangePoint(TransformPointDto transformPointDto) {
@@ -158,14 +159,16 @@ public class MyPageService {
                 funding.getDeadline().format(DateTimeFormatter.ofPattern("yyyy-MM-dd")));
     }
 
-    public MyWishListDto getMyWishList(Long memberId) {
+    public MyPageDeliveryManageDto getMyDeliveryManageList(Long memberId) {
+        List<Delivery> deliveryList = deliveryRepository.findAllByMemberId(memberId);
 
-        List<WishtListItemDto> wishtListItemDtos = bookmarkRepository.findAllByMemberId(memberId).stream()
-                .map(bookmark -> WishtListItemDto.fromEntity(bookmark.getItem())).toList();
+        Member member = memberRepository.findById(memberId).orElseThrow(() -> new CommonException(NOT_FOUND_MEMBER));
 
-        MyPageMemberDto myPageMemberDto = MyPageMemberDto.fromEntity(
-                memberRepository.findById(memberId).orElseThrow(() -> new CommonException(NOT_FOUND_MEMBER)));
+        MyPageMemberDto myPageMemberDto = MyPageMemberDto.fromEntity(member);
 
-        return MyWishListDto.fromEntity(myPageMemberDto, wishtListItemDtos);
+        List<MyPageDeliveryDto> myPageDeliveryDtoList = deliveryList.stream()
+                .map(MyPageDeliveryDto::fromEntity).toList();
+
+        return MyPageDeliveryManageDto.fromEntity(myPageMemberDto, myPageDeliveryDtoList);
     }
 }

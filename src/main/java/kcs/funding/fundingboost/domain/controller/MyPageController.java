@@ -6,7 +6,7 @@ import kcs.funding.fundingboost.domain.dto.request.TransformPointDto;
 import kcs.funding.fundingboost.domain.dto.response.MyFundingHistoryDetailDto;
 import kcs.funding.fundingboost.domain.dto.response.MyFundingHistoryDto;
 import kcs.funding.fundingboost.domain.dto.response.MyFundingStatusDto;
-import kcs.funding.fundingboost.domain.dto.response.MyWishListDto;
+import kcs.funding.fundingboost.domain.dto.response.myPage.deliveryManage.MyPageDeliveryManageDto;
 import kcs.funding.fundingboost.domain.service.MyPageService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -55,8 +55,11 @@ public class MyPageController {
         return ResponseDto.ok(myPageService.getMyFundingHistoryDetails(memberId, fundingId));
     }
 
-    @GetMapping("/favorite")
-    public ResponseDto<MyWishListDto> viewMyFavoriteListDto(@RequestParam("memberId") Long memberId) {
-        return ResponseDto.ok(myPageService.getMyWishList(memberId));
+    /**
+     * 배송지 관리 조회
+     */
+    @GetMapping("/delivery")
+    public ResponseDto<MyPageDeliveryManageDto> viewMyDeliveryManagement(@RequestParam("memberId") Long memberId) {
+        return ResponseDto.ok(myPageService.getMyDeliveryManageList(memberId));
     }
 }
