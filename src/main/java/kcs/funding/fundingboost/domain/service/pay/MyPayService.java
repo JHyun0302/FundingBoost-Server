@@ -51,8 +51,8 @@ public class MyPayService {
     private final FundingItemRepository fundingItemRepository;
     private final GiftHubItemRepository giftHubItemRepository;
     private final ItemRepository itemRepository;
-    private final OrderItemRepository orderItemRepository;
     private final OrderRepository orderRepository;
+    private final OrderItemRepository orderItemRepository;
 
     public MyFundingPayViewDto myFundingPayView(Long fundingItemId, Long memberId) {
         FundingItem fundingItem = fundingItemRepository.findById(fundingItemId)
@@ -64,7 +64,7 @@ public class MyPayService {
                 .toList();
 
         if (!fundingItem.isFinishedStatus()) {
-            throw new CommonException(INVALID_FUNDINGITEM_STATUS);
+            throw new CommonException(ErrorCode.INVALID_FUNDINGITEM_STATUS);
         }
 
         if (fundingItem.getFunding().isFundingStatus()) {

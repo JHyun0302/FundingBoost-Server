@@ -1,4 +1,4 @@
-package kcs.funding.fundingboost.domain.repository.Contributor;
+package kcs.funding.fundingboost.domain.repository.contributor;
 
 import java.util.List;
 import kcs.funding.fundingboost.domain.entity.Contributor;

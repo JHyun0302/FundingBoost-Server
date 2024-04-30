@@ -10,6 +10,7 @@ import kcs.funding.fundingboost.domain.dto.response.GiftHubDto;
 import kcs.funding.fundingboost.domain.service.GiftHubItemService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -28,7 +29,7 @@ public class GiftHubController {
     private final GiftHubItemService giftHubItemService;
 
     /**
-     * Gifthub 페이지 조회
+     * Gifthub 페이지 조회r
      */
     @GetMapping("")
     public ResponseDto<List<GiftHubDto>> giftHubPage(@RequestParam(name = "memberId") Long memberId) {
@@ -53,4 +54,12 @@ public class GiftHubController {
         return ResponseDto.ok(giftHubItemService.updateItem(gifthubItemId, itemQuantity));
     }
 
+    /**
+     * GiftHub 상품 삭제
+     */
+    @DeleteMapping("{giftHubItemId}")
+    public ResponseDto<CommonSuccessDto> deleteGiftHubItem(@RequestParam(name = "memberId") Long memberId,
+                                                           @PathVariable(name = "giftHubItemId") Long giftHubItemId) {
+        return ResponseDto.ok(giftHubItemService.deleteGiftHubItem(memberId, giftHubItemId));
+    }
 }

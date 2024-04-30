@@ -1,4 +1,4 @@
-package kcs.funding.fundingboost.domain.repository.FundingItem;
+package kcs.funding.fundingboost.domain.repository.fundingItem;
 
 import java.util.List;
 import kcs.funding.fundingboost.domain.entity.FundingItem;
