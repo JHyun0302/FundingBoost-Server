@@ -19,9 +19,9 @@ import java.lang.reflect.Field;
 import java.util.List;
 import java.util.Optional;
 import kcs.funding.fundingboost.domain.dto.common.CommonSuccessDto;
-import kcs.funding.fundingboost.domain.dto.request.AddGiftHubDto;
-import kcs.funding.fundingboost.domain.dto.request.ItemQuantityDto;
-import kcs.funding.fundingboost.domain.dto.response.GiftHubDto;
+import kcs.funding.fundingboost.domain.dto.request.giftHub.AddGiftHubDto;
+import kcs.funding.fundingboost.domain.dto.request.giftHub.ItemQuantityDto;
+import kcs.funding.fundingboost.domain.dto.response.giftHub.GiftHubDto;
 import kcs.funding.fundingboost.domain.entity.GiftHubItem;
 import kcs.funding.fundingboost.domain.entity.Item;
 import kcs.funding.fundingboost.domain.entity.Member;
@@ -220,6 +220,18 @@ class GiftHubItemServiceTest {
         });
 
         assertEquals(NOT_FOUND_GIFTHUB_ITEM.getMessage(), exception.getMessage());
+    }
+
+    @DisplayName("GiftHubItem 삭제 성공")
+    @Test
+    void deleteGiftHubItem_Success() {
+
+    }
+
+    @DisplayName("GiftHubItem 삭제 실패 - 아이템 조회 실패")
+    @Test
+    void deleteGiftHubItem_ItemNotFound() {
+
     }
 
 
