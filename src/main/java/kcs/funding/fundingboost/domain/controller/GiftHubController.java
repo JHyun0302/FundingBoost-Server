@@ -4,9 +4,9 @@ package kcs.funding.fundingboost.domain.controller;
 import java.util.List;
 import kcs.funding.fundingboost.domain.dto.common.CommonSuccessDto;
 import kcs.funding.fundingboost.domain.dto.global.ResponseDto;
-import kcs.funding.fundingboost.domain.dto.request.AddGiftHubDto;
-import kcs.funding.fundingboost.domain.dto.request.ItemQuantityDto;
-import kcs.funding.fundingboost.domain.dto.response.GiftHubDto;
+import kcs.funding.fundingboost.domain.dto.request.giftHub.AddGiftHubDto;
+import kcs.funding.fundingboost.domain.dto.request.giftHub.ItemQuantityDto;
+import kcs.funding.fundingboost.domain.dto.response.giftHub.GiftHubDto;
 import kcs.funding.fundingboost.domain.service.GiftHubItemService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -29,7 +29,7 @@ public class GiftHubController {
     private final GiftHubItemService giftHubItemService;
 
     /**
-     * Gifthub 페이지 조회r
+     * Gifthub 페이지 조회
      */
     @GetMapping("")
     public ResponseDto<List<GiftHubDto>> giftHubPage(@RequestParam(name = "memberId") Long memberId) {

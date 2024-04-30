@@ -1,7 +1,7 @@
 package kcs.funding.fundingboost.domain.dto.response.myPage.friendFundingHistory;
 
 import java.util.List;
-import kcs.funding.fundingboost.domain.dto.response.MyPageMemberDto;
+import kcs.funding.fundingboost.domain.dto.response.myPage.MyPageMemberDto;
 import lombok.Builder;
 
 @Builder

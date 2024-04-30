@@ -10,14 +10,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 import kcs.funding.fundingboost.domain.dto.common.CommonSuccessDto;
-import kcs.funding.fundingboost.domain.dto.request.ItemPayDto;
-import kcs.funding.fundingboost.domain.dto.request.MyPayDto;
-import kcs.funding.fundingboost.domain.dto.request.PayRemainDto;
-import kcs.funding.fundingboost.domain.dto.response.DeliveryDto;
-import kcs.funding.fundingboost.domain.dto.response.ItemDto;
-import kcs.funding.fundingboost.domain.dto.response.MyFundingPayViewDto;
-import kcs.funding.fundingboost.domain.dto.response.MyNowOrderPayViewDto;
-import kcs.funding.fundingboost.domain.dto.response.MyOrderPayViewDto;
+import kcs.funding.fundingboost.domain.dto.request.pay.myPay.ItemPayDto;
+import kcs.funding.fundingboost.domain.dto.request.pay.myPay.MyPayDto;
+import kcs.funding.fundingboost.domain.dto.request.pay.myPay.PayRemainDto;
+import kcs.funding.fundingboost.domain.dto.response.common.CommonItemDto;
+import kcs.funding.fundingboost.domain.dto.response.myPage.deliveryManage.DeliveryDto;
+import kcs.funding.fundingboost.domain.dto.response.pay.myPay.MyFundingPayViewDto;
+import kcs.funding.fundingboost.domain.dto.response.pay.myPay.MyNowOrderPayViewDto;
+import kcs.funding.fundingboost.domain.dto.response.pay.myPay.MyOrderPayViewDto;
 import kcs.funding.fundingboost.domain.entity.Delivery;
 import kcs.funding.fundingboost.domain.entity.FundingItem;
 import kcs.funding.fundingboost.domain.entity.GiftHubItem;
@@ -89,9 +89,9 @@ public class MyPayService {
                 .stream().map(GiftHubItem::getGiftHunItemId)
                 .toList();
 
-        List<ItemDto> itemDtoList = itemIds.stream()
+        List<CommonItemDto> commonItemDtoList = itemIds.stream()
                 .flatMap(i -> itemRepository.findById(i).stream())
-                .map(item -> ItemDto.fromEntity(item.getItemId(),
+                .map(item -> CommonItemDto.fromEntity(item.getItemId(),
                         item.getItemImageUrl(),
                         item.getItemName(),
                         item.getOptionName(),
@@ -102,14 +102,14 @@ public class MyPayService {
                 .orElseThrow(() -> new CommonException(NOT_FOUND_MEMBER))
                 .getPoint();
 
-        return MyOrderPayViewDto.fromEntity(itemDtoList, giftHubItemIds, deliveryDtoList, point);
+        return MyOrderPayViewDto.fromEntity(commonItemDtoList, giftHubItemIds, deliveryDtoList, point);
     }
 
     public MyNowOrderPayViewDto MyOrderNowPayView(Long itemId, Long memberId) {
 
         Item item = itemRepository.findById(itemId)
                 .orElseThrow(() -> new CommonException(NOT_FOUND_ITEM));
-        ItemDto itemDto = ItemDto.fromEntity(item.getItemId(),
+        CommonItemDto commonItemDto = CommonItemDto.fromEntity(item.getItemId(),
                 item.getItemImageUrl(),
                 item.getItemName(),
                 item.getOptionName(),
@@ -125,7 +125,7 @@ public class MyPayService {
                 .map(DeliveryDto::fromEntity)
                 .toList();
 
-        return MyNowOrderPayViewDto.fromEntity(itemDto, deliveryDtoList, point);
+        return MyNowOrderPayViewDto.fromEntity(commonItemDto, deliveryDtoList, point);
     }
 
     @Transactional

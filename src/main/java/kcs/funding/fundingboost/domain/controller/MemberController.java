@@ -2,7 +2,7 @@ package kcs.funding.fundingboost.domain.controller;
 
 import kcs.funding.fundingboost.domain.dto.common.CommonSuccessDto;
 import kcs.funding.fundingboost.domain.dto.global.ResponseDto;
-import kcs.funding.fundingboost.domain.dto.request.TransformPointDto;
+import kcs.funding.fundingboost.domain.dto.request.myPage.myFundingStatus.TransformPointDto;
 import kcs.funding.fundingboost.domain.service.MemberService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.PostMapping;

@@ -1,6 +1,6 @@
 package kcs.funding.fundingboost.domain.service;
 
-import static kcs.funding.fundingboost.domain.dto.response.GiftHubDto.createGiftHubDto;
+import static kcs.funding.fundingboost.domain.dto.response.giftHub.GiftHubDto.createGiftHubDto;
 import static kcs.funding.fundingboost.domain.exception.ErrorCode.NOT_FOUND_GIFTHUB_ITEM;
 import static kcs.funding.fundingboost.domain.exception.ErrorCode.NOT_FOUND_ITEM;
 import static kcs.funding.fundingboost.domain.exception.ErrorCode.NOT_FOUND_MEMBER;
@@ -9,9 +9,9 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import kcs.funding.fundingboost.domain.dto.common.CommonSuccessDto;
-import kcs.funding.fundingboost.domain.dto.request.AddGiftHubDto;
-import kcs.funding.fundingboost.domain.dto.request.ItemQuantityDto;
-import kcs.funding.fundingboost.domain.dto.response.GiftHubDto;
+import kcs.funding.fundingboost.domain.dto.request.giftHub.AddGiftHubDto;
+import kcs.funding.fundingboost.domain.dto.request.giftHub.ItemQuantityDto;
+import kcs.funding.fundingboost.domain.dto.response.giftHub.GiftHubDto;
 import kcs.funding.fundingboost.domain.entity.GiftHubItem;
 import kcs.funding.fundingboost.domain.entity.Item;
 import kcs.funding.fundingboost.domain.entity.Member;
