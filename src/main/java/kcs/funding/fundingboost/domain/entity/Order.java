@@ -52,4 +52,8 @@ public class Order extends BaseTimeEntity {
         order.delivery = delivery;
         return order;
     }
+
+    public void plusTotalPrice(int plusPrice) {
+        totalPrice += plusPrice;
+    }
 }
