@@ -58,11 +58,7 @@ public class MyPayService {
                 .stream()
                 .map(DeliveryDto::fromEntity)
                 .toList();
-
-        if (!fundingItem.isFinishedStatus()) {
-            throw new CommonException(INVALID_FUNDINGITEM_STATUS);
-        }
-
+        
         if (fundingItem.getFunding().isFundingStatus()) {
             throw new CommonException(ErrorCode.ONGOING_FUNDING_ERROR);
         }
