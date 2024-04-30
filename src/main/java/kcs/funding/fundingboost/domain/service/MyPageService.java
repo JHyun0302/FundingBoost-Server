@@ -1,5 +1,6 @@
 package kcs.funding.fundingboost.domain.service;
 
+import static kcs.funding.fundingboost.domain.exception.ErrorCode.INVALID_FUNDING_STATUS;
 import static kcs.funding.fundingboost.domain.exception.ErrorCode.NOT_FOUND_MEMBER;
 
 import java.time.LocalDate;
@@ -29,15 +30,16 @@ import kcs.funding.fundingboost.domain.entity.Funding;
 import kcs.funding.fundingboost.domain.entity.FundingItem;
 import kcs.funding.fundingboost.domain.entity.Member;
 import kcs.funding.fundingboost.domain.exception.CommonException;
-import kcs.funding.fundingboost.domain.exception.ErrorCode;
 import kcs.funding.fundingboost.domain.repository.DeliveryRepository;
 import kcs.funding.fundingboost.domain.repository.MemberRepository;
 import kcs.funding.fundingboost.domain.repository.contributor.ContributorRepository;
 import kcs.funding.fundingboost.domain.repository.funding.FundingRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class MyPageService {
@@ -145,7 +147,7 @@ public class MyPageService {
         MyPageMemberDto myPageMemberDto = MyPageMemberDto.fromEntity(funding.getMember());
         if (funding.isFundingStatus()) {
             // 펀딩이 진행중인 상황
-            throw new CommonException(ErrorCode.INVALID_FUNDING_STATUS);
+            throw new CommonException(INVALID_FUNDING_STATUS);
         }
         List<MyPageFundingItemDto> myPageFundingItemDtoList = getMyPageFundingItemDtoList(funding);
         List<ParticipateFriendDto> participateFriendDtoList = getParticipateFriendDtoList(funding);
