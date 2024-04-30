@@ -1,4 +1,4 @@
-package kcs.funding.fundingboost.Init;
+package kcs.funding.fundingboost.init;
 
 import jakarta.annotation.PostConstruct;
 import jakarta.persistence.EntityManager;
