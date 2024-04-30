@@ -1,4 +1,4 @@
-package kcs.funding.fundingboost.domain.repository.GiftHubItem;
+package kcs.funding.fundingboost.domain.repository.giftHubItem;
 
 import static kcs.funding.fundingboost.domain.entity.QGiftHubItem.giftHubItem;
 import static kcs.funding.fundingboost.domain.entity.QMember.member;
