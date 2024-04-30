@@ -1,8 +1,8 @@
 package kcs.funding.fundingboost.domain.controller;
 
 import kcs.funding.fundingboost.domain.dto.global.ResponseDto;
-import kcs.funding.fundingboost.domain.dto.response.HomeViewDto;
-import kcs.funding.fundingboost.domain.service.HomeService;
+import kcs.funding.fundingboost.domain.dto.response.MyWishListDto;
+import kcs.funding.fundingboost.domain.service.BookmarkService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -13,16 +13,13 @@ import org.springframework.web.bind.annotation.RestController;
 @Slf4j
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/v1/home")
-public class HomeController {
+@RequestMapping("/api/v1/bookmark")
+public class BookmarkController {
 
-    private final HomeService homeService;
+    private final BookmarkService bookmarkService;
 
-    /**
-     * 메인페이지 조회
-     */
     @GetMapping("")
-    public ResponseDto<HomeViewDto> home(@RequestParam("memberId") Long memberId) {
-        return ResponseDto.ok(homeService.getMainView(memberId));
+    public ResponseDto<MyWishListDto> viewMyFavoriteListDto(@RequestParam("memberId") Long memberId) {
+        return ResponseDto.ok(bookmarkService.getMyWishList(memberId));
     }
 }
