@@ -10,7 +10,6 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 import kcs.funding.fundingboost.domain.dto.common.CommonSuccessDto;
 import kcs.funding.fundingboost.domain.dto.request.TransformPointDto;
 import kcs.funding.fundingboost.domain.dto.response.MyFundingHistoryDetailDto;
@@ -19,7 +18,9 @@ import kcs.funding.fundingboost.domain.dto.response.MyFundingResponseDto;
 import kcs.funding.fundingboost.domain.dto.response.MyFundingStatusDto;
 import kcs.funding.fundingboost.domain.dto.response.MyPageFundingItemDto;
 import kcs.funding.fundingboost.domain.dto.response.MyPageMemberDto;
+import kcs.funding.fundingboost.domain.dto.response.MyWishListDto;
 import kcs.funding.fundingboost.domain.dto.response.ParticipateFriendDto;
+import kcs.funding.fundingboost.domain.dto.response.WishtListItemDto;
 import kcs.funding.fundingboost.domain.dto.response.myPage.deliveryManage.MyPageDeliveryDto;
 import kcs.funding.fundingboost.domain.dto.response.myPage.deliveryManage.MyPageDeliveryManageDto;
 import kcs.funding.fundingboost.domain.dto.response.myPage.friendFundingHistory.FriendFundingContributionDto;
@@ -32,6 +33,7 @@ import kcs.funding.fundingboost.domain.entity.Member;
 import kcs.funding.fundingboost.domain.exception.CommonException;
 import kcs.funding.fundingboost.domain.repository.DeliveryRepository;
 import kcs.funding.fundingboost.domain.repository.MemberRepository;
+import kcs.funding.fundingboost.domain.repository.bookmark.BookmarkRepository;
 import kcs.funding.fundingboost.domain.repository.contributor.ContributorRepository;
 import kcs.funding.fundingboost.domain.repository.funding.FundingRepository;
 import lombok.RequiredArgsConstructor;
@@ -48,6 +50,7 @@ public class MyPageService {
     private final MemberRepository memberRepository;
     private final ContributorRepository contributorRepository;
     private final DeliveryRepository deliveryRepository;
+    private final BookmarkRepository bookmarkRepository;
 
     @Transactional
     public CommonSuccessDto exchangePoint(TransformPointDto transformPointDto) {
@@ -57,7 +60,7 @@ public class MyPageService {
 
         List<FundingItem> sortedFundingItems = fundingItems.stream()
                 .sorted(Comparator.comparingInt(FundingItem::getItemSequence))
-                .collect(Collectors.toList());
+                .toList();
 
         int collectPrice = funding.getCollectPrice();
         for (FundingItem sortedFundingItem : sortedFundingItems) {
@@ -189,5 +192,16 @@ public class MyPageService {
                 .map(MyPageDeliveryDto::fromEntity).toList();
 
         return MyPageDeliveryManageDto.fromEntity(myPageMemberDto, myPageDeliveryDtoList);
+    }
+
+    public MyWishListDto getMyWishList(Long memberId) {
+
+        List<WishtListItemDto> wishtListItemDtos = bookmarkRepository.findAllByMemberId(memberId).stream()
+                .map(bookmark -> WishtListItemDto.fromEntity(bookmark.getItem())).toList();
+
+        MyPageMemberDto myPageMemberDto = MyPageMemberDto.fromEntity(
+                memberRepository.findById(memberId).orElseThrow(() -> new CommonException(NOT_FOUND_MEMBER)));
+
+        return MyWishListDto.fromEntity(myPageMemberDto, wishtListItemDtos);
     }
 }
