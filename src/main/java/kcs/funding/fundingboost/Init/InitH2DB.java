@@ -5,6 +5,7 @@ import jakarta.persistence.EntityManager;
 import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.List;
+import kcs.funding.fundingboost.domain.entity.Bookmark;
 import kcs.funding.fundingboost.domain.entity.Contributor;
 import kcs.funding.fundingboost.domain.entity.Delivery;
 import kcs.funding.fundingboost.domain.entity.Funding;
@@ -49,6 +50,7 @@ public class InitH2DB {
         initService.initFunding(members, items);
         initService.initRelationships(members);
         initService.initContributor(members, items);
+        initService.initBookmark(members, items);
     }
 
     @Component
@@ -303,6 +305,31 @@ public class InitH2DB {
                 em.persist(item);
             }
             return itemInfos;
+        }
+
+        public void initBookmark(List<Member> members, List<Item> items) {
+
+            Member member1 = members.get(0);
+            Member member2 = members.get(1);
+
+            Item item1 = items.get(0);
+            Item item2 = items.get(1);
+            Item item3 = items.get(2);
+            Item item4 = items.get(3);
+            Item item5 = items.get(4);
+
+            Bookmark bookmark1 = Bookmark.createBookmark(member1, item1);
+            Bookmark bookmark2 = Bookmark.createBookmark(member1, item2);
+            Bookmark bookmark3 = Bookmark.createBookmark(member2, item3);
+            Bookmark bookmark4 = Bookmark.createBookmark(member2, item4);
+            Bookmark bookmark5 = Bookmark.createBookmark(member2, item5);
+
+            em.persist(bookmark1);
+            em.persist(bookmark2);
+            em.persist(bookmark3);
+            em.persist(bookmark4);
+            em.persist(bookmark5);
+
         }
     }
 }

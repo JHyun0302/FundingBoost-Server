@@ -1,18 +1,23 @@
 package kcs.funding.fundingboost.domain.service.pay;
 
+import static kcs.funding.fundingboost.domain.exception.ErrorCode.BAD_REQUEST_PARAMETER;
 import static kcs.funding.fundingboost.domain.exception.ErrorCode.INVALID_FUNDINGITEM_STATUS;
 import static kcs.funding.fundingboost.domain.exception.ErrorCode.NOT_FOUND_DELIVERY;
+import static kcs.funding.fundingboost.domain.exception.ErrorCode.NOT_FOUND_ITEM;
 import static kcs.funding.fundingboost.domain.exception.ErrorCode.NOT_FOUND_MEMBER;
 
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 import kcs.funding.fundingboost.domain.dto.common.CommonSuccessDto;
-import kcs.funding.fundingboost.domain.dto.request.MyPayDto;
-import kcs.funding.fundingboost.domain.dto.request.PayRemainDto;
-import kcs.funding.fundingboost.domain.dto.response.DeliveryDto;
-import kcs.funding.fundingboost.domain.dto.response.ItemDto;
-import kcs.funding.fundingboost.domain.dto.response.MyFundingPayViewDto;
-import kcs.funding.fundingboost.domain.dto.response.MyNowOrderPayViewDto;
-import kcs.funding.fundingboost.domain.dto.response.MyOrderPayViewDto;
+import kcs.funding.fundingboost.domain.dto.request.pay.myPay.ItemPayDto;
+import kcs.funding.fundingboost.domain.dto.request.pay.myPay.MyPayDto;
+import kcs.funding.fundingboost.domain.dto.request.pay.myPay.PayRemainDto;
+import kcs.funding.fundingboost.domain.dto.response.common.CommonItemDto;
+import kcs.funding.fundingboost.domain.dto.response.myPage.deliveryManage.DeliveryDto;
+import kcs.funding.fundingboost.domain.dto.response.pay.myPay.MyFundingPayViewDto;
+import kcs.funding.fundingboost.domain.dto.response.pay.myPay.MyNowOrderPayViewDto;
+import kcs.funding.fundingboost.domain.dto.response.pay.myPay.MyOrderPayViewDto;
 import kcs.funding.fundingboost.domain.entity.Delivery;
 import kcs.funding.fundingboost.domain.entity.FundingItem;
 import kcs.funding.fundingboost.domain.entity.GiftHubItem;
@@ -23,11 +28,11 @@ import kcs.funding.fundingboost.domain.entity.OrderItem;
 import kcs.funding.fundingboost.domain.exception.CommonException;
 import kcs.funding.fundingboost.domain.exception.ErrorCode;
 import kcs.funding.fundingboost.domain.repository.DeliveryRepository;
-import kcs.funding.fundingboost.domain.repository.FundingItem.FundingItemRepository;
-import kcs.funding.fundingboost.domain.repository.GiftHubItem.GiftHubItemRepository;
+import kcs.funding.fundingboost.domain.repository.GiftHubItemRepository;
 import kcs.funding.fundingboost.domain.repository.ItemRepository;
 import kcs.funding.fundingboost.domain.repository.MemberRepository;
 import kcs.funding.fundingboost.domain.repository.OrderRepository;
+import kcs.funding.fundingboost.domain.repository.fundingItem.FundingItemRepository;
 import kcs.funding.fundingboost.domain.repository.orderItem.OrderItemRepository;
 import kcs.funding.fundingboost.domain.service.utils.PayUtils;
 import lombok.RequiredArgsConstructor;
@@ -67,7 +72,7 @@ public class MyPayService {
         }
 
         if (!fundingItem.getFunding().getMember().getMemberId().equals(memberId)) {
-            throw new CommonException(ErrorCode.BAD_REQUEST_PARAMETER);
+            throw new CommonException(BAD_REQUEST_PARAMETER);
         }
 
         return MyFundingPayViewDto.fromEntity(fundingItem, deliveryDtoList);
@@ -84,9 +89,9 @@ public class MyPayService {
                 .stream().map(GiftHubItem::getGiftHunItemId)
                 .toList();
 
-        List<ItemDto> itemDtoList = itemIds.stream()
+        List<CommonItemDto> commonItemDtoList = itemIds.stream()
                 .flatMap(i -> itemRepository.findById(i).stream())
-                .map(item -> ItemDto.fromEntity(item.getItemId(),
+                .map(item -> CommonItemDto.fromEntity(item.getItemId(),
                         item.getItemImageUrl(),
                         item.getItemName(),
                         item.getOptionName(),
@@ -94,17 +99,17 @@ public class MyPayService {
                 .toList();
 
         int point = memberRepository.findById(memberId)
-                .orElseThrow(() -> new CommonException(ErrorCode.NOT_FOUND_MEMBER))
+                .orElseThrow(() -> new CommonException(NOT_FOUND_MEMBER))
                 .getPoint();
 
-        return MyOrderPayViewDto.fromEntity(itemDtoList, giftHubItemIds, deliveryDtoList, point);
+        return MyOrderPayViewDto.fromEntity(commonItemDtoList, giftHubItemIds, deliveryDtoList, point);
     }
 
     public MyNowOrderPayViewDto MyOrderNowPayView(Long itemId, Long memberId) {
 
         Item item = itemRepository.findById(itemId)
-                .orElseThrow(() -> new CommonException(ErrorCode.NOT_FOUND_ITEM));
-        ItemDto itemDto = ItemDto.fromEntity(item.getItemId(),
+                .orElseThrow(() -> new CommonException(NOT_FOUND_ITEM));
+        CommonItemDto commonItemDto = CommonItemDto.fromEntity(item.getItemId(),
                 item.getItemImageUrl(),
                 item.getItemName(),
                 item.getOptionName(),
@@ -112,7 +117,7 @@ public class MyPayService {
         );
 
         int point = memberRepository.findById(memberId)
-                .orElseThrow(() -> new CommonException(ErrorCode.NOT_FOUND_MEMBER))
+                .orElseThrow(() -> new CommonException(NOT_FOUND_MEMBER))
                 .getPoint();
 
         List<DeliveryDto> deliveryDtoList = deliveryRepository.findAllByMemberId(memberId)
@@ -120,14 +125,52 @@ public class MyPayService {
                 .map(DeliveryDto::fromEntity)
                 .toList();
 
-        return MyNowOrderPayViewDto.fromEntity(itemDto, deliveryDtoList, point);
+        return MyNowOrderPayViewDto.fromEntity(commonItemDto, deliveryDtoList, point);
     }
 
     @Transactional
-    public CommonSuccessDto payMyItem(MyPayDto paymentDto, Long memberId) {
-        Member findMember = memberRepository.findById(memberId)
-                .orElseThrow(() -> new CommonException(ErrorCode.NOT_FOUND_MEMBER));
-        PayUtils.deductPointsIfPossible(findMember, paymentDto.usingPoint());
+    public CommonSuccessDto payMyItem(MyPayDto myPayDto, Long memberId) {
+        Member member = memberRepository.findById(memberId)
+                .orElseThrow(() -> new CommonException(NOT_FOUND_MEMBER));
+
+        Delivery delivery = deliveryRepository.findById(myPayDto.deliveryId())
+                .orElseThrow(() -> new CommonException((NOT_FOUND_DELIVERY)));
+        if (delivery.getMember() != member) {
+            throw new CommonException(BAD_REQUEST_PARAMETER);
+        }
+
+        if (myPayDto.itemPayDtoList().isEmpty()) {
+            throw new CommonException(BAD_REQUEST_PARAMETER);
+        }
+
+        PayUtils.deductPointsIfPossible(member, myPayDto.usingPoint());
+
+        List<Long> itemIds = myPayDto.itemPayDtoList().stream()
+                .map(ItemPayDto::itemId)
+                .toList();
+
+        Map<Long, Item> itemMap = itemRepository.findItemsByItemIds(itemIds).stream()
+                .collect(Collectors.toMap(Item::getItemId, item -> item));
+
+        Order order = Order.createOrder(0, member, delivery);
+        List<OrderItem> orderItems = myPayDto.itemPayDtoList().stream()
+                .map(itemPayDto -> {
+                    Item item = itemMap.get(itemPayDto.itemId());
+                    if (item == null) {
+                        throw new CommonException(NOT_FOUND_ITEM);
+                    }
+                    int quantity = itemPayDto.quantity();
+                    if (quantity <= 0) {
+                        throw new CommonException(BAD_REQUEST_PARAMETER);
+                    }
+                    order.plusTotalPrice(item.getItemPrice() * quantity);
+                    return OrderItem.createOrderItem(order, item, quantity);
+                })
+                .toList();
+
+        orderItemRepository.saveAll(orderItems);
+        orderRepository.save(order);
+
         return CommonSuccessDto.fromEntity(true);
     }
 

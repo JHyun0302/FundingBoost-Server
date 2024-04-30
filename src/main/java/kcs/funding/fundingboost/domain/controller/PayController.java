@@ -3,13 +3,13 @@ package kcs.funding.fundingboost.domain.controller;
 import java.util.List;
 import kcs.funding.fundingboost.domain.dto.common.CommonSuccessDto;
 import kcs.funding.fundingboost.domain.dto.global.ResponseDto;
-import kcs.funding.fundingboost.domain.dto.request.FriendPayProcessDto;
-import kcs.funding.fundingboost.domain.dto.request.MyPayDto;
-import kcs.funding.fundingboost.domain.dto.request.PayRemainDto;
-import kcs.funding.fundingboost.domain.dto.response.FriendFundingPayingDto;
-import kcs.funding.fundingboost.domain.dto.response.MyFundingPayViewDto;
-import kcs.funding.fundingboost.domain.dto.response.MyNowOrderPayViewDto;
-import kcs.funding.fundingboost.domain.dto.response.MyOrderPayViewDto;
+import kcs.funding.fundingboost.domain.dto.request.pay.friendFundingPay.FriendPayProcessDto;
+import kcs.funding.fundingboost.domain.dto.request.pay.myPay.MyPayDto;
+import kcs.funding.fundingboost.domain.dto.request.pay.myPay.PayRemainDto;
+import kcs.funding.fundingboost.domain.dto.response.pay.friendFundingPay.FriendFundingPayingDto;
+import kcs.funding.fundingboost.domain.dto.response.pay.myPay.MyFundingPayViewDto;
+import kcs.funding.fundingboost.domain.dto.response.pay.myPay.MyNowOrderPayViewDto;
+import kcs.funding.fundingboost.domain.dto.response.pay.myPay.MyOrderPayViewDto;
 import kcs.funding.fundingboost.domain.service.pay.FriendPayService;
 import kcs.funding.fundingboost.domain.service.pay.MyPayService;
 import lombok.RequiredArgsConstructor;
@@ -32,14 +32,17 @@ public class PayController {
     /**
      * 마이 페이 주문 페이지 조회
      */
-    @GetMapping("/order")
+    @GetMapping("/view/order")
     public ResponseDto<MyOrderPayViewDto> myOrderPayView(
             @RequestParam(name = "itemId") List<Long> itemIds,
             @RequestParam(name = "memberId") Long memberId) {
         return ResponseDto.ok(myPayService.myOrderPayView(itemIds, memberId));
     }
 
-    @GetMapping("/order/now")
+    /**
+     * 즉시 결제시 페이지 조회
+     */
+    @GetMapping("/view/order/now")
     public ResponseDto<MyNowOrderPayViewDto> MyOrderNowPayView(
             @RequestParam(name = "itemId") Long itemDto,
             @RequestParam(name = "memberId") Long memberId) {
@@ -49,7 +52,7 @@ public class PayController {
     /**
      * 마이 페이 펀딩 페이지 조회
      */
-    @GetMapping("/funding/{fundingItemId}")
+    @GetMapping("/view/funding/{fundingItemId}")
     public ResponseDto<MyFundingPayViewDto> myFundingPayView(
             @PathVariable(name = "fundingItemId") Long fundingItemId,
             @RequestParam(name = "memberId") Long memberId) {

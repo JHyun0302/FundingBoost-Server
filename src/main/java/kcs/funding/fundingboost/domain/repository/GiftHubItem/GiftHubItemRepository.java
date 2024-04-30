@@ -1,6 +1,7 @@
 package kcs.funding.fundingboost.domain.repository.GiftHubItem;
 
 import java.util.List;
+import java.util.Optional;
 import kcs.funding.fundingboost.domain.entity.GiftHubItem;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -15,4 +16,11 @@ public interface GiftHubItemRepository extends JpaRepository<GiftHubItem, Long>,
             " and m.memberId = :memberId")
     List<GiftHubItem> findGiftHubItemByMemberIdAndItemIds(@Param("memberId") Long memberId,
                                                           @Param("itemIds") List<Long> itemIds);
+
+    @Query("select g from GiftHubItem g" +
+            " join fetch g.member m" +
+            " where g.giftHunItemId = :giftHubItemId" +
+            " and m.memberId = :memberId ")
+    Optional<GiftHubItem> findGiftHubItemByGiftHubItemIdAndMemberId(@Param("giftHubItemId") Long giftHubItemId,
+                                                                    @Param("memberId") Long memberId);
 }
