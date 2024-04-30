@@ -21,6 +21,8 @@ import kcs.funding.fundingboost.domain.dto.response.MyPageMemberDto;
 import kcs.funding.fundingboost.domain.dto.response.ParticipateFriendDto;
 import kcs.funding.fundingboost.domain.dto.response.myPage.deliveryManage.MyPageDeliveryDto;
 import kcs.funding.fundingboost.domain.dto.response.myPage.deliveryManage.MyPageDeliveryManageDto;
+import kcs.funding.fundingboost.domain.dto.response.myPage.friendFundingHistory.FriendFundingContributionDto;
+import kcs.funding.fundingboost.domain.dto.response.myPage.friendFundingHistory.FriendFundingHistoryDto;
 import kcs.funding.fundingboost.domain.entity.Contributor;
 import kcs.funding.fundingboost.domain.entity.Delivery;
 import kcs.funding.fundingboost.domain.entity.Funding;
@@ -155,6 +157,23 @@ public class MyPageService {
                 totalPercent,
                 funding.getCreatedDate().format(DateTimeFormatter.ofPattern("yyyy-MM-dd")),
                 funding.getDeadline().format(DateTimeFormatter.ofPattern("yyyy-MM-dd")));
+    }
+
+    public FriendFundingHistoryDto getFreindFundingHistory(Long memberId) {
+
+        List<FriendFundingContributionDto> friendFundingContributionDtoList =
+                contributorRepository.findAllByMemberId(memberId).stream()
+                        .map(contributor -> {
+                            Funding contributeFunding = contributor.getFunding();
+                            return FriendFundingContributionDto.fromEntity(contributor, contributeFunding);
+                        })
+                        .toList();
+
+        Member member = memberRepository.findById(memberId)
+                .orElseThrow(() -> new CommonException(NOT_FOUND_MEMBER));
+        MyPageMemberDto myPageMemberDto = MyPageMemberDto.fromEntity(member);
+
+        return FriendFundingHistoryDto.fromEntity(myPageMemberDto, friendFundingContributionDtoList);
     }
 
     public MyPageDeliveryManageDto getMyDeliveryManageList(Long memberId) {
