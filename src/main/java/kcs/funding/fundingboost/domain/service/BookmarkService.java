@@ -11,10 +11,10 @@ import kcs.funding.fundingboost.domain.repository.MemberRepository;
 import kcs.funding.fundingboost.domain.repository.bookmark.BookmarkRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
-@RequestMapping
+@Transactional(readOnly = true)
 @RequiredArgsConstructor
 public class BookmarkService {
 
