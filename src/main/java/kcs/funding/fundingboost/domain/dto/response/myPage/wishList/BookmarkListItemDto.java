@@ -5,14 +5,14 @@ import kcs.funding.fundingboost.domain.entity.Item;
 import lombok.Builder;
 
 @Builder
-public record WishListItemDto(
+public record BookmarkListItemDto(
         Long itemId,
         String itemThumbnailImageUrl,
         String itemName,
         int itemPrice) {
 
-    public static WishListItemDto fromEntity(Item item) {
-        return WishListItemDto.builder()
+    public static BookmarkListItemDto fromEntity(Item item) {
+        return BookmarkListItemDto.builder()
                 .itemId(item.getItemId())
                 .itemThumbnailImageUrl(item.getItemImageUrl())
                 .itemName(item.getItemName())
