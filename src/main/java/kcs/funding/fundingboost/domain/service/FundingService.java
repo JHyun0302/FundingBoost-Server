@@ -87,7 +87,7 @@ public class FundingService {
                 registerFundingDto.fundingMessage(),
                 Tag.getTag(registerFundingDto.tag()),
                 sum,
-                registerFundingDto.deadline());
+                registerFundingDto.deadline().atTime(23, 59, 59));
 
         fundingRepository.save(funding);
 
