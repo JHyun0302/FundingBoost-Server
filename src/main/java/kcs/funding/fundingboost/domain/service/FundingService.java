@@ -15,29 +15,29 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.IntStream;
 import kcs.funding.fundingboost.domain.dto.common.CommonSuccessDto;
-import kcs.funding.fundingboost.domain.dto.request.RegisterFundingDto;
-import kcs.funding.fundingboost.domain.dto.response.CommonFriendFundingDto;
-import kcs.funding.fundingboost.domain.dto.response.ContributorDto;
-import kcs.funding.fundingboost.domain.dto.response.FriendFundingDetailDto;
-import kcs.funding.fundingboost.domain.dto.response.FriendFundingDto;
-import kcs.funding.fundingboost.domain.dto.response.FriendFundingItemDto;
-import kcs.funding.fundingboost.domain.dto.response.FriendFundingPageItemDto;
-import kcs.funding.fundingboost.domain.dto.response.FundingRegistrationItemDto;
-import kcs.funding.fundingboost.domain.dto.response.HomeFriendFundingDto;
-import kcs.funding.fundingboost.domain.dto.response.HomeItemDto;
-import kcs.funding.fundingboost.domain.dto.response.HomeMemberInfoDto;
-import kcs.funding.fundingboost.domain.dto.response.HomeMyFundingItemDto;
-import kcs.funding.fundingboost.domain.dto.response.HomeMyFundingStatusDto;
-import kcs.funding.fundingboost.domain.dto.response.HomeViewDto;
-import kcs.funding.fundingboost.domain.dto.response.MyFundingHistoryDetailDto;
-import kcs.funding.fundingboost.domain.dto.response.MyFundingHistoryDto;
-import kcs.funding.fundingboost.domain.dto.response.MyFundingResponseDto;
-import kcs.funding.fundingboost.domain.dto.response.MyFundingStatusDto;
-import kcs.funding.fundingboost.domain.dto.response.MyPageFundingItemDto;
-import kcs.funding.fundingboost.domain.dto.response.MyPageMemberDto;
-import kcs.funding.fundingboost.domain.dto.response.ParticipateFriendDto;
+import kcs.funding.fundingboost.domain.dto.request.fundingRegist.RegisterFundingDto;
+import kcs.funding.fundingboost.domain.dto.response.common.CommonFriendFundingDto;
+import kcs.funding.fundingboost.domain.dto.response.common.FriendFundingPageItemDto;
+import kcs.funding.fundingboost.domain.dto.response.friendFunding.FriendFundingDto;
+import kcs.funding.fundingboost.domain.dto.response.friendFundingDetail.ContributorDto;
+import kcs.funding.fundingboost.domain.dto.response.friendFundingDetail.FriendFundingDetailDto;
+import kcs.funding.fundingboost.domain.dto.response.friendFundingDetail.FriendFundingItemDto;
+import kcs.funding.fundingboost.domain.dto.response.fundingRegist.FundingRegistrationItemDto;
+import kcs.funding.fundingboost.domain.dto.response.home.HomeFriendFundingDto;
+import kcs.funding.fundingboost.domain.dto.response.home.HomeItemDto;
+import kcs.funding.fundingboost.domain.dto.response.home.HomeMemberInfoDto;
+import kcs.funding.fundingboost.domain.dto.response.home.HomeMyFundingItemDto;
+import kcs.funding.fundingboost.domain.dto.response.home.HomeMyFundingStatusDto;
+import kcs.funding.fundingboost.domain.dto.response.home.HomeViewDto;
+import kcs.funding.fundingboost.domain.dto.response.myPage.MyPageMemberDto;
 import kcs.funding.fundingboost.domain.dto.response.myPage.friendFundingHistory.FriendFundingContributionDto;
 import kcs.funding.fundingboost.domain.dto.response.myPage.friendFundingHistory.FriendFundingHistoryDto;
+import kcs.funding.fundingboost.domain.dto.response.myPage.myFundingHistory.MyFundingHistoryDto;
+import kcs.funding.fundingboost.domain.dto.response.myPage.myFundingHistory.MyPageFundingDetailHistoryDto;
+import kcs.funding.fundingboost.domain.dto.response.myPage.myFundingStatus.MyFundingHistoryDetailDto;
+import kcs.funding.fundingboost.domain.dto.response.myPage.myFundingStatus.MyFundingStatusDto;
+import kcs.funding.fundingboost.domain.dto.response.myPage.myFundingStatus.MyPageFundingItemDto;
+import kcs.funding.fundingboost.domain.dto.response.myPage.myFundingStatus.ParticipateFriendDto;
 import kcs.funding.fundingboost.domain.entity.Contributor;
 import kcs.funding.fundingboost.domain.entity.Funding;
 import kcs.funding.fundingboost.domain.entity.FundingItem;
@@ -152,13 +152,19 @@ public class FundingService {
         return FriendFundingDetailDto.fromEntity(friendFundingItemList, funding, contributorList, contributedPercent);
     }
 
-    public List<CommonFriendFundingDto> getCommonFriendFundingList(Long memberId) {
+    private List<CommonFriendFundingDto> getCommonFriendFundingList(Long memberId) {
         List<CommonFriendFundingDto> commonFriendFundingDtoList = new ArrayList<>();
         List<Relationship> relationshipList = relationshipRepository.findFriendByMemberId(memberId);
         for (Relationship relationship : relationshipList) {
+            System.out.println("relationship.getFriend().getMemberId() : " + relationship.getFriend().getMemberId());
             Optional<Funding> friendFunding = fundingRepository.findByMemberIdAndStatus(
-                    relationship.getFriend().getMemberId(),
-                    true);
+                    relationship.getFriend().getMemberId(), true);
+
+            if (friendFunding.isEmpty()) {
+                continue;
+            }
+            
+            System.out.println(friendFunding.get().getFundingId());
 
             int leftDate = (int) ChronoUnit.DAYS.between(LocalDate.now(),
                     friendFunding.get().getDeadline());
@@ -342,14 +348,14 @@ public class FundingService {
 
         List<Funding> fundings = fundingRepository.findFundingByMemberId(memberId);
 
-        List<MyFundingResponseDto> myFundingResponseDtos = fundings.stream()
+        List<MyPageFundingDetailHistoryDto> myPageFundingDetailHistoryDtos = fundings.stream()
                 .map(funding -> {
                     Long contributors = contributorRepository.countContributorsForFunding(funding.getFundingId());
-                    return MyFundingResponseDto.fromEntity(funding, contributors);
+                    return MyPageFundingDetailHistoryDto.fromEntity(funding, contributors);
                 })
                 .toList();
 
-        return MyFundingHistoryDto.fromEntity(myPageMemberDto, myFundingResponseDtos);
+        return MyFundingHistoryDto.fromEntity(myPageMemberDto, myPageFundingDetailHistoryDtos);
     }
 
     public MyFundingHistoryDetailDto getMyFundingHistoryDetails(Long memberId, Long fundingId) {

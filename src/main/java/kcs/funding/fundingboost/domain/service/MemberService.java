@@ -3,7 +3,7 @@ package kcs.funding.fundingboost.domain.service;
 import java.util.Comparator;
 import java.util.List;
 import kcs.funding.fundingboost.domain.dto.common.CommonSuccessDto;
-import kcs.funding.fundingboost.domain.dto.request.TransformPointDto;
+import kcs.funding.fundingboost.domain.dto.request.myPage.myFundingStatus.TransformPointDto;
 import kcs.funding.fundingboost.domain.entity.Funding;
 import kcs.funding.fundingboost.domain.entity.FundingItem;
 import kcs.funding.fundingboost.domain.entity.Member;

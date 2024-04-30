@@ -3,7 +3,7 @@ package kcs.funding.fundingboost.domain.service;
 import static kcs.funding.fundingboost.domain.exception.ErrorCode.NOT_FOUND_MEMBER;
 
 import java.util.List;
-import kcs.funding.fundingboost.domain.dto.response.MyPageMemberDto;
+import kcs.funding.fundingboost.domain.dto.response.myPage.MyPageMemberDto;
 import kcs.funding.fundingboost.domain.dto.response.myPage.deliveryManage.MyPageDeliveryDto;
 import kcs.funding.fundingboost.domain.dto.response.myPage.deliveryManage.MyPageDeliveryManageDto;
 import kcs.funding.fundingboost.domain.entity.Delivery;
