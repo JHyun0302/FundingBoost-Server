@@ -16,9 +16,9 @@ import kcs.funding.fundingboost.domain.entity.GiftHubItem;
 import kcs.funding.fundingboost.domain.entity.Item;
 import kcs.funding.fundingboost.domain.entity.Member;
 import kcs.funding.fundingboost.domain.exception.CommonException;
-import kcs.funding.fundingboost.domain.repository.GiftHubItemRepository;
 import kcs.funding.fundingboost.domain.repository.ItemRepository;
 import kcs.funding.fundingboost.domain.repository.MemberRepository;
+import kcs.funding.fundingboost.domain.repository.giftHubItem.GiftHubItemRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -40,7 +40,7 @@ public class GiftHubItemService {
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new CommonException(NOT_FOUND_MEMBER));
 
-        List<GiftHubItem> giftHubItems = giftHubItemRepository.findGiftHubItemsByMember(member);
+        List<GiftHubItem> giftHubItems = giftHubItemRepository.findGiftHubItemsByMember(member.getMemberId());
 
         return giftHubItems.stream()
                 .map(giftHubItem -> createGiftHubDto(giftHubItem.getItem(), giftHubItem))
