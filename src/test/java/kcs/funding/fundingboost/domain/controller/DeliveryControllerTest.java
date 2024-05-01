@@ -1,5 +1,6 @@
 package kcs.funding.fundingboost.domain.controller;
 
+import static org.hamcrest.Matchers.hasSize;
 import static org.mockito.BDDMockito.given;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -7,7 +8,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import java.lang.reflect.Field;
-import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import kcs.funding.fundingboost.domain.dto.response.myPage.MyPageMemberDto;
 import kcs.funding.fundingboost.domain.dto.response.myPage.deliveryManage.MyPageDeliveryDto;
@@ -16,7 +17,8 @@ import kcs.funding.fundingboost.domain.entity.Member;
 import kcs.funding.fundingboost.domain.service.DeliveryService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -48,12 +50,18 @@ class DeliveryControllerTest {
     }
 
     @DisplayName("배송지 관리 조회")
-    @Test
-    void viewMyDeliveryManagement() throws Exception {
+    @ParameterizedTest(name = "{index} {displayName} arguments = {arguments}")
+    @CsvSource({
+            "구태형, 서울 금천구 가산디지털1로 189 (주)LG 가산 디지털센터 12층, 010-1111-2222",
+            "맹인호, 경기도 화성시, 010-3333-4444",
+    })
+    void viewMyDeliveryManagement(String customerName, String address, String phoneNumber) throws Exception {
         // given
         MyPageMemberDto myPageMemberDto = new MyPageMemberDto(member.getNickName(), member.getEmail(),
                 member.getProfileImgUrl(), member.getPoint());
-        List<MyPageDeliveryDto> myPageDeliveryDtoList = new ArrayList<>();
+        List<MyPageDeliveryDto> myPageDeliveryDtoList = Collections.singletonList(
+                new MyPageDeliveryDto(customerName, address, phoneNumber));
+
         MyPageDeliveryManageDto expectedResponse = MyPageDeliveryManageDto.fromEntity(myPageMemberDto,
                 myPageDeliveryDtoList);
         given(deliveryService.getMyDeliveryManageList(member.getMemberId())).willReturn(expectedResponse);
@@ -63,7 +71,15 @@ class DeliveryControllerTest {
                         .param("memberId", member.getMemberId().toString())
                         .contentType(APPLICATION_JSON))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.data").exists());
+                .andExpect(jsonPath("$.success").value(true))
+                .andExpect(jsonPath("$.data.myPageMemberDto.nickname").value(myPageMemberDto.nickname()))
+                .andExpect(jsonPath("$.data.myPageMemberDto.email").value(myPageMemberDto.email()))
+                .andExpect(jsonPath("$.data.myPageMemberDto.profileImgUrl").value(myPageMemberDto.profileImgUrl()))
+                .andExpect(jsonPath("$.data.myPageMemberDto.point").value(myPageMemberDto.point()))
+                .andExpect(jsonPath("$.data.myPageDeliveryDtoList", hasSize(myPageDeliveryDtoList.size())))
+                .andExpect(jsonPath("$.data.myPageDeliveryDtoList[0].customerName").value(customerName))
+                .andExpect(jsonPath("$.data.myPageDeliveryDtoList[0].address").value(address))
+                .andExpect(jsonPath("$.data.myPageDeliveryDtoList[0].phoneNumber").value(phoneNumber));
     }
 
     private static Member createMember() {
