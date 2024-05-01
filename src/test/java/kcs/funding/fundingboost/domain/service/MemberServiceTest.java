@@ -42,6 +42,23 @@ class MemberServiceTest {
 
     private Member member;
     private Funding funding;
+    private Item item1 = Item.createItem(
+            "NEW 루쥬 알뤼르 벨벳 뉘 블랑쉬 리미티드 에디션",
+            61000,
+            "https://img1.kakaocdn.net/...",
+            "샤넬",
+            "뷰티",
+            "00:00"
+    );
+
+    private Item item2 = Item.createItem(
+            "NEW 루쥬 코코 밤(+샤넬 기프트 카드)",
+            51000,
+            "https://img1.kakaocdn.net/...",
+            "샤넬",
+            "뷰티",
+            "934 코랄린 [NEW]"
+    );
 
     @BeforeEach
     void setUp() throws NoSuchFieldException, IllegalAccessException {
@@ -54,31 +71,7 @@ class MemberServiceTest {
         fundingId.setAccessible(true);
         fundingId.set(funding, 1L);
 
-        Item item1 = Item.createItem(
-                "NEW 루쥬 알뤼르 벨벳 뉘 블랑쉬 리미티드 에디션",
-                61000,
-                "https://img1.kakaocdn.net/...",
-                "샤넬",
-                "뷰티",
-                "00:00"
-        );
 
-        Item item2 = Item.createItem(
-                "NEW 루쥬 코코 밤(+샤넬 기프트 카드)",
-                51000,
-                "https://img1.kakaocdn.net/...",
-                "샤넬",
-                "뷰티",
-                "934 코랄린 [NEW]"
-        );
-        FundingItem fundingItem1 = FundingItem.createFundingItem(funding, item1, 1);
-        FundingItem fundingItem2 = FundingItem.createFundingItem(funding, item2, 2);
-        Field fundingItems = funding.getClass().getDeclaredField("fundingItems");
-        List<FundingItem> fundingItemList = new ArrayList<>();
-        fundingItemList.add(fundingItem1);
-        fundingItemList.add(fundingItem2);
-        fundingItems.setAccessible(true);
-        fundingItems.set(funding, fundingItemList);
     }
 
     @DisplayName("포인트 전환 성공")
@@ -91,6 +84,15 @@ class MemberServiceTest {
         Field memberPoint = member.getClass().getDeclaredField("point");
         memberPoint.setAccessible(true);
         memberPoint.set(member, myPoint);
+
+        FundingItem fundingItem1 = FundingItem.createFundingItem(funding, item1, 1);
+        FundingItem fundingItem2 = FundingItem.createFundingItem(funding, item2, 2);
+        Field fundingItems = funding.getClass().getDeclaredField("fundingItems");
+        List<FundingItem> fundingItemList = new ArrayList<>();
+        fundingItemList.add(fundingItem1);
+        fundingItemList.add(fundingItem2);
+        fundingItems.setAccessible(true);
+        fundingItems.set(funding, fundingItemList);
 
         //when
         CommonSuccessDto commonSuccessDto = memberService.exchangePoint(transformPointDto);
