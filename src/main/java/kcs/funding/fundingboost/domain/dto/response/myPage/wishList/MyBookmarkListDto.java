@@ -5,13 +5,13 @@ import kcs.funding.fundingboost.domain.dto.response.myPage.MyPageMemberDto;
 import lombok.Builder;
 
 @Builder
-public record MyBookmarkListDto(MyPageMemberDto myPageMemberDto, List<BookmarkListItemDto> bookmarkListItemDtos) {
+public record MyBookmarkListDto(MyPageMemberDto myPageMemberDto, List<BookmarkItemDto> bookmarkItemDtos) {
 
     public static MyBookmarkListDto fromEntity(MyPageMemberDto myPageMemberDto,
-                                               List<BookmarkListItemDto> bookmarkListItemDtos) {
+                                               List<BookmarkItemDto> bookmarkItemDtos) {
         return MyBookmarkListDto.builder()
                 .myPageMemberDto(myPageMemberDto)
-                .bookmarkListItemDtos(bookmarkListItemDtos)
+                .bookmarkItemDtos(bookmarkItemDtos)
                 .build();
     }
 
