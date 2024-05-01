@@ -39,6 +39,9 @@ public class PayController {
         return ResponseDto.ok(myPayService.myOrderPayView(itemIds, memberId));
     }
 
+    /**
+     * 쇼핑 상세 페이지에서 즉시 상품 구매
+     */
     @GetMapping("/order/now")
     public ResponseDto<MyNowOrderPayViewDto> MyOrderNowPayView(
             @RequestParam(name = "itemId") Long itemDto,
