@@ -1,4 +1,4 @@
-package kcs.funding.fundingboost.domain.entity;
+package kcs.funding.fundingboost.domain.entity.member;
 
 import static jakarta.persistence.GenerationType.IDENTITY;
 
