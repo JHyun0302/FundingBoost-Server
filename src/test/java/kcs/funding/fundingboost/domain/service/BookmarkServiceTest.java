@@ -77,7 +77,7 @@ class BookmarkServiceTest {
         when(bookmarkRepository.findAllByMemberId(member.getMemberId())).thenReturn(List.of(bookmark1, bookmark2));
 
         //when
-        MyBookmarkListDto resultDto = bookmarkService.getMyWishList(member.getMemberId());
+        MyBookmarkListDto resultDto = bookmarkService.getMyBookmark(member.getMemberId());
 
         //then
         assertNotNull(resultDto);
@@ -95,7 +95,7 @@ class BookmarkServiceTest {
         when(memberRepository.findById(member.getMemberId())).thenReturn(Optional.of(member));
 
         //when
-        MyBookmarkListDto resultDto = bookmarkService.getMyWishList(member.getMemberId());
+        MyBookmarkListDto resultDto = bookmarkService.getMyBookmark(member.getMemberId());
 
         //then
         assertNotNull(resultDto);

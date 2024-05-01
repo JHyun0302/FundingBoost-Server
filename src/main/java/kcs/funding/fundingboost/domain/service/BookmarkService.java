@@ -29,7 +29,7 @@ public class BookmarkService {
     private final MemberRepository memberRepository;
     private final ItemRepository itemRepository;
 
-    public MyBookmarkListDto getBookmark(Long memberId) {
+    public MyBookmarkListDto getMyBookmark(Long memberId) {
 
         List<BookmarkItemDto> bookmarkItemDtos = bookmarkRepository.findAllByMemberId(memberId).stream()
                 .map(bookmark -> BookmarkItemDto.fromEntity(bookmark.getItem())).toList();
