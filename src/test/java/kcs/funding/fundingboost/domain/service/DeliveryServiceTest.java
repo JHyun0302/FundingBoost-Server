@@ -1,6 +1,7 @@
 package kcs.funding.fundingboost.domain.service;
 
 import static kcs.funding.fundingboost.domain.exception.ErrorCode.NOT_FOUND_MEMBER;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.when;
@@ -15,7 +16,6 @@ import kcs.funding.fundingboost.domain.entity.Member;
 import kcs.funding.fundingboost.domain.exception.CommonException;
 import kcs.funding.fundingboost.domain.repository.DeliveryRepository;
 import kcs.funding.fundingboost.domain.repository.MemberRepository;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -39,8 +39,11 @@ class DeliveryServiceTest {
     private Member member;
 
     @BeforeEach
-    void setUp() {
+    void setUp() throws NoSuchFieldException, IllegalAccessException {
         member = createMember();
+        Field memberId = member.getClass().getDeclaredField("memberId");
+        memberId.setAccessible(true);
+        memberId.set(member, 1L);
     }
 
     @DisplayName("마이페이지 - 배송지 조회 성공")
@@ -49,39 +52,31 @@ class DeliveryServiceTest {
             "'서울특별시 강남구 테헤란로', '010-1234-1234', '홍길동'",
             "'경기도 수원시 행궁동', '010-1234-1234', '마동석'"
     })
-    void getMyDeliveryManageList(String address, String phoneNumber, String customerName)
-            throws NoSuchFieldException, IllegalAccessException {
+    void getMyDeliveryManageList(String address, String phoneNumber, String customerName) {
         //given
-        Field memberId = member.getClass().getDeclaredField("memberId");
-        memberId.setAccessible(true);
-        memberId.set(member, 1L);
-
         Delivery delivery = createDelivery(address, phoneNumber, customerName, member);
         List<Delivery> deliveryList = Collections.singletonList(delivery);
 
         when(deliveryRepository.findAllByMemberId(anyLong())).thenReturn(deliveryList);
-        when(memberRepository.findById(anyLong())).thenReturn(Optional.ofNullable(member));
+        when(memberRepository.findById(anyLong())).thenReturn(Optional.of(member));
 
         //when
         MyPageDeliveryManageDto myPageDeliveryManageDto = deliveryService.getMyDeliveryManageList(member.getMemberId());
 
         //then
-        Assertions.assertEquals(deliveryList.get(0).getAddress(),
+        assertEquals(deliveryList.get(0).getAddress(),
                 myPageDeliveryManageDto.myPageDeliveryDtoList().get(0).address());
     }
 
     @DisplayName("마이페이지 - 배송지 조회 성공 - 배송지 없음")
     @Test
-    void getMyDeliveryManageList_DeliveryNotFound() throws NoSuchFieldException, IllegalAccessException {
+    void getMyDeliveryManageList_DeliveryNotFound() {
         //given
-        Field memberId = member.getClass().getDeclaredField("memberId");
-        memberId.setAccessible(true);
-        memberId.set(member, 1L);
-        when(memberRepository.findById(anyLong())).thenReturn(Optional.ofNullable(member));
+        when(memberRepository.findById(anyLong())).thenReturn(Optional.of(member));
         //when
         MyPageDeliveryManageDto myPageDeliveryManageDto = deliveryService.getMyDeliveryManageList(member.getMemberId());
         //then
-        Assertions.assertEquals(List.of(), myPageDeliveryManageDto.myPageDeliveryDtoList());
+        assertEquals(List.of(), myPageDeliveryManageDto.myPageDeliveryDtoList());
     }
 
     @DisplayName("마이페이지 - 배송지 조회 실패 - 사용자를 찾을 수 없음")
@@ -103,7 +98,7 @@ class DeliveryServiceTest {
             deliveryService.getMyDeliveryManageList(anyLong());
         }); // 사용자를 찾지 못했으므로 실패해야함
         //then
-        Assertions.assertEquals(NOT_FOUND_MEMBER.getMessage(), exception.getMessage());
+        assertEquals(NOT_FOUND_MEMBER.getMessage(), exception.getMessage());
     }
 
 
