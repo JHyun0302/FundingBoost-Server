@@ -7,7 +7,7 @@ import java.util.List;
 import java.util.Optional;
 import kcs.funding.fundingboost.domain.dto.common.CommonSuccessDto;
 import kcs.funding.fundingboost.domain.dto.response.myPage.MyPageMemberDto;
-import kcs.funding.fundingboost.domain.dto.response.myPage.wishList.BookmarkListItemDto;
+import kcs.funding.fundingboost.domain.dto.response.myPage.wishList.BookmarkItemDto;
 import kcs.funding.fundingboost.domain.dto.response.myPage.wishList.MyBookmarkListDto;
 import kcs.funding.fundingboost.domain.entity.Bookmark;
 import kcs.funding.fundingboost.domain.entity.Item;
@@ -29,15 +29,15 @@ public class BookmarkService {
     private final MemberRepository memberRepository;
     private final ItemRepository itemRepository;
 
-    public MyBookmarkListDto getMyWishList(Long memberId) {
+    public MyBookmarkListDto getBookmark(Long memberId) {
 
-        List<BookmarkListItemDto> wishtListItemDtos = bookmarkRepository.findAllByMemberId(memberId).stream()
-                .map(bookmark -> BookmarkListItemDto.fromEntity(bookmark.getItem())).toList();
+        List<BookmarkItemDto> bookmarkItemDtos = bookmarkRepository.findAllByMemberId(memberId).stream()
+                .map(bookmark -> BookmarkItemDto.fromEntity(bookmark.getItem())).toList();
 
         MyPageMemberDto myPageMemberDto = MyPageMemberDto.fromEntity(
                 memberRepository.findById(memberId).orElseThrow(() -> new CommonException(NOT_FOUND_MEMBER)));
 
-        return MyBookmarkListDto.fromEntity(myPageMemberDto, wishtListItemDtos);
+        return MyBookmarkListDto.fromEntity(myPageMemberDto, bookmarkItemDtos);
     }
 
     @Transactional
