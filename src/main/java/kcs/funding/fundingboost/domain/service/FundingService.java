@@ -155,15 +155,12 @@ public class FundingService {
         List<CommonFriendFundingDto> commonFriendFundingDtoList = new ArrayList<>();
         List<Relationship> relationshipList = relationshipRepository.findFriendByMemberId(memberId);
         for (Relationship relationship : relationshipList) {
-            System.out.println("relationship.getFriend().getMemberId() : " + relationship.getFriend().getMemberId());
             Optional<Funding> friendFunding = fundingRepository.findByMemberIdAndStatus(
                     relationship.getFriend().getMemberId(), true);
 
             if (friendFunding.isEmpty()) {
                 continue;
             }
-
-            System.out.println(friendFunding.get().getFundingId());
 
             int leftDate = (int) ChronoUnit.DAYS.between(LocalDate.now(),
                     friendFunding.get().getDeadline());
@@ -192,13 +189,8 @@ public class FundingService {
 
     public List<FriendFundingDto> getFriendFundingList(Long memberId) {
         List<CommonFriendFundingDto> commonFriendFundingDtoList = getCommonFriendFundingList(memberId);
-        List<FriendFundingDto> friendFundingDtoList = new ArrayList<>();
-
-        for (CommonFriendFundingDto commonFriendFundingDto : commonFriendFundingDtoList) {
-            friendFundingDtoList.add(FriendFundingDto.fromEntity(commonFriendFundingDto));
-        }
-
-        return friendFundingDtoList;
+        return commonFriendFundingDtoList.stream()
+                .map(FriendFundingDto::fromEntity).toList();
     }
 
     @Transactional
