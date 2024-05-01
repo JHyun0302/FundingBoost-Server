@@ -59,6 +59,7 @@ public class Member extends BaseTimeEntity {
                                       String refreshToken, String kakaoUuid) {
         Member member = new Member();
         member.nickName = nickName;
+        member.memberRole = MemberRole.ROLE_USER;
         member.email = email;
         member.password = password;
         member.profileImgUrl = profileImgUrl;
@@ -72,6 +73,7 @@ public class Member extends BaseTimeEntity {
                                                int point, String refreshToken, String kakaoUuid) {
         Member member = new Member();
         member.nickName = nickName;
+        member.memberRole = MemberRole.ROLE_USER;
         member.email = email;
         member.password = password;
         member.profileImgUrl = profileImgUrl;
