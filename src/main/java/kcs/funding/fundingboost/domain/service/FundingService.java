@@ -163,7 +163,7 @@ public class FundingService {
             if (friendFunding.isEmpty()) {
                 continue;
             }
-            
+
             System.out.println(friendFunding.get().getFundingId());
 
             int leftDate = (int) ChronoUnit.DAYS.between(LocalDate.now(),
@@ -218,11 +218,7 @@ public class FundingService {
         HomeMemberInfoDto homeMemberInfoDto = HomeMemberInfoDto.fromEntity(member);
 
         // 사용자 펀딩 내용: 펀딩 이름, 완료일
-        if (funding.isPresent()) {
-            HomeMyFundingStatusDto myFundingStatus = null;
-        }
-        HomeMyFundingStatusDto myFundingStatus = getMyFundingStatus(funding.get());
-
+        HomeMyFundingStatusDto myFundingStatus = funding.map(this::getMyFundingStatus).orElse(null);
         // 사용자 펀딩 상세: 펀딩 상품 이미지, 펀딩 진행률
         List<HomeMyFundingItemDto> homeMyFundingItemList = getMyFundingItems(funding.get());
 

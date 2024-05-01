@@ -63,7 +63,7 @@ class BookmarkServiceTest {
 
     @DisplayName("북마크 존재 시: 북마크 목록 조회 성공")
     @Test
-    public void getMyWishList_Success() {
+    void getMyWishList_Success() {
         //given
         ReflectionTestUtils.setField(member, "memberId", 1L);
         ReflectionTestUtils.setField(item1, "itemId", 1L);
@@ -88,7 +88,7 @@ class BookmarkServiceTest {
 
     @DisplayName("북마크가 존재하지 않을 시: 북마크 빈 리스트 값으로 반환")
     @Test
-    public void getMyWishList_Null() {
+    void getMyWishList_Null() {
         //given
         ReflectionTestUtils.setField(member, "memberId", 1L);
 
