@@ -1,10 +1,11 @@
 package kcs.funding.fundingboost.domain.security.resolver;
 
-import jakarta.servlet.http.HttpServletRequest;
-import kcs.funding.fundingboost.domain.security.JwtProvider;
+import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.MethodParameter;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.web.bind.support.WebDataBinderFactory;
 import org.springframework.web.context.request.NativeWebRequest;
@@ -15,30 +16,18 @@ import org.springframework.web.method.support.ModelAndViewContainer;
 @Component
 @RequiredArgsConstructor
 public class JwtAuthorizationArgumentResolver implements HandlerMethodArgumentResolver {
-
-    private final JwtProvider jwtProvider;
-
     @Override
     public boolean supportsParameter(MethodParameter parameter) {
         return parameter.hasParameterAnnotation(Login.class);
     }
 
     @Override
-    public Object resolveArgument(MethodParameter parameter, ModelAndViewContainer mavContainer,
-                                  NativeWebRequest webRequest, WebDataBinderFactory binderFactory) throws Exception {
+    public Object resolveArgument(@NonNull MethodParameter parameter, ModelAndViewContainer mavContainer,
+                                  @NonNull NativeWebRequest webRequest, WebDataBinderFactory binderFactory)
+            throws Exception {
         log.info("JwtAuthorizationArgumentResolver called");
-
-        HttpServletRequest httpServletRequest = webRequest.getNativeRequest(HttpServletRequest.class);
-        if (httpServletRequest != null) {
-            String token = httpServletRequest.getHeader();
-
-            if (token != null && !token.trim().equals("")) {
-                if (jwtProvider.validateToken(token)) {
-                    return jwtProvider.getClaim(token);
-                }
-            }
-        }
-
-        return null;
+        Authentication authentication = SecurityContextHolder.getContextHolderStrategy().getContext()
+                .getAuthentication();
+        return Long.parseLong(authentication.getName());
     }
 }
