@@ -49,7 +49,7 @@ public class JwtAuthenticationProvider implements InitializingBean {
         this.key = Keys.hmacShaKeyFor(keyBytes);
     }
 
-    public String createToken(Long memberId, Authentication authentication) {
+    public String createToken(Authentication authentication) {
         String authorities = authentication.getAuthorities().stream()
                 .map(GrantedAuthority::getAuthority)
                 .collect(Collectors.joining(","));
@@ -58,7 +58,7 @@ public class JwtAuthenticationProvider implements InitializingBean {
         Date validity = new Date(now + this.tokenValidityInMilliseconds);
 
         return Jwts.builder()
-                .setSubject(Long.toString(memberId)) // token 제목
+                .setSubject(authentication.getName()) // token 제목
                 .claim(AUTHORITIES_KEY, authorities) // member authority
                 .signWith(key, SignatureAlgorithm.HS512) // 암호화 알고리즘
                 .setExpiration(validity) // 유효 기간 설정
