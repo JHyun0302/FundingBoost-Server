@@ -4,6 +4,8 @@ import static jakarta.persistence.GenerationType.IDENTITY;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
@@ -28,6 +30,10 @@ public class Member extends BaseTimeEntity {
     @NotNull
     @Column(name = "nick_name", length = 20)
     private String nickName;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false, columnDefinition = "enum")
+    private MemberRole memberRole;
 
     @Column(length = 100)
     private String password;
