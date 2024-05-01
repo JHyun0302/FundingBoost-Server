@@ -112,8 +112,7 @@ public class FundingService {
         for (int i = 0; i < registerFundingItemList.size(); i++) {
             FundingItem fundingItem = FundingItem.createFundingItem(
                     funding,
-                    itemRepository.findById(registerFundingItemList.get(i))
-                            .orElseThrow(() -> new CommonException(NOT_FOUND_ITEM)),
+                    itemList.get(i),
                     i + 1);
             fundingItemRepository.save(fundingItem);
         }
@@ -163,7 +162,7 @@ public class FundingService {
             if (friendFunding.isEmpty()) {
                 continue;
             }
-            
+
             System.out.println(friendFunding.get().getFundingId());
 
             int leftDate = (int) ChronoUnit.DAYS.between(LocalDate.now(),
