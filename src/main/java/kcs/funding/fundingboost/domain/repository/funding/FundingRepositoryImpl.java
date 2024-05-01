@@ -3,7 +3,7 @@ package kcs.funding.fundingboost.domain.repository.funding;
 import static kcs.funding.fundingboost.domain.entity.QFunding.funding;
 import static kcs.funding.fundingboost.domain.entity.QFundingItem.fundingItem;
 import static kcs.funding.fundingboost.domain.entity.QItem.item;
-import static kcs.funding.fundingboost.domain.entity.QMember.member;
+import static kcs.funding.fundingboost.domain.entity.member.QMember.member;
 
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import java.util.List;
