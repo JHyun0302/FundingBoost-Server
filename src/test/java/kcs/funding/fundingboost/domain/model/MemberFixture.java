@@ -51,7 +51,7 @@ public class MemberFixture {
 
         Field memberId = member.getClass().getDeclaredField("memberId");
         memberId.setAccessible(true);
-        memberId.set(member, 3L);
+        memberId.set(member, 4L);
 
         return member;
     }
