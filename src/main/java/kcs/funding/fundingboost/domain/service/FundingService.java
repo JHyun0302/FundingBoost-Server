@@ -140,7 +140,7 @@ public class FundingService {
                     .map(ContributorDto::fromEntity)
                     .toList();
 
-            int contributedPercent = (int) ((float) funding.getCollectPrice() / funding.getTotalPrice() * 100);
+            int contributedPercent = funding.getCollectPrice() * 100 / funding.getTotalPrice();
 
             return FriendFundingDetailDto.fromEntity(friendFundingItemList, funding, contributorList,
                     contributedPercent);
