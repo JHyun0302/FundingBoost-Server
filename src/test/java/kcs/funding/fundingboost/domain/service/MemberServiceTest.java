@@ -3,15 +3,14 @@ package kcs.funding.fundingboost.domain.service;
 
 import static kcs.funding.fundingboost.domain.exception.ErrorCode.NOT_FOUND_FUNDING;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import java.lang.reflect.Field;
-import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
 import kcs.funding.fundingboost.domain.dto.common.CommonSuccessDto;
 import kcs.funding.fundingboost.domain.dto.request.myPage.myFundingStatus.TransformPointDto;
@@ -19,59 +18,39 @@ import kcs.funding.fundingboost.domain.entity.Funding;
 import kcs.funding.fundingboost.domain.entity.FundingItem;
 import kcs.funding.fundingboost.domain.entity.Item;
 import kcs.funding.fundingboost.domain.entity.Member;
-import kcs.funding.fundingboost.domain.entity.Tag;
 import kcs.funding.fundingboost.domain.exception.CommonException;
+import kcs.funding.fundingboost.domain.model.FundingFixture;
+import kcs.funding.fundingboost.domain.model.FundingItemFixture;
+import kcs.funding.fundingboost.domain.model.ItemFixture;
+import kcs.funding.fundingboost.domain.model.MemberFixture;
 import kcs.funding.fundingboost.domain.repository.funding.FundingRepository;
+import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.springframework.boot.test.context.SpringBootTest;
+import org.mockito.junit.jupiter.MockitoExtension;
 
-@SpringBootTest
+@Slf4j
+@ExtendWith(MockitoExtension.class)
 class MemberServiceTest {
 
     @Mock
     private FundingRepository fundingRepository;
-
     @InjectMocks
     private MemberService memberService;
 
     private Member member;
-    private Funding funding;
-    private Item item1 = Item.createItem(
-            "NEW 루쥬 알뤼르 벨벳 뉘 블랑쉬 리미티드 에디션",
-            61000,
-            "https://img1.kakaocdn.net/...",
-            "샤넬",
-            "뷰티",
-            "00:00"
-    );
-
-    private Item item2 = Item.createItem(
-            "NEW 루쥬 코코 밤(+샤넬 기프트 카드)",
-            51000,
-            "https://img1.kakaocdn.net/...",
-            "샤넬",
-            "뷰티",
-            "934 코랄린 [NEW]"
-    );
+    private Funding terminatedFunding;
 
     @BeforeEach
     void setUp() throws NoSuchFieldException, IllegalAccessException {
-        member = createMember();
-        Field memberId = member.getClass().getDeclaredField("memberId");
-        memberId.setAccessible(true);
-        memberId.set(member, 1L);
-        funding = createFunding(member);
-        Field fundingId = funding.getClass().getDeclaredField("fundingId");
-        fundingId.setAccessible(true);
-        fundingId.set(funding, 1L);
-
-
+        member = MemberFixture.member1();
+        terminatedFunding = FundingFixture.Graduate(member);
     }
 
     @DisplayName("포인트 전환 성공")
@@ -79,35 +58,51 @@ class MemberServiceTest {
     @ValueSource(ints = {10000, 20000, 30000})
     void exchangePoint(int myPoint) throws NoSuchFieldException, IllegalAccessException {
         //given
-        TransformPointDto transformPointDto = new TransformPointDto(funding.getFundingId());
-        when(fundingRepository.findMemberByFundingId(transformPointDto.fundingId())).thenReturn(funding);
-        Field memberPoint = member.getClass().getDeclaredField("point");
-        memberPoint.setAccessible(true);
-        memberPoint.set(member, myPoint);
 
-        FundingItem fundingItem1 = FundingItem.createFundingItem(funding, item1, 1);
-        FundingItem fundingItem2 = FundingItem.createFundingItem(funding, item2, 2);
-        Field fundingItems = funding.getClass().getDeclaredField("fundingItems");
-        List<FundingItem> fundingItemList = new ArrayList<>();
-        fundingItemList.add(fundingItem1);
-        fundingItemList.add(fundingItem2);
-        fundingItems.setAccessible(true);
-        fundingItems.set(funding, fundingItemList);
+        Member member = mock(Member.class);
+        List<Item> items = ItemFixture.items3();
+        int finishedFundingItemPrice = items.get(0).getItemPrice() + items.get(1).getItemPrice();
+
+        // input이 되는 Dto를 생성한다
+        Funding terminatedFunding = FundingFixture.terminatedFundingFail(member, finishedFundingItemPrice + 10000);
+        TransformPointDto transformPointDto = new TransformPointDto(terminatedFunding.getFundingId());
+
+        List<FundingItem> fundingItems = FundingItemFixture.fundingItems(items, terminatedFunding);
+
+        // 첫번째 fundingItem과 두번째 fundingItem을 펀딩 종료된 상태로 변경해준다
+        fundingItems.get(0).completeFunding();
+        fundingItems.get(0).finishFunding();
+
+        fundingItems.get(1).completeFunding();
+        fundingItems.get(1).finishFunding();
+
+        // 전환되어야 하는 포인트 = 모은 돈에서 펀딩 종료된 Item의 가격을 뺀 가격
+        int expectExchangePoint = terminatedFunding.getCollectPrice() - finishedFundingItemPrice;
+
+        // fundingRepository.FINDMemberByFundingId가 호출되면 종료된 terminatedFunding을 반환한다
+        when(fundingRepository.findMemberByFundingId(transformPointDto.fundingId())).thenReturn(terminatedFunding);
 
         //when
         CommonSuccessDto commonSuccessDto = memberService.exchangePoint(transformPointDto);
-        verify(fundingRepository).findMemberByFundingId(transformPointDto.fundingId());
 
         //then
-        assertTrue(commonSuccessDto.isSuccess());
         verify(fundingRepository).findMemberByFundingId(transformPointDto.fundingId());
-        assertEquals(myPoint + funding.getCollectPrice(), member.getPoint());
+        verify(fundingRepository).findMemberByFundingId(transformPointDto.fundingId());
+
+        // 포인트 전환 후 fundingItem은 펀딩 종료가 되어야 한다
+        assertFalse(terminatedFunding.getFundingItems().get(1).getFunding().isFundingStatus());
+
+        // 포인트 전환 후 나의 포인트가 증가해야 한다
+        verify(member).plusPoint(expectExchangePoint);
+
+        // 포인트 전환 후 successDto의 isSuccess는 true를 반환해야 한다
+        assertTrue(commonSuccessDto.isSuccess());
     }
 
     @DisplayName("포인트 전환 실패 - 펀딩을 찾을 수 없음")
     @Test
     void exchangePoint_FundingNotFound() {
-        TransformPointDto transformPointDto = new TransformPointDto(funding.getFundingId());
+        TransformPointDto transformPointDto = new TransformPointDto(terminatedFunding.getFundingId());
         when(fundingRepository.findMemberByFundingId(anyLong())).thenReturn(null);
 
         //when
@@ -117,23 +112,5 @@ class MemberServiceTest {
 
         //then
         assertEquals(NOT_FOUND_FUNDING.getMessage(), exception.getMessage());
-    }
-
-
-    private static Member createMember() {
-        return Member.createMember("임창희", "dlackdgml3710@gmail.com", "",
-                "https://p.kakaocdn.net/th/talkp/wnbbRhlyRW/XaGAXxS1OkUtXnomt6S4IK/ky0f9a_110x110_c.jpg",
-                "", "aFxoWGFUZlV5SH9MfE9-TH1PY1JiV2JRaF83");
-    }
-
-    private static Funding createFunding(Member member) {
-        return Funding.createFundingForTest(
-                member,
-                "생일축하해줘",
-                Tag.getTag("생일"),
-                112000,
-                50000,
-                LocalDateTime.now().minusDays(14)
-        );
     }
 }

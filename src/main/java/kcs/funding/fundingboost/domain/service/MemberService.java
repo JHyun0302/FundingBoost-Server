@@ -38,7 +38,8 @@ public class MemberService {
 
         int collectPrice = funding.getCollectPrice();
         for (FundingItem sortedFundingItem : sortedFundingItems) {
-            if (collectPrice - sortedFundingItem.getItem().getItemPrice() >= 0) {
+            if (!sortedFundingItem.isItemStatus()) {
+                // 펀딩 완료된 상태라면
                 collectPrice -= sortedFundingItem.getItem().getItemPrice();
             } else {
                 member.plusPoint(collectPrice);
