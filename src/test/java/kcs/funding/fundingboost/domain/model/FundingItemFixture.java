@@ -11,7 +11,7 @@ public class FundingItemFixture {
         ArrayList<FundingItem> fundingItems = new ArrayList<>();
         int i = 1;
         for (Item item : items) {
-            FundingItem.createFundingItem(funding, item, i++);
+            fundingItems.add(FundingItem.createFundingItem(funding, item, i++));
         }
         return fundingItems;
     }
