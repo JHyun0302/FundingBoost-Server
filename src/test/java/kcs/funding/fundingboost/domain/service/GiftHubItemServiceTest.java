@@ -17,7 +17,6 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
-import java.lang.reflect.Field;
 import java.util.List;
 import java.util.Optional;
 import kcs.funding.fundingboost.domain.dto.common.CommonSuccessDto;
@@ -28,28 +27,28 @@ import kcs.funding.fundingboost.domain.entity.GiftHubItem;
 import kcs.funding.fundingboost.domain.entity.Item;
 import kcs.funding.fundingboost.domain.entity.Member;
 import kcs.funding.fundingboost.domain.exception.CommonException;
+import kcs.funding.fundingboost.domain.model.ItemFixture;
+import kcs.funding.fundingboost.domain.model.MemberFixture;
 import kcs.funding.fundingboost.domain.repository.ItemRepository;
 import kcs.funding.fundingboost.domain.repository.MemberRepository;
 import kcs.funding.fundingboost.domain.repository.giftHubItem.GiftHubItemRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.springframework.boot.test.context.SpringBootTest;
+import org.mockito.junit.jupiter.MockitoExtension;
 
-@SpringBootTest
+@ExtendWith(MockitoExtension.class)
 class GiftHubItemServiceTest {
 
     @Mock
     private GiftHubItemRepository giftHubItemRepository;
-
     @Mock
     private MemberRepository memberRepository;
-
     @Mock
     private ItemRepository itemRepository;
-
     @InjectMocks
     private GiftHubItemService giftHubItemService;
 
@@ -70,8 +69,13 @@ class GiftHubItemServiceTest {
 
     @DisplayName("로그인 한 사용자의 기프트 허브 정보")
     @Test
-    void getGiftHub_ReturnsGiftHubDtoList_WhenMemberExists() {
+    void getGiftHub_ReturnsGiftHubDtoList_WhenMemberExists() throws NoSuchFieldException, IllegalAccessException {
         //given
+        Item item1 = ItemFixture.item1();
+        Item item2 = ItemFixture.item2();
+        GiftHubItem giftHubItem1 = GiftHubItem.createGiftHubItem(1, item1, member);
+        GiftHubItem giftHubItem2 = GiftHubItem.createGiftHubItem(2, item2, member);
+
         when(memberRepository.findById(member.getMemberId())).thenReturn(Optional.of(member));
         when(giftHubItemRepository.findGiftHubItemsByMember(member.getMemberId())).thenReturn(
                 List.of(giftHubItem1, giftHubItem2));
@@ -90,7 +94,8 @@ class GiftHubItemServiceTest {
 
     @DisplayName("로그인 안한 사용자의 기프트 허브 정보")
     @Test
-    public void getGiftHub_ThrowsException_WhenMemberDoesNotExist() {
+    public void getGiftHub_ThrowsException_WhenMemberDoesNotExist()
+            throws NoSuchFieldException, IllegalAccessException {
         // given
         when(memberRepository.findById(member.getMemberId())).thenReturn(Optional.empty());
 
@@ -105,13 +110,9 @@ class GiftHubItemServiceTest {
     @Test
     void addGiftHub() throws NoSuchFieldException, IllegalAccessException {
         //given
-        Field itemId1 = item1.getClass().getDeclaredField("itemId");
-        itemId1.setAccessible(true);
-        itemId1.set(item1, 1L);
+        Item item1 = ItemFixture.item1();
+        Item item2 = ItemFixture.item2();
 
-        Field itemId2 = item1.getClass().getDeclaredField("itemId");
-        itemId2.setAccessible(true);
-        itemId2.set(item2, 2L);
         AddGiftHubDto addGiftHubDto = new AddGiftHubDto(member.getMemberId(), 1);
 
         when(itemRepository.findById(item1.getItemId())).thenReturn(Optional.of(item1));
@@ -150,19 +151,18 @@ class GiftHubItemServiceTest {
 
     @DisplayName("GiftHubItem 추가 실패 - 멤버를 찾을 수 없음")
     @Test
-    void addGiftHub_Fail_MemberNotFound() throws NoSuchFieldException, IllegalAccessException {
+    void addGiftHub_Fail_MemberNotFound()
+            throws NoSuchFieldException, IllegalAccessException {
         // given
-        //리플렉션을 이용한 itemId 강제 주입
-        Field itemId = item1.getClass().getDeclaredField("itemId");
-        itemId.setAccessible(true);
-        itemId.set(item1, 1L);
-        when(itemRepository.findById(item1.getItemId())).thenReturn(Optional.of(item1));
+        Item item = ItemFixture.item1();
+
+        when(itemRepository.findById(item.getItemId())).thenReturn(Optional.of(item));
         when(memberRepository.findById(member.getMemberId())).thenReturn(Optional.empty());
         AddGiftHubDto addGiftHubDto = new AddGiftHubDto(member.getMemberId(), 1);
 
         // when
         Exception exception = assertThrows(CommonException.class, () -> {
-            giftHubItemService.addGiftHub(item1.getItemId(), addGiftHubDto);
+            giftHubItemService.addGiftHub(item.getItemId(), addGiftHubDto);
         });
 
         // then
