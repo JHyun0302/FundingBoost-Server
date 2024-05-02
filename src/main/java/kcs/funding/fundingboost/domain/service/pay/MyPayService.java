@@ -86,7 +86,7 @@ public class MyPayService {
                 .toList();
 
         List<Long> giftHubItemIds = giftHubItemRepository.findGiftHubItemByMemberIdAndItemIds(memberId, itemIds)
-                .stream().map(GiftHubItem::getGiftHunItemId)
+                .stream().map(GiftHubItem::getGiftHubItemId)
                 .toList();
 
         List<CommonItemDto> commonItemDtoList = itemIds.stream()
