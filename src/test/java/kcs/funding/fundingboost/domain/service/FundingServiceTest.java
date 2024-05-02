@@ -28,12 +28,10 @@ import kcs.funding.fundingboost.domain.model.FundingFixture;
 import kcs.funding.fundingboost.domain.model.FundingItemFixture;
 import kcs.funding.fundingboost.domain.model.ItemFixture;
 import kcs.funding.fundingboost.domain.model.MemberFixture;
-import kcs.funding.fundingboost.domain.repository.ItemRepository;
 import kcs.funding.fundingboost.domain.repository.MemberRepository;
 import kcs.funding.fundingboost.domain.repository.contributor.ContributorRepository;
 import kcs.funding.fundingboost.domain.repository.funding.FundingRepository;
 import kcs.funding.fundingboost.domain.repository.fundingItem.FundingItemRepository;
-import kcs.funding.fundingboost.domain.repository.relationship.RelationshipRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -47,8 +45,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 class FundingServiceTest {
 
     @Mock
-    ItemRepository itemRepository;
-    @Mock
     MemberRepository memberRepository;
     @Mock
     FundingRepository fundingRepository;
@@ -56,9 +52,6 @@ class FundingServiceTest {
     FundingItemRepository fundingItemRepository;
     @Mock
     ContributorRepository contributorRepository;
-    @Mock
-    RelationshipRepository relationshipRepository;
-
     @InjectMocks
     FundingService fundingService;
 

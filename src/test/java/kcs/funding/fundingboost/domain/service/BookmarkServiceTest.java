@@ -16,6 +16,7 @@ import kcs.funding.fundingboost.domain.model.MemberFixture;
 import kcs.funding.fundingboost.domain.repository.ItemRepository;
 import kcs.funding.fundingboost.domain.repository.MemberRepository;
 import kcs.funding.fundingboost.domain.repository.bookmark.BookmarkRepository;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -35,17 +36,24 @@ class BookmarkServiceTest {
     @InjectMocks
     private BookmarkService bookmarkService;
 
+    private Member member;
+
+    private Item item;
+
+    @BeforeEach
+    void beforeEach() throws NoSuchFieldException, IllegalAccessException {
+        member = MemberFixture.member1();
+        item = ItemFixture.item1();
+    }
+
     @Test
     void getMyWishList() {
     }
 
     @DisplayName("북마크가 존재할 때 : 북마크 삭제")
     @Test
-    void givenBookmarkExists_whenToggleItemLike_thenDeleteBookmark()
-            throws NoSuchFieldException, IllegalAccessException {
+    void givenBookmarkExists_whenToggleItemLike_thenDeleteBookmark(){
         //given
-        Member member = MemberFixture.member1();
-        Item item = ItemFixture.item1();
         Bookmark bookmark = Bookmark.createBookmark(member, item);
 
         when(bookmarkRepository.findBookmarkByMemberAndItem(member.getMemberId(), item.getItemId()))
@@ -61,12 +69,8 @@ class BookmarkServiceTest {
 
     @DisplayName("북마크가 존재하지 않을 때 : 북마크 저장")
     @Test
-    void givenBookmarkNotExists_whenToggleItemLike_thenCreateBookmark()
-            throws NoSuchFieldException, IllegalAccessException {
+    void givenBookmarkNotExists_whenToggleItemLike_thenCreateBookmark(){
         //given
-        Item item = ItemFixture.item1();
-        Member member = MemberFixture.member1();
-
         when(bookmarkRepository.findBookmarkByMemberAndItem(member.getMemberId(), item.getItemId())).thenReturn(
                 Optional.empty());
         when(memberRepository.findById(member.getMemberId())).thenReturn(Optional.of(member));
