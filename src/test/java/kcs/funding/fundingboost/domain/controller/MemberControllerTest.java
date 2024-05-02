@@ -44,7 +44,6 @@ class MemberControllerTest {
     private Member member;
     private Funding funding;
     private Item item1;
-    private Item item2;
 
     @BeforeEach
     void setUp() throws NoSuchFieldException, IllegalAccessException {
@@ -65,20 +64,11 @@ class MemberControllerTest {
                 "샤넬",
                 "뷰티",
                 "00:00");
-        item2 = createItemId(
-                2L,
-                "NEW 루쥬 코코 밤(+샤넬 기프트 카드)",
-                51000,
-                "https://img1.kakaocdn.net/...",
-                "샤넬",
-                "뷰티",
-                "934 코랄린 [NEW]");
 
         FundingItem fundingItem = FundingItem.createFundingItem(funding, item1, 1);
         Field fundingItems = funding.getClass().getDeclaredField("fundingItems");
         fundingItems.setAccessible(true);
         fundingItems.set(funding, List.of(fundingItem));
-
     }
 
     @DisplayName("포인트 전환")
