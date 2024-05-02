@@ -347,7 +347,7 @@ public class FundingService {
 
         List<MyPageFundingDetailHistoryDto> myPageFundingDetailHistoryDtos = fundings.stream()
                 .map(funding -> {
-                    Long contributors = contributorRepository.countContributorsForFunding(funding.getFundingId());
+                    int contributors = contributorRepository.countContributorsForFunding(funding.getFundingId());
                     return MyPageFundingDetailHistoryDto.fromEntity(funding, contributors);
                 })
                 .toList();
