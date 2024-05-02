@@ -25,11 +25,12 @@ import kcs.funding.fundingboost.domain.repository.orderItem.OrderItemRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.springframework.boot.test.context.SpringBootTest;
+import org.mockito.junit.jupiter.MockitoExtension;
 
-@SpringBootTest
+@ExtendWith(MockitoExtension.class)
 class OrderServiceTest {
 
     @Mock
@@ -56,7 +57,6 @@ class OrderServiceTest {
 
         when(orderItemRepository.findLastOrderByMemberId(member.getMemberId())).thenReturn(
                 List.of(orderItem));
-        when(memberRepository.findById(member.getMemberId())).thenReturn(Optional.of(member));
 
         //when
         OrderHistoryDto result = orderService.getOrderHistory(member.getMemberId());

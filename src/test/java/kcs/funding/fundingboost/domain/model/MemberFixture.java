@@ -43,10 +43,10 @@ public class MemberFixture {
         return member;
     }
 
-    public static Member member4() throws NoSuchFieldException, IllegalAccessException {
+    public static Member memberWithNoPoint() throws NoSuchFieldException, IllegalAccessException {
         Member member = Member.createMemberWithPoint("양혜인", "helen66626662@gmail.com", "",
                 "https://p.kakaocdn.net/th/talkp/woGALKKcHt/jiOhwZDs9RTkkXPwNYjxF1/wzruf2_110x110_c.jpg",
-                300000,
+                0,
                 "", "aFtpXm1ZaVtuQnRMeUp9Tn5PY1JiV2JRaF8z");
 
         Field memberId = member.getClass().getDeclaredField("memberId");

@@ -9,6 +9,8 @@ import kcs.funding.fundingboost.domain.entity.Funding;
 import kcs.funding.fundingboost.domain.entity.Member;
 
 public class FundingFixture {
+
+
     /**
      * 펀딩액이 모이지 않은 펀딩 생성
      */
@@ -69,6 +71,19 @@ public class FundingFixture {
         Field fundingId = funding.getClass().getDeclaredField("fundingId");
         fundingId.setAccessible(true);
         fundingId.set(funding, 5L);
+        return funding;
+    }
+
+    /**
+     * 펀딩액이 얼마 남지 않은 상태
+     */
+    public static Funding lowPriceRestFunding(Member member) throws NoSuchFieldException, IllegalAccessException {
+        Funding funding = Funding.createFundingForTest(member, "생일축하해주세욥 3월21일입니닷", BIRTHDAY, 197000, 195000,
+                LocalDateTime.now(), true);
+
+        Field fundingId = funding.getClass().getDeclaredField("fundingId");
+        fundingId.setAccessible(true);
+        fundingId.set(funding, 6L);
         return funding;
     }
 }
