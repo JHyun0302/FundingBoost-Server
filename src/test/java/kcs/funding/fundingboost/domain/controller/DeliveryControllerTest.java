@@ -23,7 +23,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 
 @WebMvcTest(DeliveryController.class)
@@ -46,7 +45,6 @@ class DeliveryControllerTest {
         Field memberId = member.getClass().getDeclaredField("memberId");
         memberId.setAccessible(true);
         memberId.set(member, 1L);
-        mockMvc = MockMvcBuilders.webAppContextSetup(webApplicationContext).build();
     }
 
     @DisplayName("배송지 관리 조회")
