@@ -169,9 +169,8 @@ class FundingServiceTest {
         RegisterFundingDto registerFundingDto = new RegisterFundingDto(itemIdList, fundingMessage, tag, deadline);
 
         //when
-        CommonException exception = assertThrows(CommonException.class, () -> {
-            fundingService.putFundingAndFundingItem(member.getMemberId(), registerFundingDto);
-        });
+        CommonException exception = assertThrows(CommonException.class, () ->
+                fundingService.putFundingAndFundingItem(member.getMemberId(), registerFundingDto));
         //then
         assertEquals(NOT_FOUND_ITEM.getMessage(), exception.getMessage());
     }
@@ -199,9 +198,8 @@ class FundingServiceTest {
         Funding funding = createFunding();
         when(fundingRepository.findById(1L)).thenReturn(Optional.empty());
         //when
-        CommonException exception = assertThrows(CommonException.class, () -> {
-            fundingService.terminateFunding(funding.getFundingId());
-        });
+        CommonException exception = assertThrows(CommonException.class, () ->
+                fundingService.terminateFunding(funding.getFundingId()));
         //then
         assertEquals(NOT_FOUND_FUNDING.getMessage(), exception.getMessage());
     }
@@ -279,9 +277,8 @@ class FundingServiceTest {
         when(fundingItemRepository.findFundingItemIdListByFunding(friendFunding.getFundingId())).thenReturn(
                 fundingItems);
         //when
-        CommonException exception = assertThrows(CommonException.class, () -> {
-            fundingService.getFriendFundingList(member.getMemberId());
-        });
+        CommonException exception = assertThrows(CommonException.class, () ->
+                fundingService.getFriendFundingList(member.getMemberId()));
         //then
         assertEquals(INVALID_FUNDING_STATUS.getMessage(), exception.getMessage());
     }
@@ -346,9 +343,8 @@ class FundingServiceTest {
         //given
         when(memberRepository.findById(member.getMemberId())).thenReturn(Optional.empty());
         //when
-        CommonException exception = assertThrows(CommonException.class, () -> {
-            fundingService.getMyFundingHistory(member.getMemberId());
-        });
+        CommonException exception = assertThrows(CommonException.class, () ->
+                fundingService.getMyFundingHistory(member.getMemberId()));
         //then
         assertEquals(NOT_FOUND_MEMBER.getMessage(), exception.getMessage());
     }
