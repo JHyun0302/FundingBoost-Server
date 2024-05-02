@@ -141,12 +141,7 @@ public class FundingService {
                     .map(ContributorDto::fromEntity)
                     .toList();
 
-            int contributedPercent = 0;
-            if (funding.getTotalPrice() > 0) {
-                contributedPercent = funding.getCollectPrice() / funding.getTotalPrice() * 100;
-            } else {
-                throw new CommonException(INVALID_FUNDING_OR_PRICE);
-            }
+            int contributedPercent = funding.getCollectPrice() / funding.getTotalPrice() * 100;
 
             return FriendFundingDetailDto.fromEntity(friendFundingItemList, funding, contributorList,
                     contributedPercent);
