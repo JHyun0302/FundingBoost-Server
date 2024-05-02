@@ -32,7 +32,7 @@ public class FundingFixture {
 
         Field fundingId = funding.getClass().getDeclaredField("fundingId");
         fundingId.setAccessible(true);
-        fundingId.set(funding, 1L);
+        fundingId.set(funding, 2L);
         return funding;
     }
 
@@ -44,7 +44,7 @@ public class FundingFixture {
                 LocalDateTime.now());
         Field fundingId = funding.getClass().getDeclaredField("fundingId");
         fundingId.setAccessible(true);
-        fundingId.set(funding, 2L);
+        fundingId.set(funding, 3L);
         return funding;
     }
 
@@ -56,7 +56,7 @@ public class FundingFixture {
                 LocalDateTime.now(), false);
         Field fundingId = funding.getClass().getDeclaredField("fundingId");
         fundingId.setAccessible(true);
-        fundingId.set(funding, 2L);
+        fundingId.set(funding, 4L);
         return funding;
     }
 
@@ -68,7 +68,7 @@ public class FundingFixture {
                 LocalDateTime.now(), false);
         Field fundingId = funding.getClass().getDeclaredField("fundingId");
         fundingId.setAccessible(true);
-        fundingId.set(funding, 2L);
+        fundingId.set(funding, 5L);
         return funding;
     }
 }
