@@ -52,7 +52,7 @@ class BookmarkServiceTest {
 
     @DisplayName("북마크가 존재할 때 : 북마크 삭제")
     @Test
-    void givenBookmarkExists_whenToggleItemLike_thenDeleteBookmark(){
+    void givenBookmarkExists_whenToggleItemLike_thenDeleteBookmark() {
         //given
         Bookmark bookmark = Bookmark.createBookmark(member, item);
 
@@ -69,7 +69,7 @@ class BookmarkServiceTest {
 
     @DisplayName("북마크가 존재하지 않을 때 : 북마크 저장")
     @Test
-    void givenBookmarkNotExists_whenToggleItemLike_thenCreateBookmark(){
+    void givenBookmarkNotExists_whenToggleItemLike_thenCreateBookmark() {
         //given
         when(bookmarkRepository.findBookmarkByMemberAndItem(member.getMemberId(), item.getItemId())).thenReturn(
                 Optional.empty());
