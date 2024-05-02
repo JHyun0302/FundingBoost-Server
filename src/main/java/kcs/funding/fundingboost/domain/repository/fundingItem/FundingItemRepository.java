@@ -8,7 +8,7 @@ import org.springframework.data.repository.query.Param;
 
 public interface FundingItemRepository extends JpaRepository<FundingItem, Long> {
 
-    @Query("select i from FundingItem fi" +
+    @Query("select fi from FundingItem fi" +
             " join fetch fi.funding f" +
             " join fetch fi.item i" +
             " where f.fundingId = :fundingId")
