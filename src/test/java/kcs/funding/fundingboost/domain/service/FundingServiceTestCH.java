@@ -23,7 +23,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 import kcs.funding.fundingboost.domain.dto.common.CommonSuccessDto;
 import kcs.funding.fundingboost.domain.dto.request.fundingRegist.RegisterFundingDto;
 import kcs.funding.fundingboost.domain.dto.response.friendFunding.FriendFundingDto;
@@ -47,14 +46,15 @@ import kcs.funding.fundingboost.domain.repository.relationship.RelationshipRepos
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.springframework.boot.test.context.SpringBootTest;
+import org.mockito.junit.jupiter.MockitoExtension;
 
-@SpringBootTest
-class FundingServiceTest {
+@ExtendWith(MockitoExtension.class)
+class FundingServiceTestCH {
 
     @InjectMocks
     private FundingService fundingService;
@@ -111,7 +111,7 @@ class FundingServiceTest {
         //given
         List<Long> itemIdList = Arrays.stream(itemIdListString.split(","))
                 .map(Long::parseLong)
-                .collect(Collectors.toList());
+                .toList();
         LocalDate deadline = LocalDate.parse(deadlineString);
         RegisterFundingDto registerFundingDto = new RegisterFundingDto(itemIdList, fundingMessage, tag, deadline);
 
@@ -140,7 +140,7 @@ class FundingServiceTest {
         when(memberRepository.findById(anyLong())).thenReturn(Optional.empty());
         List<Long> itemIdList = Arrays.stream(itemIdListString.split(","))
                 .map(Long::parseLong)
-                .collect(Collectors.toList());
+                .toList();
         LocalDate deadline = LocalDate.parse(deadlineString);
         when(itemRepository.findById(1L)).thenReturn(Optional.of(item1));
         when(itemRepository.findById(2L)).thenReturn(Optional.of(item2));
@@ -160,10 +160,9 @@ class FundingServiceTest {
     void putFundingAndFundingItem_NotFoundItem(String itemIdListString, String fundingMessage, String tag,
                                                String deadlineString) {
         //given
-        when(memberRepository.findById(anyLong())).thenReturn(Optional.ofNullable(member));
         List<Long> itemIdList = Arrays.stream(itemIdListString.split(","))
                 .map(Long::parseLong)
-                .collect(Collectors.toList());
+                .toList();
         LocalDate deadline = LocalDate.parse(deadlineString);
 
         RegisterFundingDto registerFundingDto = new RegisterFundingDto(itemIdList, fundingMessage, tag, deadline);
