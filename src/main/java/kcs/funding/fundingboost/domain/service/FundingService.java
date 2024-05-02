@@ -91,28 +91,21 @@ public class FundingService {
                 .map(itemIdList -> itemRepository.findById(itemIdList)
                         .orElseThrow(() -> new CommonException(NOT_FOUND_ITEM))).toList();
 
-        int sum = 0;
-        for (Item item : itemList) {
-            sum += item.getItemPrice();
-        }
+        Member member = memberRepository.findById(memberId).orElseThrow(() -> new CommonException(NOT_FOUND_MEMBER));
 
-        Funding funding = Funding.createFunding(memberRepository.findById(memberId)
-                        .orElseThrow(() -> new CommonException(NOT_FOUND_MEMBER)),
+        Funding funding = Funding.createFunding(
+                member,
                 registerFundingDto.fundingMessage(),
                 Tag.getTag(registerFundingDto.tag()),
-                sum,
                 registerFundingDto.deadline().atTime(23, 59, 59));
 
         fundingRepository.save(funding);
 
-        for (int i = 0; i < registerFundingItemList.size(); i++) {
-            FundingItem fundingItem = FundingItem.createFundingItem(
-                    funding,
-                    itemRepository.findById(registerFundingItemList.get(i))
-                            .orElseThrow(() -> new CommonException(NOT_FOUND_ITEM)),
-                    i + 1);
-            fundingItemRepository.save(fundingItem);
+        List<FundingItem> fundingItemList = new ArrayList<>();
+        for (int i = 0; i < itemList.size(); i++) {
+            fundingItemList.add(FundingItem.createFundingItem(funding, itemList.get(i), i));
         }
+        fundingItemRepository.saveAll(fundingItemList);
 
         return CommonSuccessDto.fromEntity(true);
     }
