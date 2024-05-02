@@ -7,9 +7,8 @@ import kcs.funding.fundingboost.domain.entity.Member;
 import kcs.funding.fundingboost.domain.entity.Tag;
 
 public class FundingFixture {
-    public static Funding createBirthdayWithMember1() throws NoSuchFieldException, IllegalAccessException {
-        Member member1 = MemberFixture.member1();
-        Funding funding = Funding.createFunding(member1, "생일축하해주세욥 3월21일입니닷", Tag.BIRTHDAY, 100000,
+    public static Funding createBirthdayWithMember(Member member) throws NoSuchFieldException, IllegalAccessException {
+        Funding funding = Funding.createFunding(member, "생일축하해주세욥 3월21일입니닷", Tag.BIRTHDAY, 100000,
                 LocalDateTime.now());
 
         Field fundingId = funding.getClass().getDeclaredField("fundingId");
@@ -18,9 +17,8 @@ public class FundingFixture {
         return funding;
     }
 
-    public static Funding createGraduateWithMember2() throws NoSuchFieldException, IllegalAccessException {
-        Member member2 = MemberFixture.member2();
-        Funding funding = Funding.createFunding(member2, "졸업축하해주세요 사실 졸업 못했어요ㅠㅠ", Tag.GRADUATE, 300000,
+    public static Funding createGraduateWithMember(Member member) throws NoSuchFieldException, IllegalAccessException {
+        Funding funding = Funding.createFunding(member, "졸업축하해주세요 사실 졸업 못했어요ㅠㅠ", Tag.GRADUATE, 300000,
                 LocalDateTime.now());
         Field fundingId = funding.getClass().getDeclaredField("fundingId");
         fundingId.setAccessible(true);
