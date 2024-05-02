@@ -176,6 +176,6 @@ class FriendPayServiceTest {
 
     private static Funding createFunding(Member member) {
         return Funding.createFundingForTest(member, "생일축하해줘", Tag.BIRTHDAY, 100000, 90000,
-                LocalDateTime.now().plusDays(14));
+                LocalDateTime.now().plusDays(14), true);
     }
 }
