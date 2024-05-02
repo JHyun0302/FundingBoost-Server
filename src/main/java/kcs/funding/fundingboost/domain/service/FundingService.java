@@ -129,24 +129,30 @@ public class FundingService {
     public FriendFundingDetailDto viewFriendsFundingDetail(Long fundingId, Long memberId) {
 
         List<FundingItem> fundingItems = fundingItemRepository.findAllByFundingId(fundingId);
-        List<FriendFundingItemDto> friendFundingItemList = fundingItems.stream().map(FriendFundingItemDto::fromEntity)
-                .toList();
 
-        Funding funding = fundingItems.get(0).getFunding();
+        if (!fundingItems.isEmpty()) {
+            List<FriendFundingItemDto> friendFundingItemList = fundingItems.stream()
+                    .map(FriendFundingItemDto::fromEntity)
+                    .toList();
+            Funding funding = fundingItems.get(0).getFunding();
 
-        List<ContributorDto> contributorList = contributorRepository.findByFundingId(fundingId)
-                .stream()
-                .map(ContributorDto::fromEntity)
-                .toList();
+            List<ContributorDto> contributorList = contributorRepository.findByFundingId(fundingId)
+                    .stream()
+                    .map(ContributorDto::fromEntity)
+                    .toList();
 
-        int contributedPercent = 0;
-        if (funding.getTotalPrice() > 0) {
-            contributedPercent = funding.getCollectPrice() / funding.getTotalPrice() * 100;
+            int contributedPercent = 0;
+            if (funding.getTotalPrice() > 0) {
+                contributedPercent = funding.getCollectPrice() / funding.getTotalPrice() * 100;
+            } else {
+                throw new CommonException(INVALID_FUNDING_OR_PRICE);
+            }
+
+            return FriendFundingDetailDto.fromEntity(friendFundingItemList, funding, contributorList,
+                    contributedPercent);
         } else {
-            throw new CommonException(INVALID_FUNDING_OR_PRICE);
+            throw new CommonException(NOT_FOUND_FUNDING);
         }
-
-        return FriendFundingDetailDto.fromEntity(friendFundingItemList, funding, contributorList, contributedPercent);
     }
 
     private List<CommonFriendFundingDto> getCommonFriendFundingList(Long memberId) {
