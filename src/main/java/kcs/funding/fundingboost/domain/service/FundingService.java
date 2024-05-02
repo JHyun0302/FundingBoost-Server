@@ -46,6 +46,7 @@ import kcs.funding.fundingboost.domain.entity.Member;
 import kcs.funding.fundingboost.domain.entity.Relationship;
 import kcs.funding.fundingboost.domain.entity.Tag;
 import kcs.funding.fundingboost.domain.exception.CommonException;
+import kcs.funding.fundingboost.domain.exception.ErrorCode;
 import kcs.funding.fundingboost.domain.repository.ItemRepository;
 import kcs.funding.fundingboost.domain.repository.MemberRepository;
 import kcs.funding.fundingboost.domain.repository.contributor.ContributorRepository;
@@ -130,12 +131,15 @@ public class FundingService {
     }
 
     public FriendFundingDetailDto viewFriendsFundingDetail(Long fundingId, Long memberId) {
-
         List<FundingItem> fundingItems = fundingItemRepository.findAllByFundingId(fundingId);
         List<FriendFundingItemDto> friendFundingItemList = fundingItems.stream().map(FriendFundingItemDto::fromEntity)
                 .toList();
 
         Funding funding = fundingItems.get(0).getFunding();
+
+        if (funding.getMember().getMemberId().equals(memberId)) {
+            throw new CommonException(ErrorCode.INVALID_ACCESS_URL);
+        }
 
         List<ContributorDto> contributorList = contributorRepository.findByFundingId(fundingId)
                 .stream()
@@ -163,7 +167,7 @@ public class FundingService {
             if (friendFunding.isEmpty()) {
                 continue;
             }
-            
+
             System.out.println(friendFunding.get().getFundingId());
 
             int leftDate = (int) ChronoUnit.DAYS.between(LocalDate.now(),
