@@ -554,7 +554,7 @@ class FundingServiceTest_InHo {
     private static Funding createFunding(Member member) {
 
         Funding funding = Funding.createFundingForTest(member, "아 하기 싫다", Tag.ETC, 112000, 86500,
-                LocalDateTime.of(2024, 5, 25, 23, 59));
+                LocalDateTime.of(2024, 5, 25, 23, 59), true);
 
         ReflectionTestUtils.setField(funding, "fundingStatus", true);
 
