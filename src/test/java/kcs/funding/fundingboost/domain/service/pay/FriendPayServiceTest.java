@@ -6,24 +6,26 @@ import static kcs.funding.fundingboost.domain.exception.ErrorCode.NOT_FOUND_MEMB
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.anyLong;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import java.util.List;
 import java.util.Optional;
 import kcs.funding.fundingboost.domain.dto.common.CommonSuccessDto;
 import kcs.funding.fundingboost.domain.dto.request.pay.friendFundingPay.FriendPayProcessDto;
 import kcs.funding.fundingboost.domain.dto.response.pay.friendFundingPay.FriendFundingPayingDto;
 import kcs.funding.fundingboost.domain.entity.Funding;
+import kcs.funding.fundingboost.domain.entity.Item;
 import kcs.funding.fundingboost.domain.entity.Member;
 import kcs.funding.fundingboost.domain.exception.CommonException;
 import kcs.funding.fundingboost.domain.model.FundingFixture;
+import kcs.funding.fundingboost.domain.model.FundingItemFixture;
+import kcs.funding.fundingboost.domain.model.ItemFixture;
 import kcs.funding.fundingboost.domain.model.MemberFixture;
 import kcs.funding.fundingboost.domain.repository.MemberRepository;
 import kcs.funding.fundingboost.domain.repository.funding.FundingRepository;
-import kcs.funding.fundingboost.domain.service.utils.PayUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -32,8 +34,6 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.MockedStatic;
-import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 @ExtendWith(MockitoExtension.class)
@@ -91,26 +91,43 @@ class FriendPayServiceTest {
     @DisplayName("친구 펀딩 결제 성공")
     @ParameterizedTest(name = "{index} {displayName} arguments = {arguments}")
     @ValueSource(ints = {1000, 2000, 3000})
-    void fund_Success(int myPoint) {
+    void fund_Success(int myPoint) throws NoSuchFieldException, IllegalAccessException {
         //given
+        Member me = mock(Member.class);
+        Funding friendFunding = mock(Funding.class);
+        List<Item> items = ItemFixture.items3();
+        FundingItemFixture.fundingItems(items, friendFunding);
+
         FriendPayProcessDto friendPayProcessDto = new FriendPayProcessDto(myPoint);
 
+        when(me.getPoint()).thenReturn(100000);
+        // 회원 id로 조회
         when(memberRepository.findById(me.getMemberId())).thenReturn(Optional.of(me));
+        // 친구 펀딩을 조회
         when(fundingRepository.findById(friendFunding.getFundingId())).thenReturn(Optional.of(friendFunding));
+
+        int itemPriceSum = items.stream().mapToInt(Item::getItemPrice).sum();
+        when(friendFunding.getTotalPrice()).thenReturn(itemPriceSum);
+        when(friendFunding.getCollectPrice()).thenReturn(itemPriceSum / 2);
 
         //when & then
         // Mockito-inline : 정적 메서드인 deductPointsIfPossible 메서드를 목킹하는 방법
-        try (MockedStatic<PayUtils> mocked = Mockito.mockStatic(PayUtils.class)) { // MockedStatic<PayUtils> 객체 생성
-            mocked.when(() -> PayUtils.deductPointsIfPossible(any(Member.class), anyInt()))
-                    .thenAnswer(invocation -> null);
+//        try (MockedStatic<PayUtils> mocked = Mockito.mockStatic(PayUtils.class)) { // MockedStatic<PayUtils> 객체 생성
+//            mocked.when(() -> PayUtils.deductPointsIfPossible(any(Member.class), anyInt()))
+//                    .thenAnswer(invocation -> null);
 
-            CommonSuccessDto result = friendPayService.fund(me.getMemberId(), friendFunding.getFundingId(),
-                    friendPayProcessDto);
+        CommonSuccessDto result = friendPayService.fund(me.getMemberId(), friendFunding.getFundingId(),
+                friendPayProcessDto);
 
-            assertTrue(result.isSuccess());
-            verify(memberRepository).findById(me.getMemberId());
-            verify(fundingRepository).findById(friendFunding.getFundingId());
-        }
+        // success 응답을 반환해야 한다
+        assertTrue(result.isSuccess());
+        verify(memberRepository).findById(me.getMemberId());
+        verify(fundingRepository).findById(friendFunding.getFundingId());
+
+        // 친구 펀딩의 펀딩액이 myPoint만큼 올라가야 한다
+        verify(friendFunding).fund(myPoint);
+        verify(me).minusPoint(myPoint);
+//        }
     }
 
     @DisplayName("친구 펀딩 결제 실패 : Member Not Found")

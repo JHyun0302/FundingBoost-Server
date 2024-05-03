@@ -1,5 +1,6 @@
 package kcs.funding.fundingboost.domain.service;
 
+import static kcs.funding.fundingboost.domain.exception.ErrorCode.INVALID_ACCESS_URL;
 import static kcs.funding.fundingboost.domain.exception.ErrorCode.INVALID_FUNDING_STATUS;
 import static kcs.funding.fundingboost.domain.exception.ErrorCode.NOT_FOUND_FUNDING;
 import static kcs.funding.fundingboost.domain.exception.ErrorCode.NOT_FOUND_ITEM;
@@ -91,28 +92,21 @@ public class FundingService {
                 .map(itemIdList -> itemRepository.findById(itemIdList)
                         .orElseThrow(() -> new CommonException(NOT_FOUND_ITEM))).toList();
 
-        int sum = 0;
-        for (Item item : itemList) {
-            sum += item.getItemPrice();
-        }
+        Member member = memberRepository.findById(memberId).orElseThrow(() -> new CommonException(NOT_FOUND_MEMBER));
 
-        Funding funding = Funding.createFunding(memberRepository.findById(memberId)
-                        .orElseThrow(() -> new CommonException(NOT_FOUND_MEMBER)),
+        Funding funding = Funding.createFunding(
+                member,
                 registerFundingDto.fundingMessage(),
                 Tag.getTag(registerFundingDto.tag()),
-                sum,
                 registerFundingDto.deadline().atTime(23, 59, 59));
 
         fundingRepository.save(funding);
 
-        for (int i = 0; i < registerFundingItemList.size(); i++) {
-            FundingItem fundingItem = FundingItem.createFundingItem(
-                    funding,
-                    itemRepository.findById(registerFundingItemList.get(i))
-                            .orElseThrow(() -> new CommonException(NOT_FOUND_ITEM)),
-                    i + 1);
-            fundingItemRepository.save(fundingItem);
+        List<FundingItem> fundingItemList = new ArrayList<>();
+        for (int i = 0; i < itemList.size(); i++) {
+            fundingItemList.add(FundingItem.createFundingItem(funding, itemList.get(i), i));
         }
+        fundingItemRepository.saveAll(fundingItemList);
 
         return CommonSuccessDto.fromEntity(true);
     }
@@ -126,14 +120,18 @@ public class FundingService {
     }
 
     public FriendFundingDetailDto viewFriendsFundingDetail(Long fundingId, Long memberId) {
-
         List<FundingItem> fundingItems = fundingItemRepository.findAllByFundingId(fundingId);
 
         if (!fundingItems.isEmpty()) {
             List<FriendFundingItemDto> friendFundingItemList = fundingItems.stream()
                     .map(FriendFundingItemDto::fromEntity)
                     .toList();
+
             Funding funding = fundingItems.get(0).getFunding();
+
+            if (funding.getMember().getMemberId().equals(memberId)) {
+                throw new CommonException(INVALID_ACCESS_URL);
+            }
 
             List<ContributorDto> contributorList = contributorRepository.findByFundingId(fundingId)
                     .stream()
@@ -153,7 +151,6 @@ public class FundingService {
         List<CommonFriendFundingDto> commonFriendFundingDtoList = new ArrayList<>();
         List<Relationship> relationshipList = relationshipRepository.findFriendByMemberId(memberId);
         for (Relationship relationship : relationshipList) {
-            System.out.println("relationship.getFriend().getMemberId() : " + relationship.getFriend().getMemberId());
             Optional<Funding> friendFunding = fundingRepository.findByMemberIdAndStatus(
                     relationship.getFriend().getMemberId(), true);
 
