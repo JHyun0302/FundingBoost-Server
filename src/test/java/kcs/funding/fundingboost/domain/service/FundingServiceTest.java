@@ -235,7 +235,7 @@ class FundingServiceTest {
         assertEquals(friend.getNickName(), friendFundingDetailDto.friendName());
         assertEquals(funding.getTag().getDisplayName(), friendFundingDetailDto.fundingTag());
         assertEquals(funding.getMessage(), friendFundingDetailDto.fundingMessage());
-        assertEquals(friend.getProfileImgUrl(), friendFundingDetailDto.friendProfile());
+        assertEquals(friend.getProfileImgUrl(), friendFundingDetailDto.friendProfileImgUrl());
         assertEquals(funding.getDeadline(), friendFundingDetailDto.deadline());
     }
 

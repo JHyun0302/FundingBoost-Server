@@ -1,5 +1,6 @@
 package kcs.funding.fundingboost.domain.service;
 
+import static kcs.funding.fundingboost.domain.exception.ErrorCode.INVALID_ACCESS_URL;
 import static kcs.funding.fundingboost.domain.exception.ErrorCode.INVALID_FUNDING_STATUS;
 import static kcs.funding.fundingboost.domain.exception.ErrorCode.NOT_FOUND_FUNDING;
 import static kcs.funding.fundingboost.domain.exception.ErrorCode.NOT_FOUND_ITEM;
@@ -126,14 +127,18 @@ public class FundingService {
     }
 
     public FriendFundingDetailDto viewFriendsFundingDetail(Long fundingId, Long memberId) {
-
         List<FundingItem> fundingItems = fundingItemRepository.findAllByFundingId(fundingId);
 
         if (!fundingItems.isEmpty()) {
             List<FriendFundingItemDto> friendFundingItemList = fundingItems.stream()
                     .map(FriendFundingItemDto::fromEntity)
                     .toList();
+
             Funding funding = fundingItems.get(0).getFunding();
+
+            if (funding.getMember().getMemberId().equals(memberId)) {
+                throw new CommonException(INVALID_ACCESS_URL);
+            }
 
             List<ContributorDto> contributorList = contributorRepository.findByFundingId(fundingId)
                     .stream()
@@ -153,7 +158,6 @@ public class FundingService {
         List<CommonFriendFundingDto> commonFriendFundingDtoList = new ArrayList<>();
         List<Relationship> relationshipList = relationshipRepository.findFriendByMemberId(memberId);
         for (Relationship relationship : relationshipList) {
-            System.out.println("relationship.getFriend().getMemberId() : " + relationship.getFriend().getMemberId());
             Optional<Funding> friendFunding = fundingRepository.findByMemberIdAndStatus(
                     relationship.getFriend().getMemberId(), true);
 

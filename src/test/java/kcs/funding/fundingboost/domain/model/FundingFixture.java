@@ -7,20 +7,25 @@ import java.lang.reflect.Field;
 import java.time.LocalDateTime;
 import kcs.funding.fundingboost.domain.entity.Funding;
 import kcs.funding.fundingboost.domain.entity.Member;
+import kcs.funding.fundingboost.domain.entity.common.BaseTimeEntity;
 
 public class FundingFixture {
 
 
     /**
-     * 펀딩액이 모이지 않은 펀딩 생성
+     * 펀딩액이 모이지 않은 펀딩 생성 & createdDate 리플렉션
      */
     public static Funding Birthday(Member member) throws NoSuchFieldException, IllegalAccessException {
         Funding funding = Funding.createFunding(member, "생일축하해주세욥 3월21일입니닷", BIRTHDAY, 197000,
-                LocalDateTime.now());
+                LocalDateTime.now().plusDays(14));
 
         Field fundingId = funding.getClass().getDeclaredField("fundingId");
         fundingId.setAccessible(true);
         fundingId.set(funding, 1L);
+
+        Field createdDateField = BaseTimeEntity.class.getDeclaredField("createdDate");
+        createdDateField.setAccessible(true);
+        createdDateField.set(funding, LocalDateTime.now());
         return funding;
     }
 
@@ -30,11 +35,15 @@ public class FundingFixture {
     public static Funding BirthdayWithCollectPrice(Member member)
             throws NoSuchFieldException, IllegalAccessException {
         Funding funding = Funding.createFundingForTest(member, "생일축하해주세욥 3월21일입니닷", BIRTHDAY, 197000, 98500,
-                LocalDateTime.now(), true);
+                LocalDateTime.now().plusDays(14), true);
 
         Field fundingId = funding.getClass().getDeclaredField("fundingId");
         fundingId.setAccessible(true);
         fundingId.set(funding, 2L);
+
+        Field createdDateField = BaseTimeEntity.class.getDeclaredField("createdDate");
+        createdDateField.setAccessible(true);
+        createdDateField.set(funding, LocalDateTime.now());
         return funding;
     }
 
