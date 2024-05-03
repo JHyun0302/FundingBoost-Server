@@ -69,8 +69,18 @@ public class Funding extends BaseTimeEntity {
     private boolean fundingStatus;
 
 
+    /**
+     * 펀딩 종료하기 버튼 눌렀을 때 펀딩이 종료되고 배송지입력/포인트 전환이 완료되지 않은 상태
+     */
     public void terminate() {
         this.deadline = LocalDateTime.now();
+    }
+
+    /**
+     * 펀딩이 완전히 종료된 상태
+     */
+    public void finish() {
+        this.fundingStatus = false;
     }
 
     public void extendDeadline(int day) {

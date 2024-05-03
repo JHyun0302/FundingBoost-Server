@@ -11,6 +11,7 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
 import kcs.funding.fundingboost.domain.entity.common.BaseTimeEntity;
+import kcs.funding.fundingboost.domain.service.utils.FundingUtils;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -62,11 +63,18 @@ public class FundingItem extends BaseTimeEntity {
         return fundingItem;
     }
 
+    /**
+     * 금액이 다 찬 펀딩 아이템
+     */
     public void completeFunding() {
         this.itemStatus = false;
     }
 
-    public void finishFunding() {
+    /**
+     * 배송지 입력/포인트 전환이 완료된 펀딩 아이템
+     */
+    public void finishFundingItem() {
         this.finishedStatus = false;
+        FundingUtils.checkFundingFinished(funding); // funding이 종료되었는지 확인
     }
 }

@@ -175,7 +175,7 @@ public class MyPayService {
         if (!fundingItem.isFinishedStatus()) {
             throw new CommonException(INVALID_FUNDINGITEM_STATUS);
         } else {
-            fundingItem.finishFunding();
+            fundingItem.finishFundingItem();
         }
 
         PayUtils.deductPointsIfPossible(member, payRemainDto.usingPoint());
