@@ -163,7 +163,6 @@ public class MyPayService {
                     if (quantity <= 0) {
                         throw new CommonException(BAD_REQUEST_PARAMETER);
                     }
-                    order.plusTotalPrice(item.getItemPrice() * quantity);
                     return OrderItem.createOrderItem(order, item, quantity);
                 })
                 .toList();
