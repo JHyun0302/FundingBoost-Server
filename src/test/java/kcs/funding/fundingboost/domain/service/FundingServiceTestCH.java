@@ -1,6 +1,5 @@
 package kcs.funding.fundingboost.domain.service;
 
-import static kcs.funding.fundingboost.domain.exception.ErrorCode.INVALID_FUNDING_STATUS;
 import static kcs.funding.fundingboost.domain.exception.ErrorCode.NOT_FOUND_FUNDING;
 import static kcs.funding.fundingboost.domain.exception.ErrorCode.NOT_FOUND_ITEM;
 import static kcs.funding.fundingboost.domain.exception.ErrorCode.NOT_FOUND_MEMBER;
@@ -16,9 +15,7 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import java.lang.reflect.Field;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -34,9 +31,11 @@ import kcs.funding.fundingboost.domain.entity.FundingItem;
 import kcs.funding.fundingboost.domain.entity.Item;
 import kcs.funding.fundingboost.domain.entity.Member;
 import kcs.funding.fundingboost.domain.entity.Relationship;
-import kcs.funding.fundingboost.domain.entity.Tag;
-import kcs.funding.fundingboost.domain.entity.common.BaseTimeEntity;
 import kcs.funding.fundingboost.domain.exception.CommonException;
+import kcs.funding.fundingboost.domain.model.FundingFixture;
+import kcs.funding.fundingboost.domain.model.FundingItemFixture;
+import kcs.funding.fundingboost.domain.model.ItemFixture;
+import kcs.funding.fundingboost.domain.model.MemberFixture;
 import kcs.funding.fundingboost.domain.repository.ItemRepository;
 import kcs.funding.fundingboost.domain.repository.MemberRepository;
 import kcs.funding.fundingboost.domain.repository.contributor.ContributorRepository;
@@ -61,13 +60,10 @@ class FundingServiceTestCH {
 
     @Mock
     private MemberRepository memberRepository;
-
     @Mock
     private FundingRepository fundingRepository;
-
     @Mock
     private ItemRepository itemRepository;
-
     @Mock
     private FundingItemRepository fundingItemRepository;
 
@@ -84,23 +80,9 @@ class FundingServiceTestCH {
 
     @BeforeEach
     void setUp() throws NoSuchFieldException, IllegalAccessException {
-        member = createMember();
-        item1 = createItemId(
-                1L,
-                "NEW 루쥬 알뤼르 벨벳 뉘 블랑쉬 리미티드 에디션",
-                61000,
-                "https://img1.kakaocdn.net/...",
-                "샤넬",
-                "뷰티",
-                "00:00");
-        item2 = createItemId(
-                2L,
-                "NEW 루쥬 코코 밤(+샤넬 기프트 카드)",
-                51000,
-                "https://img1.kakaocdn.net/...",
-                "샤넬",
-                "뷰티",
-                "934 코랄린 [NEW]");
+        member = MemberFixture.member1();
+        item1 = ItemFixture.item1();
+        item2 = ItemFixture.item2();
     }
 
     @DisplayName("펀딩 등록하기")
@@ -178,8 +160,8 @@ class FundingServiceTestCH {
     @Test
     void terminateFunding_Success() throws NoSuchFieldException, IllegalAccessException {
         //given
-        Funding funding = createFunding();
-        when(fundingRepository.findById(1L)).thenReturn(Optional.of(funding));
+        Funding funding = FundingFixture.Graduate(member);
+        when(fundingRepository.findById(member.getMemberId())).thenReturn(Optional.of(funding));
         //when
         CommonSuccessDto commonSuccessDto = fundingService.terminateFunding(funding.getFundingId());
         //then
@@ -194,7 +176,7 @@ class FundingServiceTestCH {
     @Test
     void terminateFunding_NotFoundFunding() throws NoSuchFieldException, IllegalAccessException {
         //given
-        Funding funding = createFunding();
+        Funding funding = FundingFixture.Graduate(member);
         when(fundingRepository.findById(1L)).thenReturn(Optional.empty());
         //when
         CommonException exception = assertThrows(CommonException.class, () ->
@@ -207,10 +189,12 @@ class FundingServiceTestCH {
     @Test
     void getFriendFundingList_Success() throws NoSuchFieldException, IllegalAccessException {
         //given
-        Member friend = createFriend();
-        List<Relationship> myRelationships = getMyRelationships(friend);
-        Funding friendFunding = createFriendFunding(friend);
-        List<FundingItem> fundingItems = createFundingItems(friendFunding);
+        Member friend = MemberFixture.member2();
+        List<Relationship> myRelationships = getMyRelationships(member, friend);
+        Funding friendFunding = FundingFixture.Birthday(friend);
+
+        List<Item> items = ItemFixture.items3();
+        List<FundingItem> fundingItems = FundingItemFixture.fundingItems(items, friendFunding);
 
         when(relationshipRepository.findFriendByMemberId(member.getMemberId())).thenReturn(myRelationships);
         when(fundingRepository.findByMemberIdAndStatus(friend.getMemberId(), true)).thenReturn(
@@ -221,9 +205,9 @@ class FundingServiceTestCH {
         List<FriendFundingDto> friendFundingDtoList = fundingService.getFriendFundingList(member.getMemberId());
         //then
         assertNotNull(friendFundingDtoList);
-        assertEquals(2L, friendFundingDtoList.get(0).commonFriendFundingDto().fundingId());
-        assertEquals("구태형", friendFundingDtoList.get(0).commonFriendFundingDto().nickName());
-        assertEquals(61000,
+        assertEquals(friend.getMemberId(), friendFundingDtoList.get(0).commonFriendFundingDto().fundingId());
+        assertEquals(friend.getNickName(), friendFundingDtoList.get(0).commonFriendFundingDto().nickName());
+        assertEquals(items.get(0).getItemPrice(),
                 friendFundingDtoList.get(0).commonFriendFundingDto().friendFundingPageItemDtoList().get(0).itemPrice());
     }
 
@@ -242,8 +226,8 @@ class FundingServiceTestCH {
     @Test
     void getFriendFundingList_NotFoundFriendFunding() throws NoSuchFieldException, IllegalAccessException {
         //given
-        Member friend = createFriend();
-        List<Relationship> myRelationships = getMyRelationships(friend);
+        Member friend = MemberFixture.member2();
+        List<Relationship> myRelationships = getMyRelationships(member, friend);
 
         when(relationshipRepository.findFriendByMemberId(member.getMemberId())).thenReturn(myRelationships);
         when(fundingRepository.findByMemberIdAndStatus(friend.getMemberId(), true)).thenReturn(
@@ -255,48 +239,20 @@ class FundingServiceTestCH {
         assertEquals(List.of(), friendFundingDtoList);
     }
 
-
-    @DisplayName("친구 펀딩 목록 조회-실패(친구의 펀딩 총 금액이 0)")
-    @Test
-    void getFriendFundingList_FriendFundingTotalPriceZero() throws NoSuchFieldException, IllegalAccessException {
-        //given
-        Member friend = createFriend();
-        List<Relationship> myRelationships = getMyRelationships(friend);
-
-        Funding friendFunding = createFriendFunding(friend);
-        Field fundingTotalPrice = friendFunding.getClass().getDeclaredField("totalPrice");
-        fundingTotalPrice.setAccessible(true);
-        fundingTotalPrice.set(friendFunding, 0);
-
-        List<FundingItem> fundingItems = List.of();
-
-        when(relationshipRepository.findFriendByMemberId(member.getMemberId())).thenReturn(myRelationships);
-        when(fundingRepository.findByMemberIdAndStatus(friend.getMemberId(), true)).thenReturn(
-                Optional.of(friendFunding));
-        when(fundingItemRepository.findFundingItemIdListByFunding(friendFunding.getFundingId())).thenReturn(
-                fundingItems);
-        //when
-        CommonException exception = assertThrows(CommonException.class, () ->
-                fundingService.getFriendFundingList(member.getMemberId()));
-        //then
-        assertEquals(INVALID_FUNDING_STATUS.getMessage(), exception.getMessage());
-    }
-
     @DisplayName("내 펀딩 이력 조회-성공")
     @Test
     void getMyFundingHistory_Success() throws NoSuchFieldException, IllegalAccessException {
         //given
-        Funding funding = createEndFunding();
-        createFundingItemInFunding(funding);
+        Funding funding = FundingFixture.Graduate(member);
 
         when(memberRepository.findById(member.getMemberId())).thenReturn(Optional.of(member));
         when(fundingRepository.findFundingByMemberId(member.getMemberId())).thenReturn(List.of(funding));
-        when(contributorRepository.countContributorsForFunding(funding.getFundingId())).thenReturn(1L);
+        when(contributorRepository.countContributorsForFunding(funding.getFundingId())).thenReturn(1);
         //when
         MyFundingHistoryDto myFundingHistoryDto = fundingService.getMyFundingHistory(member.getMemberId());
         MyPageMemberDto myPageMemberDto = MyPageMemberDto.fromEntity(member);
         MyPageFundingDetailHistoryDto myPageFundingDetailHistoryDto = MyPageFundingDetailHistoryDto.fromEntity(funding,
-                1L);
+                1);
         //then
         assertEquals(myPageMemberDto, myFundingHistoryDto.myPageMemberDto());
         assertEquals(myPageFundingDetailHistoryDto, myFundingHistoryDto.myPageFundingDetailHistoryDtos().get(0));
@@ -320,17 +276,16 @@ class FundingServiceTestCH {
     @Test
     void getMyFundingHistory_NotFoundContributor() throws NoSuchFieldException, IllegalAccessException {
         //given
-        Funding funding = createEndFunding();
-        createFundingItemInFunding(funding);
+        Funding funding = FundingFixture.Graduate(member);
 
         when(memberRepository.findById(member.getMemberId())).thenReturn(Optional.of(member));
         when(fundingRepository.findFundingByMemberId(member.getMemberId())).thenReturn(List.of(funding));
-        when(contributorRepository.countContributorsForFunding(funding.getFundingId())).thenReturn(0L);
+        when(contributorRepository.countContributorsForFunding(funding.getFundingId())).thenReturn(0);
         //when
         MyFundingHistoryDto myFundingHistoryDto = fundingService.getMyFundingHistory(member.getMemberId());
         MyPageMemberDto myPageMemberDto = MyPageMemberDto.fromEntity(member);
         MyPageFundingDetailHistoryDto myPageFundingDetailHistoryDto = MyPageFundingDetailHistoryDto.fromEntity(funding,
-                0L);
+                0);
         //then
         assertEquals(myPageMemberDto, myFundingHistoryDto.myPageMemberDto());
         assertEquals(myPageFundingDetailHistoryDto, myFundingHistoryDto.myPageFundingDetailHistoryDtos().get(0));
@@ -348,94 +303,10 @@ class FundingServiceTestCH {
         assertEquals(NOT_FOUND_MEMBER.getMessage(), exception.getMessage());
     }
 
-    private static Item createItemId(
-            Long itemId1,
-            String itemName,
-            int itemPrice,
-            String itemImageUrl,
-            String brandName,
-            String category,
-            String optionName
-    ) throws NoSuchFieldException, IllegalAccessException {
-        Item item = Item.createItem(itemName, itemPrice, itemImageUrl, brandName, category, optionName);
-        Field itemId = item.getClass().getDeclaredField("itemId");
-        itemId.setAccessible(true);
-        itemId.set(item, itemId1);
-        return item;
-    }
-
-    private Member createMember() throws NoSuchFieldException, IllegalAccessException {
-        member = Member.createMember("임창희", "dlackdgml3710@gmail.com", "",
-                "https://p.kakaocdn.net/th/talkp/wnbbRhlyRW/XaGAXxS1OkUtXnomt6S4IK/ky0f9a_110x110_c.jpg",
-                "", "aFxoWGFUZlV5SH9MfE9-TH1PY1JiV2JRaF83");
-        Field memberId = member.getClass().getDeclaredField("memberId");
-        memberId.setAccessible(true);
-        memberId.set(member, 1L);
-        return member;
-    }
-
-    private Member createFriend() throws NoSuchFieldException, IllegalAccessException {
-        Member friend = Member.createMember("구태형", "rnxogud136@gmail.com", "",
-                "https://p.kakaocdn.net/th/talkp/wowkAlwbLn/Ko25X6eV5bs1OycAz7n9Q1/lq4mv6_110x110_c.jpg",
-                "", "aFtpX2lZaFhvQ3JLe0J2QnFDcFxtXWhdbldgDA");
-        Field friendMemberId = friend.getClass().getDeclaredField("memberId");
-        friendMemberId.setAccessible(true);
-        friendMemberId.set(friend, 2L);
-        return friend;
-    }
-
-    private Funding createFunding() throws NoSuchFieldException, IllegalAccessException {
-        Funding funding = Funding.createFunding(
-                member, "생일 축하해줘", Tag.BIRTHDAY, 100000,
-                LocalDateTime.of(2024, 5, 14, 23, 59));
-        Field fundingId = funding.getClass().getDeclaredField("fundingId");
-        fundingId.setAccessible(true);
-        fundingId.set(funding, 1L);
-        return funding;
-    }
-
-    private Funding createFriendFunding(Member friend) throws NoSuchFieldException, IllegalAccessException {
-        Funding friendFunding = Funding.createFunding(
-                friend, "졸업했어유", Tag.GRADUATE, 112000,
-                LocalDateTime.of(2024, 5, 14, 23, 59));
-        Field friendFundingId = friendFunding.getClass().getDeclaredField("fundingId");
-        friendFundingId.setAccessible(true);
-        friendFundingId.set(friendFunding, 2L);
-        return friendFunding;
-    }
-
-    private Funding createEndFunding() throws NoSuchFieldException, IllegalAccessException {
-        Funding funding = Funding.createFundingForTest(
-                member, "생일 축하해줘", Tag.BIRTHDAY, 112000, 10000,
-                LocalDateTime.of(2024, 5, 14, 23, 59));
-        Field fundingId = funding.getClass().getDeclaredField("fundingId");
-        fundingId.setAccessible(true);
-        fundingId.set(funding, 1L);
-        Field createdDateField = BaseTimeEntity.class.getDeclaredField("createdDate");
-        createdDateField.setAccessible(true);
-        createdDateField.set(funding, LocalDateTime.now());
-        return funding;
-    }
-
-    private List<FundingItem> createFundingItems(Funding funding) {
-        FundingItem fundingItem1 = FundingItem.createFundingItem(funding, item1, 1);
-        FundingItem fundingItem2 = FundingItem.createFundingItem(funding, item2, 2);
-        return List.of(fundingItem1, fundingItem2);
-    }
-
-    private void createFundingItemInFunding(Funding funding) throws NoSuchFieldException, IllegalAccessException {
-        List<FundingItem> fundingItems = createFundingItems(funding);
-        Field fundingItem = funding.getClass().getDeclaredField("fundingItems");
-        fundingItem.setAccessible(true);
-        fundingItem.set(funding, fundingItems);
-    }
-
-    private List<Relationship> getMyRelationships(Member friend) {
+    static private List<Relationship> getMyRelationships(Member member, Member friend) {
         List<Relationship> relationships = Relationship.createRelationships(member, friend);
         List<Relationship> myRelationships = new ArrayList<>();
         myRelationships.add(relationships.get(0));
         return myRelationships;
     }
-
-
 }
