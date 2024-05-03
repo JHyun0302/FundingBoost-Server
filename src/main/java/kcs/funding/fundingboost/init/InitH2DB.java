@@ -71,7 +71,7 @@ public class InitH2DB {
             Delivery delivery1 = deliveries.get(0);
             Delivery delivery2 = deliveries.get(1);
 
-            Order order1 = Order.createOrder(110000, member1, delivery1);
+            Order order1 = Order.createOrder(member1, delivery1);
 //            Order order2 = Order.createOrder(120000, member2, delivery2);
             em.persist(order1);
 //            em.persist(order2);
@@ -130,11 +130,9 @@ public class InitH2DB {
             em.persist(giftHubItem1);
             em.persist(giftHubItem2);
 
-            Funding funding1 = Funding.createFunding(member1, "생일축하해줘", Tag.BIRTHDAY, 100000,
-                    LocalDateTime.now().plusDays(14));
+            Funding funding1 = Funding.createFunding(member1, "생일축하해줘", Tag.BIRTHDAY, LocalDateTime.now().plusDays(14));
             Funding funding3 = Funding.createFundingForTest(member1, "생일 축하~",
-                    Tag.BIRTHDAY, 100000,
-                    10000, LocalDateTime.now().plusDays(14), false);
+                    Tag.BIRTHDAY, 10000, LocalDateTime.now().plusDays(14), false);
             em.persist(funding1);
             em.persist(funding3);
 
@@ -161,11 +159,10 @@ public class InitH2DB {
              */
             Member member2 = members.get(1);
 
-            Funding funding2 = Funding.createFunding(member2, "드디어 졸업 성공~~", Tag.GRADUATE, 200000,
+            Funding funding2 = Funding.createFunding(member2, "드디어 졸업 성공~~", Tag.GRADUATE,
                     LocalDateTime.now().plusDays(7));
             Funding funding4 = Funding.createFundingForTest(member2, "드디어 졸업 성공~~",
-                    Tag.GRADUATE, 200000,
-                    110000, LocalDateTime.now().plusDays(7), false);
+                    Tag.GRADUATE, 110000, LocalDateTime.now().plusDays(7), false);
             em.persist(funding2);
             em.persist(funding4);
 
@@ -240,8 +237,7 @@ public class InitH2DB {
             Member member1 = members.get(4);
             Member member2 = members.get(5);
 
-            Funding funding = Funding.createFundingForTest(member, "줘", Tag.BIRTHDAY, 112000,
-                    30000,
+            Funding funding = Funding.createFundingForTest(member, "줘", Tag.BIRTHDAY, 30000,
                     LocalDateTime.now().plusDays(14), true);
             em.persist(funding);
 

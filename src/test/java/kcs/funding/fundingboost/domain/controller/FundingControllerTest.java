@@ -91,7 +91,7 @@ public class FundingControllerTest {
         item1 = ItemFixture.item1();
         item2 = ItemFixture.item2();
         funding1 = FundingFixture.Birthday(member1);
-        funding2 = FundingFixture.BirthdayWithCollectPrice(member2);
+        funding2 = FundingFixture.BirthdayWithCollectPrice(member2, 1000);
         fundingItem1 = FundingItemFixture.fundingItem1(item1, funding1);
         fundingItem2 = FundingItemFixture.fundingItem1(item2, funding1);
 
@@ -295,8 +295,15 @@ public class FundingControllerTest {
                 ParticipateFriendDto.fromEntity(Contributor.createContributor(20000, member2, funding1)));
 
         MyFundingStatusDto myFundingStatusDto = MyFundingStatusDto.createMyFundingStatusDto(
-                MyPageMemberDto.fromEntity(member1), myPageFundingItemList, participateFriendDtoList,
-                80, "2024-05-02", "D-3");
+                MyPageMemberDto.fromEntity(member1),
+                myPageFundingItemList,
+                participateFriendDtoList,
+                80,
+                "2024-05-02",
+                "D-3",
+                funding1.getTag().getDisplayName(),
+                funding1.getMessage()
+        );
 
         given(fundingService.getMyFundingStatus(member1.getMemberId())).willReturn(myFundingStatusDto);
 
