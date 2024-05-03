@@ -3,10 +3,13 @@ package kcs.funding.fundingboost.domain.controller;
 import static org.mockito.BDDMockito.given;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import kcs.funding.fundingboost.domain.dto.common.CommonSuccessDto;
+import kcs.funding.fundingboost.domain.dto.request.pay.friendFundingPay.FriendPayProcessDto;
 import kcs.funding.fundingboost.domain.dto.response.pay.friendFundingPay.FriendFundingPayingDto;
 import kcs.funding.fundingboost.domain.entity.Delivery;
 import kcs.funding.fundingboost.domain.entity.Funding;
@@ -84,7 +87,22 @@ class PayControllerTest {
                 .andExpect(jsonPath("$.data.myPoint").value(46000));
     }
 
+    @DisplayName("친구 펀딩 결제하기")
     @Test
-    void fundFriend() {
+    void fundFriend() throws Exception {
+        FriendPayProcessDto friendPayProcessDto = new FriendPayProcessDto(10000, 30000);
+        CommonSuccessDto expectedResponse = new CommonSuccessDto(true);
+
+        given(friendPayService.fund(member.getMemberId(), funding1.getFundingId(), friendPayProcessDto)).willReturn(
+                expectedResponse);
+
+        String content = objectMapper.writeValueAsString(friendPayProcessDto);
+
+        mockMvc.perform(post("/api/v1/pay/friends/{fundingId}", funding1.getFundingId())
+                        .param("memberId", member.getMemberId().toString())
+                        .contentType(APPLICATION_JSON)
+                        .content(content))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.data.isSuccess").value(true));
     }
 }
