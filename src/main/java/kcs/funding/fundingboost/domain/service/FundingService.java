@@ -68,21 +68,6 @@ public class FundingService {
     private final ContributorRepository contributorRepository;
     private final RelationshipRepository relationshipRepository;
 
-//    public List<FundingRegistrationItemDto> getFundingRegister(List<Long> registerFundingBringItemDto, Long memberId) {
-//
-//        Optional<Funding> funding = fundingRepository.findByMemberIdAndStatus(memberId, true);
-//
-//        if (funding.isPresent()) {
-//            throw new CommonException(ALREADY_EXIST_FUNDING);
-//        }
-//
-//        return IntStream.range(0, registerFundingBringItemDto.size())
-//                .mapToObj(i -> FundingRegistrationItemDto.createFundingRegistrationItemDto(
-//                        itemRepository.findById(registerFundingBringItemDto.get(i))
-//                                .orElseThrow(() -> new CommonException(NOT_FOUND_ITEM)),
-//                        (long) i + 1)).toList();
-//    }
-
     @Transactional
     public CommonSuccessDto putFundingAndFundingItem(Long memberId, RegisterFundingDto registerFundingDto) {
 

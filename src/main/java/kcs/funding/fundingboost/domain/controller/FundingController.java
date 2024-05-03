@@ -34,18 +34,6 @@ public class FundingController {
         return ResponseDto.ok(fundingService.getMainView(memberId));
     }
 
-//    /**
-//     * 펀딩 등록 페이지 조회
-//     */
-//    @GetMapping("/api/v1/funding")
-//    public ResponseDto<List<FundingRegistrationItemDto>> viewFundingRegistration(
-//            @RequestParam(name = "memberId") Long memberId,
-
-    //            @RequestParam(name =ㅁ2 "ItemList") List<Long> registerFundingBringItemDto
-//    ) {
-//        return ResponseDto.ok(fundingService.getFundingRegister(registerFundingBringItemDto, memberId));
-//    }
-
     /**
      * 펀딩 등록하기
      */
