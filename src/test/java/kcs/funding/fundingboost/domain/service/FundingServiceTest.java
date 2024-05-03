@@ -9,6 +9,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -72,7 +73,7 @@ class FundingServiceTest {
     void viewFriendsFundingDetail_펀딩아이템목록가져오기() throws NoSuchFieldException, IllegalAccessException {
         // given
         Long myMemberId = 1L;
-        Member friend = MemberFixture.member1();
+        Member friend = MemberFixture.member2();
 
         // member1이 펀딩을 연다
         Funding funding = FundingFixture.Birthday(friend);
@@ -193,12 +194,14 @@ class FundingServiceTest {
         // given
         Long myMemberId = 2L;
         Member friend = MemberFixture.member1();
+        List<Item> items = ItemFixture.items3();
+
+        int collectPrice = items.stream().mapToInt(Item::getItemPrice).sum() / 2;
 
         // member1이 펀딩을 연다
-        Funding funding = FundingFixture.BirthdayWithCollectPrice(friend);
+        Funding funding = FundingFixture.BirthdayWithCollectPrice(friend, collectPrice);
 
         // 펀딩에는 3개의 item이 등록되어 있다
-        List<Item> items = ItemFixture.items3();
         List<FundingItem> fundingItems = FundingItemFixture.fundingItems(items, funding);
 
         when(fundingItemRepository.findAllByFundingId(funding.getFundingId())).thenReturn(fundingItems);
@@ -235,8 +238,9 @@ class FundingServiceTest {
         assertEquals(friend.getNickName(), friendFundingDetailDto.friendName());
         assertEquals(funding.getTag().getDisplayName(), friendFundingDetailDto.fundingTag());
         assertEquals(funding.getMessage(), friendFundingDetailDto.fundingMessage());
-        assertEquals(friend.getProfileImgUrl(), friendFundingDetailDto.friendProfile());
-        assertEquals(funding.getDeadline(), friendFundingDetailDto.deadline());
+        assertEquals(friend.getProfileImgUrl(), friendFundingDetailDto.friendProfileImgUrl());
+        assertEquals(funding.getDeadline().format(DateTimeFormatter.ofPattern("yyyy-MM-dd")),
+                friendFundingDetailDto.deadline());
     }
 
     @DisplayName("extendFunding : 아이템이 존재한다면 펀딩 기간이 FundingConst.EXTEND_DEADLINE만큼 증가해야 한다")
@@ -275,12 +279,16 @@ class FundingServiceTest {
     void getFriendFundingHistory_펀딩이력이있는경우() throws NoSuchFieldException, IllegalAccessException {
         // given
         Member member = MemberFixture.member1();
-        Funding finishedFunding1 = FundingFixture.terminatedFundingSuccess(member);
-        Funding finishedFunding2 = FundingFixture.terminatedFundingFail(member);
+
+        Item item1 = ItemFixture.item1();
+        Item item2 = ItemFixture.item2();
+
+        Funding finishedFunding1 = FundingFixture.terminatedFundingSuccess(member, item1.getItemPrice());
+        Funding finishedFunding2 = FundingFixture.terminatedFundingFail(member, item2.getItemPrice());
 
         // 펀딩 아이템을 펀딩에 추가
-        finishedFunding1.getFundingItems().add(FundingItemFixture.fundingItem1(ItemFixture.item1(), finishedFunding1));
-        finishedFunding2.getFundingItems().add(FundingItemFixture.fundingItem1(ItemFixture.item2(), finishedFunding2));
+        FundingItemFixture.fundingItem1(item1, finishedFunding1);
+        FundingItemFixture.fundingItem1(item2, finishedFunding2);
 
         // 회원이 이전에 만든 종료된 펀딩 목록들
         List<Funding> fundingList = List.of(finishedFunding1, finishedFunding2);
