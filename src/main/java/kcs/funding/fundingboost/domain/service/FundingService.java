@@ -287,7 +287,7 @@ public class FundingService {
                 .orElseThrow(() -> new CommonException(NOT_FOUND_MEMBER));
         Optional<Funding> funding = fundingRepository.findByMemberIdAndStatus(member.getMemberId(), true);
         MyPageMemberDto myPageMemberDto = MyPageMemberDto.fromEntity(member);
-        if (funding.isPresent()) {
+        if (funding.isEmpty()) {
             return MyFundingStatusDto.createNotExistFundingMyFundingStatusDto(myPageMemberDto);
         }
         List<MyPageFundingItemDto> myPageFundingItemList = getMyPageFundingItemDtoList(funding.get());
@@ -304,7 +304,9 @@ public class FundingService {
                 participateFriendDtoList,
                 totalPercent,
                 funding.get().getDeadline().format(DateTimeFormatter.ofPattern("yyyy-MM-dd")),
-                deadlineDate
+                deadlineDate,
+                funding.get().getTag().getDisplayName(),
+                funding.get().getMessage()
         );
     }
 

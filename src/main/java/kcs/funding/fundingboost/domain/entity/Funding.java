@@ -103,7 +103,7 @@ public class Funding extends BaseTimeEntity {
         funding.totalPrice = 0;
         funding.collectPrice = collectPrice;
         funding.deadline = deadline;
-        funding.fundingStatus = false;
+        funding.fundingStatus = fundingStatus;
         return funding;
     }
 
