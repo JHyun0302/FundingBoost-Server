@@ -70,7 +70,7 @@ public class Funding extends BaseTimeEntity {
 
 
     public void terminate() {
-        this.fundingStatus = false;
+        this.deadline = LocalDateTime.now();
     }
 
     public void extendDeadline(int day) {
