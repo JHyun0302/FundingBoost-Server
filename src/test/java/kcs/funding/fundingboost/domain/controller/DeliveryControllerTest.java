@@ -7,13 +7,13 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-import java.lang.reflect.Field;
 import java.util.Collections;
 import java.util.List;
 import kcs.funding.fundingboost.domain.dto.response.myPage.MyPageMemberDto;
 import kcs.funding.fundingboost.domain.dto.response.myPage.deliveryManage.MyPageDeliveryDto;
 import kcs.funding.fundingboost.domain.dto.response.myPage.deliveryManage.MyPageDeliveryManageDto;
 import kcs.funding.fundingboost.domain.entity.Member;
+import kcs.funding.fundingboost.domain.model.MemberFixture;
 import kcs.funding.fundingboost.domain.service.DeliveryService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -29,7 +29,7 @@ class DeliveryControllerTest {
 
     @Autowired
     private MockMvc mockMvc;
-    
+
     @MockBean
     private DeliveryService deliveryService;
 
@@ -37,10 +37,7 @@ class DeliveryControllerTest {
 
     @BeforeEach
     void setUp() throws NoSuchFieldException, IllegalAccessException {
-        member = createMember();
-        Field memberId = member.getClass().getDeclaredField("memberId");
-        memberId.setAccessible(true);
-        memberId.set(member, 1L);
+        member = MemberFixture.member1();
     }
 
     @DisplayName("배송지 관리 조회")
