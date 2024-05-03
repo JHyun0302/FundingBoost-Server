@@ -152,7 +152,7 @@ public class MyPayService {
         Map<Long, Item> itemMap = itemRepository.findItemsByItemIds(itemIds).stream()
                 .collect(Collectors.toMap(Item::getItemId, item -> item));
 
-        Order order = Order.createOrder(0, member, delivery);
+        Order order = Order.createOrder(member, delivery);
         List<OrderItem> orderItems = myPayDto.itemPayDtoList().stream()
                 .map(itemPayDto -> {
                     Item item = itemMap.get(itemPayDto.itemId());
@@ -190,7 +190,7 @@ public class MyPayService {
 
         PayUtils.deductPointsIfPossible(member, payRemainDto.usingPoint());
 
-        Order order = Order.createOrder(fundingItem.getItem().getItemPrice(), member, delivery);
+        Order order = Order.createOrder(member, delivery);
         OrderItem orderItem = OrderItem.createOrderItem(order, fundingItem.getItem(), 1);
         orderRepository.save(order);
         orderItemRepository.save(orderItem);
