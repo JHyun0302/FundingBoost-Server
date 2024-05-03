@@ -130,7 +130,7 @@ public class InitH2DB {
             em.persist(giftHubItem1);
             em.persist(giftHubItem2);
 
-            Funding funding1 = Funding.createFunding(member1, "생일축하해줘", Tag.BIRTHDAY, 100000,
+            Funding funding1 = Funding.createFundingForTest(member1, "생일축하해줘", Tag.BIRTHDAY, 100000, 90000,
                     LocalDateTime.now().plusDays(14));
             Funding funding3 = Funding.createFundingForTest(member1, "생일 축하~",
                     Tag.BIRTHDAY, 100000,
