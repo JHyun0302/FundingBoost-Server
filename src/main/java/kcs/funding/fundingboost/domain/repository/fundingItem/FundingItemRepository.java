@@ -1,6 +1,7 @@
 package kcs.funding.fundingboost.domain.repository.fundingItem;
 
 import java.util.List;
+import java.util.Optional;
 import kcs.funding.fundingboost.domain.entity.FundingItem;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -23,4 +24,10 @@ public interface FundingItemRepository extends JpaRepository<FundingItem, Long> 
             " join fetch fi.item i" +
             " where fi.fundingItemId = :fundingItemId")
     FundingItem findFundingItemAndItemByFundingItemId(@Param("fundingItemId") Long fundingItemId);
+
+    @Query("select fi from FundingItem fi" +
+            " join fetch fi.funding f" +
+            " join fetch f.member" +
+            " where fi.fundingItemId = :fundingItemId")
+    Optional<FundingItem> findFundingItemByFundingItemId(@Param("fundingItemId") Long fundingItemId);
 }
