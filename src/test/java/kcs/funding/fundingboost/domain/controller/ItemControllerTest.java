@@ -6,13 +6,14 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-import java.lang.reflect.Field;
 import java.util.Collections;
 import java.util.List;
 import kcs.funding.fundingboost.domain.dto.response.shopping.ShopDto;
 import kcs.funding.fundingboost.domain.dto.response.shoppingDetail.ItemDetailDto;
 import kcs.funding.fundingboost.domain.entity.Item;
 import kcs.funding.fundingboost.domain.entity.Member;
+import kcs.funding.fundingboost.domain.model.ItemFixture;
+import kcs.funding.fundingboost.domain.model.MemberFixture;
 import kcs.funding.fundingboost.domain.service.ItemService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -36,15 +37,8 @@ class ItemControllerTest {
 
     @BeforeEach
     void setUp() throws NoSuchFieldException, IllegalAccessException {
-        member = createMember();
-        Field memberId = member.getClass().getDeclaredField("memberId");
-        memberId.setAccessible(true);
-        memberId.set(member, 1L);
-
-        item = createItem();
-        Field itemId = item.getClass().getDeclaredField("itemId");
-        itemId.setAccessible(true);
-        itemId.set(item, 1L);
+        member = MemberFixture.member1();
+        item = ItemFixture.item1();
     }
 
     @DisplayName("쇼핑 페이지 조회")
@@ -87,18 +81,5 @@ class ItemControllerTest {
                 .andExpect(jsonPath("$.data.itemPrice").value(61000))
                 .andExpect(jsonPath("$.data.bookmark").value(true))
                 .andExpect(jsonPath("$.data.option").value("00:00"));
-    }
-
-    private static Member createMember() {
-        return Member.createMemberWithPoint("임창희", "dlackdgml3710@gmail.com", "",
-                "https://p.kakaocdn.net/th/talkp/wnbbRhlyRW/XaGAXxS1OkUtXnomt6S4IK/ky0f9a_110x110_c.jpg",
-                46000,
-                "", "aFxoWGFUZlV5SH9MfE9-TH1PY1JiV2JRaF83");
-    }
-
-    private static Item createItem() {
-        return Item.createItem("NEW 루쥬 알뤼르 벨벳 뉘 블랑쉬 리미티드 에디션", 61000,
-                "https://img1.kakaocdn.net/thumb/C320x320@2x.fwebp.q82/?fname=https%3A%2F%2Fst.kakaocdn.net%2Fproduct%2Fgift%2Fproduct%2F20240319133310_1fda0cf74e4f43608184bce3050ae22a.jpg",
-                "샤넬", "뷰티", "00:00");
     }
 }

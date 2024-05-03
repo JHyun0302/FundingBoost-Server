@@ -72,11 +72,4 @@ class DeliveryControllerTest {
                 .andExpect(jsonPath("$.data.myPageDeliveryDtoList[0].address").value(address))
                 .andExpect(jsonPath("$.data.myPageDeliveryDtoList[0].phoneNumber").value(phoneNumber));
     }
-
-    private static Member createMember() {
-        return Member.createMemberWithPoint("임창희", "dlackdgml3710@gmail.com", "",
-                "https://p.kakaocdn.net/th/talkp/wnbbRhlyRW/XaGAXxS1OkUtXnomt6S4IK/ky0f9a_110x110_c.jpg",
-                46000,
-                "", "aFxoWGFUZlV5SH9MfE9-TH1PY1JiV2JRaF83");
-    }
 }
