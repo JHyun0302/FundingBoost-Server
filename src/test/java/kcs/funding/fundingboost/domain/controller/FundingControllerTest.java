@@ -91,7 +91,7 @@ public class FundingControllerTest {
         item1 = ItemFixture.item1();
         item2 = ItemFixture.item2();
         funding1 = FundingFixture.Birthday(member1);
-        funding2 = FundingFixture.BirthdayWithCollectPrice(member2);
+        funding2 = FundingFixture.BirthdayWithCollectPrice(member2, 1000);
         fundingItem1 = FundingItemFixture.fundingItem1(item1, funding1);
         fundingItem2 = FundingItemFixture.fundingItem1(item2, funding1);
 
@@ -102,16 +102,26 @@ public class FundingControllerTest {
     @Test
     void home() throws Exception {
         HomeMemberInfoDto homeMemberInfoDto = HomeMemberInfoDto.fromEntity(member1);
-        HomeMyFundingStatusDto homeMyFundingStatusDto = HomeMyFundingStatusDto.fromEntity(funding1, "D-3");
+
+        // 내 펀딩 아이템
         List<HomeMyFundingItemDto> homeMyFundingItemDtoList = List.of(
                 HomeMyFundingItemDto.fromEntity(fundingItem1, 100), HomeMyFundingItemDto.fromEntity(fundingItem2, 50));
+
+        // 친구 펀딩 아이템
         List<HomeFriendFundingDto> homeFriendFundingDtoList = Collections.singletonList(
                 HomeFriendFundingDto.fromEntity(
                         CommonFriendFundingDto.fromEntity(funding2, "D-7", 80, new ArrayList<>()), null));
+
+        // 아이템
         List<HomeItemDto> itemDtoList = List.of(HomeItemDto.fromEntity(item1), HomeItemDto.fromEntity(item2));
 
+        int percent = funding1.getCollectPrice() * 100 / funding1.getTotalPrice();
+
+        HomeMyFundingStatusDto homeMyFundingStatusDto = HomeMyFundingStatusDto.fromEntity(funding1, "D-3", percent,
+                homeMyFundingItemDtoList);
+
         HomeViewDto homeViewDto = HomeViewDto.fromEntity(homeMemberInfoDto, homeMyFundingStatusDto,
-                homeMyFundingItemDtoList, homeFriendFundingDtoList, itemDtoList);
+                homeFriendFundingDtoList, itemDtoList);
 
         given(fundingService.getMainView(member1.getMemberId())).willReturn(homeViewDto);
 
@@ -124,10 +134,10 @@ public class FundingControllerTest {
                 .andExpect(jsonPath("$.data.homeMemberInfoDto.nickName").value("임창희"))
                 .andExpect(jsonPath("$.data.homeMemberInfoDto.profile").value(
                         "https://p.kakaocdn.net/th/talkp/wnbbRhlyRW/XaGAXxS1OkUtXnomt6S4IK/ky0f9a_110x110_c.jpg"))
-                .andExpect(jsonPath("$.data.homeMyFundingItemDtoList.length()").value(2))
-                .andExpect(jsonPath("$.data.homeMyFundingItemDtoList[0].itemImageUrl").value(
+                .andExpect(jsonPath("$.data.homeMyFundingStatusDto.homeMyFundingItemDtoList.length()").value(2))
+                .andExpect(jsonPath("$.data.homeMyFundingStatusDto.homeMyFundingItemDtoList[0].itemImageUrl").value(
                         "https://img1.kakaocdn.net/thumb/C320x320@2x.fwebp.q82/?fname=https%3A%2F%2Fst.kakaocdn.net%2Fproduct%2Fgift%2Fproduct%2F20240319133310_1fda0cf74e4f43608184bce3050ae22a.jpg"))
-                .andExpect(jsonPath("$.data.homeMyFundingItemDtoList[0].itemPercent").value(100))
+                .andExpect(jsonPath("$.data.homeMyFundingStatusDto.homeMyFundingItemDtoList[0].itemPercent").value(100))
                 .andExpect(jsonPath("$.data.homeMyFundingStatusDto.deadline").value("D-3"))
                 .andExpect(jsonPath("$.data.homeFriendFundingDtoList.length()").value(1))
                 .andExpect(jsonPath("$.data.homeFriendFundingDtoList[0].commonFriendFundingDto.fundingId").value(2L))
@@ -295,8 +305,15 @@ public class FundingControllerTest {
                 ParticipateFriendDto.fromEntity(Contributor.createContributor(20000, member2, funding1)));
 
         MyFundingStatusDto myFundingStatusDto = MyFundingStatusDto.createMyFundingStatusDto(
-                MyPageMemberDto.fromEntity(member1), myPageFundingItemList, participateFriendDtoList,
-                80, "2024-05-02", "D-3");
+                MyPageMemberDto.fromEntity(member1),
+                myPageFundingItemList,
+                participateFriendDtoList,
+                80,
+                "2024-05-02",
+                "D-3",
+                funding1.getTag().getDisplayName(),
+                funding1.getMessage()
+        );
 
         given(fundingService.getMyFundingStatus(member1.getMemberId())).willReturn(myFundingStatusDto);
 

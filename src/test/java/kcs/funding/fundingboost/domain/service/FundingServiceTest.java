@@ -9,6 +9,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -72,7 +73,7 @@ class FundingServiceTest {
     void viewFriendsFundingDetail_펀딩아이템목록가져오기() throws NoSuchFieldException, IllegalAccessException {
         // given
         Long myMemberId = 1L;
-        Member friend = MemberFixture.member1();
+        Member friend = MemberFixture.member2();
 
         // member1이 펀딩을 연다
         Funding funding = FundingFixture.Birthday(friend);
@@ -238,7 +239,8 @@ class FundingServiceTest {
         assertEquals(funding.getTag().getDisplayName(), friendFundingDetailDto.fundingTag());
         assertEquals(funding.getMessage(), friendFundingDetailDto.fundingMessage());
         assertEquals(friend.getProfileImgUrl(), friendFundingDetailDto.friendProfileImgUrl());
-        assertEquals(funding.getDeadline(), friendFundingDetailDto.deadline());
+        assertEquals(funding.getDeadline().format(DateTimeFormatter.ofPattern("yyyy-MM-dd")),
+                friendFundingDetailDto.deadline());
     }
 
     @DisplayName("extendFunding : 아이템이 존재한다면 펀딩 기간이 FundingConst.EXTEND_DEADLINE만큼 증가해야 한다")

@@ -43,7 +43,7 @@ public class MemberService {
                 collectPrice -= sortedFundingItem.getItem().getItemPrice();
             } else {
                 member.plusPoint(collectPrice);
-                sortedFundingItem.finishFunding();
+                sortedFundingItem.finishFundingItem(); // fundingItem을 finish 상태로 변경
                 return CommonSuccessDto.fromEntity(true);
             }
         }

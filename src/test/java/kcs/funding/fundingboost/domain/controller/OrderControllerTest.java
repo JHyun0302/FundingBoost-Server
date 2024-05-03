@@ -73,7 +73,7 @@ class OrderControllerTest {
                         .contentType(APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andDo(print())
-                .andExpect(jsonPath("$.data.myPageMemberDto.nickname")
+                .andExpect(jsonPath("$.data.myPageMemberDto.nickName")
                         .value(order.getMember().getNickName()))
                 .andExpect(jsonPath("$.data.myPageMemberDto.email")
                         .value(order.getMember().getEmail()))
@@ -104,7 +104,7 @@ class OrderControllerTest {
                         .contentType(APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andDo(print())
-                .andExpect(jsonPath("$.data.myPageMemberDto.nickname").value(member.getNickName()))
+                .andExpect(jsonPath("$.data.myPageMemberDto.nickName").value(member.getNickName()))
                 .andExpect(jsonPath("$.data.myPageMemberDto.email").value(member.getEmail()))
                 .andExpect(jsonPath("$.data.myPageMemberDto.profileImgUrl").value(member.getProfileImgUrl()))
                 .andExpect(jsonPath("$.data.orderHistoryItemDtoList").isEmpty());
