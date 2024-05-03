@@ -6,13 +6,14 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-import java.lang.reflect.Field;
 import java.util.Collections;
 import java.util.List;
 import kcs.funding.fundingboost.domain.dto.response.shopping.ShopDto;
 import kcs.funding.fundingboost.domain.dto.response.shoppingDetail.ItemDetailDto;
 import kcs.funding.fundingboost.domain.entity.Item;
 import kcs.funding.fundingboost.domain.entity.Member;
+import kcs.funding.fundingboost.domain.model.ItemFixture;
+import kcs.funding.fundingboost.domain.model.MemberFixture;
 import kcs.funding.fundingboost.domain.service.ItemService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -36,15 +37,8 @@ class ItemControllerTest {
 
     @BeforeEach
     void setUp() throws NoSuchFieldException, IllegalAccessException {
-        member = createMember();
-        Field memberId = member.getClass().getDeclaredField("memberId");
-        memberId.setAccessible(true);
-        memberId.set(member, 1L);
-
-        item = createItem();
-        Field itemId = item.getClass().getDeclaredField("itemId");
-        itemId.setAccessible(true);
-        itemId.set(item, 1L);
+        member = MemberFixture.member1();
+        item = ItemFixture.item1();
     }
 
     @DisplayName("쇼핑 페이지 조회")
