@@ -267,7 +267,7 @@ public class FundingService {
                 collectPrice -= itemPrice;
                 percent = 100;
             } else {
-                percent = (int) collectPrice / itemPrice * 100;
+                percent = collectPrice * 100 / itemPrice;
             }
             HomeMyFundingItemDto homeMyFundingItemDto = HomeMyFundingItemDto.fromEntity(
                     myFundingItem, percent);
