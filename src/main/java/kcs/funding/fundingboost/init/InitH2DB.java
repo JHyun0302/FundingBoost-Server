@@ -130,9 +130,11 @@ public class InitH2DB {
             em.persist(giftHubItem1);
             em.persist(giftHubItem2);
 
-            Funding funding1 = Funding.createFunding(member1, "생일축하해줘", Tag.BIRTHDAY, LocalDateTime.now().plusDays(14));
+            Funding funding1 = Funding.createFundingForTest(member1, "생일축하해줘", Tag.BIRTHDAY, 10000,
+                    LocalDateTime.now().plusDays(14), false);
             Funding funding3 = Funding.createFundingForTest(member1, "생일 축하~",
-                    Tag.BIRTHDAY, 10000, LocalDateTime.now().plusDays(14), false);
+                    Tag.BIRTHDAY, 100000,
+                    LocalDateTime.now().plusDays(14), false);
             em.persist(funding1);
             em.persist(funding3);
 
@@ -161,15 +163,21 @@ public class InitH2DB {
 
             Funding funding2 = Funding.createFunding(member2, "드디어 졸업 성공~~", Tag.GRADUATE,
                     LocalDateTime.now().plusDays(7));
-            Funding funding4 = Funding.createFundingForTest(member2, "드디어 졸업 성공~~",
-                    Tag.GRADUATE, 110000, LocalDateTime.now().plusDays(7), false);
+            Funding funding4 = Funding.createFundingForTest(member2, "졸업 성공~~",
+                    Tag.GRADUATE, 200000,
+                    LocalDateTime.now().plusDays(7), false);
             em.persist(funding2);
             em.persist(funding4);
 
             FundingItem fundingItem5 = FundingItem.createFundingItem(funding4, item1, 1);
             FundingItem fundingItem6 = FundingItem.createFundingItem(funding4, item2, 2);
+
+            FundingItem fundingItem7 = FundingItem.createFundingItem(funding2, item1, 1);
+            FundingItem fundingItem8 = FundingItem.createFundingItem(funding2, item2, 2);
             em.persist(fundingItem5);
             em.persist(fundingItem6);
+            em.persist(fundingItem7);
+            em.persist(fundingItem8);
         }
 
         public void initRelationships(List<Member> members) {
@@ -237,7 +245,7 @@ public class InitH2DB {
             Member member1 = members.get(4);
             Member member2 = members.get(5);
 
-            Funding funding = Funding.createFundingForTest(member, "줘", Tag.BIRTHDAY, 30000,
+            Funding funding = Funding.createFundingForTest(member, "줘", Tag.BIRTHDAY, 0,
                     LocalDateTime.now().plusDays(14), true);
             em.persist(funding);
 
