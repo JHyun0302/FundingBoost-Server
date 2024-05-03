@@ -32,7 +32,7 @@ public class FundingFixture {
     /**
      * 펀딩액이 모아진 펀딩 생성
      */
-    public static Funding BirthdayWithCollectPrice(Member member)
+    public static Funding BirthdayWithCollectPrice(Member member, int collectPrice)
             throws NoSuchFieldException, IllegalAccessException {
         Funding funding = Funding.createFundingForTest(member, "생일축하해주세욥 3월21일입니닷", BIRTHDAY, 197000, 98500,
                 LocalDateTime.now().plusDays(14), true);
@@ -51,8 +51,7 @@ public class FundingFixture {
      * 펀딩액이 모이지 않은 졸업 펀딩
      */
     public static Funding Graduate(Member member) throws NoSuchFieldException, IllegalAccessException {
-        Funding funding = Funding.createFunding(member, "졸업축하해주세요 사실 졸업 못했어요ㅠㅠ", GRADUATE, 331000,
-                LocalDateTime.now());
+        Funding funding = Funding.createFunding(member, "졸업축하해주세요 사실 졸업 못했어요ㅠㅠ", GRADUATE, LocalDateTime.now().plusDays(14));
         Field fundingId = funding.getClass().getDeclaredField("fundingId");
         fundingId.setAccessible(true);
         fundingId.set(funding, 3L);
@@ -62,9 +61,10 @@ public class FundingFixture {
     /**
      * 펀딩액을 모두 모으고 펀딩 종료된 상태
      */
-    public static Funding terminatedFundingSuccess(Member member) throws NoSuchFieldException, IllegalAccessException {
-        Funding funding = Funding.createFundingForTest(member, "졸업축하해주세요 사실 졸업 못했어요ㅠㅠ", GRADUATE, 331000, 33100,
-                LocalDateTime.now(), false);
+    public static Funding terminatedFundingSuccess(Member member, int collectPrice)
+            throws NoSuchFieldException, IllegalAccessException {
+        Funding funding = Funding.createFundingForTest(member, "졸업축하해주세요 사실 졸업 못했어요ㅠㅠ", GRADUATE, collectPrice,
+                LocalDateTime.now().plusDays(14), false);
         Field fundingId = funding.getClass().getDeclaredField("fundingId");
         fundingId.setAccessible(true);
         fundingId.set(funding, 4L);
@@ -74,9 +74,10 @@ public class FundingFixture {
     /**
      * 펀딩액을 모두 모으지 못하고 펀딩 종료된 상태
      */
-    public static Funding terminatedFundingFail(Member member) throws NoSuchFieldException, IllegalAccessException {
-        Funding funding = Funding.createFundingForTest(member, "졸업축하해주세요 사실 졸업 못했어요ㅠㅠ", GRADUATE, 331000, 10000,
-                LocalDateTime.now(), false);
+    public static Funding terminatedFundingFail(Member member, int collectPrice)
+            throws NoSuchFieldException, IllegalAccessException {
+        Funding funding = Funding.createFundingForTest(member, "졸업축하해주세요 사실 졸업 못했어요ㅠㅠ", GRADUATE, collectPrice,
+                LocalDateTime.now().plusDays(14), false);
         Field fundingId = funding.getClass().getDeclaredField("fundingId");
         fundingId.setAccessible(true);
         fundingId.set(funding, 5L);
@@ -87,7 +88,7 @@ public class FundingFixture {
      * 펀딩액이 얼마 남지 않은 상태
      */
     public static Funding lowPriceRestFunding(Member member) throws NoSuchFieldException, IllegalAccessException {
-        Funding funding = Funding.createFundingForTest(member, "생일축하해주세욥 3월21일입니닷", BIRTHDAY, 197000, 195000,
+        Funding funding = Funding.createFundingForTest(member, "생일축하해주세욥 3월21일입니닷", BIRTHDAY, 195000,
                 LocalDateTime.now(), true);
 
         Field fundingId = funding.getClass().getDeclaredField("fundingId");

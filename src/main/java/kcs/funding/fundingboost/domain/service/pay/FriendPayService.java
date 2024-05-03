@@ -38,8 +38,9 @@ public class FriendPayService {
                                  FriendPayProcessDto friendPayProcessDto) {
         Member findMember = memberRepository.findById(memberId)
                 .orElseThrow(() -> new CommonException(NOT_FOUND_MEMBER));
-        int point = friendPayProcessDto.usingPoint();
-        PayUtils.deductPointsIfPossible(findMember, point);
+
+        int point = friendPayProcessDto.myPoint();
+        PayUtils.deductPointsIfPossible(findMember, point); // 내 포인트 차감
 
         Funding friendFunding = fundingRepository.findById(fundingId)
                 .orElseThrow(() -> new CommonException(NOT_FOUND_FUNDING));
