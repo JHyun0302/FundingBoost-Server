@@ -10,7 +10,8 @@ public record HomeMyFundingStatusDto(Long fundingId,
                                      int totalPercent,
                                      List<HomeMyFundingItemDto> homeMyFundingItemDtoList) {
 
-    public static HomeMyFundingStatusDto fromEntity(Funding funding, String deadline,
+    public static HomeMyFundingStatusDto fromEntity(Funding funding,
+                                                    String deadline,
                                                     int totalPercent,
                                                     List<HomeMyFundingItemDto> homeMyFundingItemDtoList) {
         return HomeMyFundingStatusDto.builder()
