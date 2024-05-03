@@ -46,7 +46,7 @@ class DeliveryServiceTest {
 
     @DisplayName("마이페이지 - getMyDeliveryManageList : 배송지 조회를 성공 deliveryList를 가져와서 Dto에 넣어주어야 한다")
     @Test
-    void getMyDeliveryManageList() {
+    void getMyDeliveryManageList() throws NoSuchFieldException, IllegalAccessException {
         //given
         List<Delivery> deliveryList = DeliveryFixture.addresses3(member);
 
