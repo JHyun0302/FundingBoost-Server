@@ -38,13 +38,14 @@ public class FriendPayService {
                                  FriendPayProcessDto friendPayProcessDto) {
         Member findMember = memberRepository.findById(memberId)
                 .orElseThrow(() -> new CommonException(NOT_FOUND_MEMBER));
+
         int point = friendPayProcessDto.myPoint();
-        PayUtils.deductPointsIfPossible(findMember, point);
+        PayUtils.deductPointsIfPossible(findMember, point); // 내 포인트 차감
 
         Funding friendFunding = fundingRepository.findById(fundingId)
                 .orElseThrow(() -> new CommonException(NOT_FOUND_FUNDING));
-        if (friendFunding.getCollectPrice() + point <= friendFunding.getTotalPrice()) {
-            friendFunding.fund(point);
+        if (friendFunding.getCollectPrice() + friendPayProcessDto.fundingPrice() <= friendFunding.getTotalPrice()) {
+            friendFunding.fund(friendPayProcessDto.fundingPrice());
         } else {
             throw new CommonException(INVALID_FUNDING_MONEY);
         }

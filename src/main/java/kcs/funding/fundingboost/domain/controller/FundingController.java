@@ -40,7 +40,8 @@ public class FundingController {
 //    @GetMapping("/api/v1/funding")
 //    public ResponseDto<List<FundingRegistrationItemDto>> viewFundingRegistration(
 //            @RequestParam(name = "memberId") Long memberId,
-//            @RequestParam(name = "ItemList") List<Long> registerFundingBringItemDto
+
+    //            @RequestParam(name =ㅁ2 "ItemList") List<Long> registerFundingBringItemDto
 //    ) {
 //        return ResponseDto.ok(fundingService.getFundingRegister(registerFundingBringItemDto, memberId));
 //    }
