@@ -75,7 +75,7 @@ class BookmarkServiceTest {
 
         //then
         assertNotNull(resultDto);
-        assertThat(resultDto.myPageMemberDto().nickname()).isEqualTo(member.getNickName());
+        assertThat(resultDto.myPageMemberDto().nickName()).isEqualTo(member.getNickName());
         assertThat(resultDto.bookmarkItemDtos()).hasSize(2).extracting("itemId")
                 .contains(item.getItemId(), item2.getItemId());
     }
@@ -93,7 +93,7 @@ class BookmarkServiceTest {
 
         //then
         assertNotNull(resultDto);
-        assertThat(resultDto.myPageMemberDto().nickname()).isEqualTo(member.getNickName());
+        assertThat(resultDto.myPageMemberDto().nickName()).isEqualTo(member.getNickName());
         assertThat(resultDto.bookmarkItemDtos()).isEmpty();
     }
 
