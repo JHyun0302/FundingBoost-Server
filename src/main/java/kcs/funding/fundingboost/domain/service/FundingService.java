@@ -196,14 +196,11 @@ public class FundingService {
         // 사용자 정보: 이름, 프로필 이미지
         HomeMemberInfoDto homeMemberInfoDto = HomeMemberInfoDto.fromEntity(member);
 
-        // 사용자 펀딩 내용: 펀딩 이름, 완료일
+        // 사용자 펀딩 내용: 펀딩 이름, 완료일, 내 펀딩 아이템들
+        HomeMyFundingStatusDto myFundingStatus = null;
         if (funding.isPresent()) {
-            HomeMyFundingStatusDto myFundingStatus = null;
+            myFundingStatus = getMyFundingStatus(funding.get());
         }
-        HomeMyFundingStatusDto myFundingStatus = getMyFundingStatus(funding.get());
-
-        // 사용자 펀딩 상세: 펀딩 상품 이미지, 펀딩 진행률
-        List<HomeMyFundingItemDto> homeMyFundingItemList = getMyFundingItems(funding.get());
 
         // 친구 펀딩: 이름, 프로필 이미지, 펀딩Id, 현재 펀딩 진행중인 상품 이미지, 펀딩 진행률, 펀딩 마감일
         List<HomeFriendFundingDto> homeFriendFundingList = getFriendFundingListByHome(memberId);
@@ -213,8 +210,7 @@ public class FundingService {
                 .map(HomeItemDto::fromEntity)
                 .toList();
 
-        return HomeViewDto.fromEntity(homeMemberInfoDto, myFundingStatus, homeMyFundingItemList,
-                homeFriendFundingList, itemList);
+        return HomeViewDto.fromEntity(homeMemberInfoDto, myFundingStatus, homeFriendFundingList, itemList);
     }
 
     private List<HomeFriendFundingDto> getFriendFundingListByHome(Long memberId) {
@@ -264,7 +260,14 @@ public class FundingService {
     private HomeMyFundingStatusDto getMyFundingStatus(Funding funding) {
         int leftDate = (int) ChronoUnit.DAYS.between(LocalDate.now(), funding.getDeadline());
         String deadline = "D-" + leftDate;
-        return HomeMyFundingStatusDto.fromEntity(funding, deadline);
+        // 사용자 펀딩 상세: 펀딩 상품 이미지, 펀딩 진행률
+        List<HomeMyFundingItemDto> homeMyFundingItemList = getMyFundingItems(funding);
+
+        List<FundingItem> fundingItems = funding.getFundingItems();
+
+        int totalPercent = getTotalPercent(funding);
+
+        return HomeMyFundingStatusDto.fromEntity(funding, deadline, totalPercent, homeMyFundingItemList);
     }
 
     public MyFundingStatusDto getMyFundingStatus(Long memberId) {
@@ -293,6 +296,12 @@ public class FundingService {
                 funding.get().getTag().getDisplayName(),
                 funding.get().getMessage()
         );
+    }
+
+    private static int getTotalPercent(Funding funding) {
+        int totalPrice = funding.getTotalPrice();
+        int collectPrice = funding.getCollectPrice();
+        return collectPrice * 100 / totalPrice;
     }
 
     private List<ParticipateFriendDto> getParticipateFriendDtoList(Funding funding) {
