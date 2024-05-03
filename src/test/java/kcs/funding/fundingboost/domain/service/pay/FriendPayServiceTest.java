@@ -25,6 +25,7 @@ import kcs.funding.fundingboost.domain.model.FundingItemFixture;
 import kcs.funding.fundingboost.domain.model.ItemFixture;
 import kcs.funding.fundingboost.domain.model.MemberFixture;
 import kcs.funding.fundingboost.domain.repository.MemberRepository;
+import kcs.funding.fundingboost.domain.repository.contributor.ContributorRepository;
 import kcs.funding.fundingboost.domain.repository.funding.FundingRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -43,6 +44,8 @@ class FriendPayServiceTest {
     private MemberRepository memberRepository;
     @Mock
     private FundingRepository fundingRepository;
+    @Mock
+    private ContributorRepository contributorRepository;
     @InjectMocks
     private FriendPayService friendPayService;
     private Member me;

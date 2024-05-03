@@ -91,6 +91,10 @@ public class Funding extends BaseTimeEntity {
         this.totalPrice += itemPrice;
     }
 
+    public void fund(int fundedPoint) {
+        this.collectPrice += fundedPoint;
+    }
+
     public static Funding createFunding(Member member, String message, Tag tag, LocalDateTime deadline) {
         Funding funding = new Funding();
         funding.member = member;
@@ -115,9 +119,5 @@ public class Funding extends BaseTimeEntity {
         funding.deadline = deadline;
         funding.fundingStatus = fundingStatus;
         return funding;
-    }
-
-    public void fund(int fundedPoint) {
-        this.collectPrice += fundedPoint;
     }
 }
