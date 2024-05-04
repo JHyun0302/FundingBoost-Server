@@ -22,6 +22,7 @@ public enum ErrorCode {
     NOT_FOUND_FUNDING_ITEM(40406, HttpStatus.NOT_FOUND, "펀딩 상품이 존재하지 않습니다."),
     NOT_FOUND_GIFTHUB_ITEM(40407, HttpStatus.NOT_FOUND, "장바구니에 아이템이 존재하지 않습니다."),
     NOT_FOUND_DELIVERY(40408, HttpStatus.NOT_FOUND, "배송지 목록에 존재하지 않습니다."),
+    NOT_FOUND_CONTRIBUTOR(40409, HttpStatus.NOT_FOUND, "펀딩한 이력이 존재하지 않습니다."),
 
 
     // Invalid Argument Error
@@ -39,6 +40,8 @@ public enum ErrorCode {
     INVALID_FUNDING_OR_PRICE(40012, HttpStatus.BAD_REQUEST, "펀딩에 담긴 상품이 없거나, 상품의 가격이 이상합니다."),
     INVALID_FUNDINGITEM_STATUS(40013, HttpStatus.BAD_REQUEST, "펀딩아이템이 정상적이지 않습니다."),
     ONGOING_FUNDING_ERROR(40014, HttpStatus.BAD_REQUEST, "현재 진행중인 펀딩입니다."),
+    INVALID_ACCESS_URL(40015, HttpStatus.BAD_REQUEST, "잘못된 사용자 접근입니다."),
+    INVALID_ITEM_QUANTITY(40016, HttpStatus.BAD_REQUEST, "최소 1개 이상의 수량을 선택해야 합니다."),
 
     // Gone Error
     GONE_SHARED_URL(41001, HttpStatus.GONE, "해당 공유 URL이 만료되었습니다."),
