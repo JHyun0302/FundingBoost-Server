@@ -131,4 +131,5 @@ class BookmarkServiceTest {
         verify(bookmarkRepository, times(1)).save(any(Bookmark.class));
         assertTrue(result.isSuccess());
     }
+
 }
