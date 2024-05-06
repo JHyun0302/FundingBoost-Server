@@ -103,7 +103,7 @@ class GiftHubControllerTest {
         given(giftHubItemService.updateItem(any(Long.class), any(ItemQuantityDto.class)))
                 .willReturn(expectedResponse);
 
-        mockMvc.perform(patch("/api/v1/gifthub/quantity/{gifthubItemId}", giftHubItem.getGiftHunItemId())
+        mockMvc.perform(patch("/api/v1/gifthub/quantity/{gifthubItemId}", giftHubItem.getGiftHubItemId())
                         .contentType(APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(itemQuantity)))
                 .andExpect(status().isOk())
@@ -115,10 +115,10 @@ class GiftHubControllerTest {
     void deleteGiftHubItem() throws Exception {
         CommonSuccessDto expectedResponse = new CommonSuccessDto(true);
 
-        given(giftHubItemService.deleteGiftHubItem(member.getMemberId(), giftHubItem.getGiftHunItemId()))
+        given(giftHubItemService.deleteGiftHubItem(member.getMemberId(), giftHubItem.getGiftHubItemId()))
                 .willReturn(expectedResponse);
 
-        mockMvc.perform(delete("/api/v1/gifthub/{giftHubItemId}", giftHubItem.getGiftHunItemId())
+        mockMvc.perform(delete("/api/v1/gifthub/{giftHubItemId}", giftHubItem.getGiftHubItemId())
                         .param("memberId", member.getMemberId().toString())
                         .contentType(APPLICATION_JSON))
                 .andExpect(status().isOk())

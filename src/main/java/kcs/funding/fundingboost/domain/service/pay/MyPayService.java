@@ -157,7 +157,7 @@ public class MyPayService {
         PayUtils.deductPointsIfPossible(member, itemPayNowDto.usingPoint());
         Item item = itemRepository.findById(itemPayNowDto.itemId()).orElseThrow(
                 () -> new CommonException(NOT_FOUND_ITEM));
-        Order order = Order.createOrder(item.getItemPrice() * itemPayNowDto.quantity(), member, delivery);
+        Order order = Order.createOrder(member, delivery);
         OrderItem orderItem = OrderItem.createOrderItem(order, item, itemPayNowDto.quantity());
         orderRepository.save(order);
         orderItemRepository.save(orderItem);
@@ -175,7 +175,7 @@ public class MyPayService {
         if (!fundingItem.isFinishedStatus()) {
             throw new CommonException(INVALID_FUNDINGITEM_STATUS);
         } else {
-            fundingItem.finishFunding();
+            fundingItem.finishFundingItem();
         }
 
         PayUtils.deductPointsIfPossible(member, payRemainDto.usingPoint());

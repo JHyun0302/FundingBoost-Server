@@ -71,10 +71,10 @@ class MemberServiceTest {
 
         // 첫번째 fundingItem과 두번째 fundingItem을 펀딩 종료된 상태로 변경해준다
         fundingItems.get(0).completeFunding();
-        fundingItems.get(0).finishFunding();
+        fundingItems.get(0).finishFundingItem();
 
         fundingItems.get(1).completeFunding();
-        fundingItems.get(1).finishFunding();
+        fundingItems.get(1).finishFundingItem();
 
         // 전환되어야 하는 포인트 = 모은 돈에서 펀딩 종료된 Item의 가격을 뺀 가격
         int expectExchangePoint = terminatedFunding.getCollectPrice() - finishedFundingItemPrice;

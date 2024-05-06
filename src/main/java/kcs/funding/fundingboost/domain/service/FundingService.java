@@ -49,6 +49,7 @@ import kcs.funding.fundingboost.domain.repository.contributor.ContributorReposit
 import kcs.funding.fundingboost.domain.repository.funding.FundingRepository;
 import kcs.funding.fundingboost.domain.repository.fundingItem.FundingItemRepository;
 import kcs.funding.fundingboost.domain.repository.relationship.RelationshipRepository;
+import kcs.funding.fundingboost.domain.service.utils.DateUtils;
 import kcs.funding.fundingboost.domain.service.utils.FundingConst;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -67,21 +68,6 @@ public class FundingService {
     private final FundingItemRepository fundingItemRepository;
     private final ContributorRepository contributorRepository;
     private final RelationshipRepository relationshipRepository;
-
-//    public List<FundingRegistrationItemDto> getFundingRegister(List<Long> registerFundingBringItemDto, Long memberId) {
-//
-//        Optional<Funding> funding = fundingRepository.findByMemberIdAndStatus(memberId, true);
-//
-//        if (funding.isPresent()) {
-//            throw new CommonException(ALREADY_EXIST_FUNDING);
-//        }
-//
-//        return IntStream.range(0, registerFundingBringItemDto.size())
-//                .mapToObj(i -> FundingRegistrationItemDto.createFundingRegistrationItemDto(
-//                        itemRepository.findById(registerFundingBringItemDto.get(i))
-//                                .orElseThrow(() -> new CommonException(NOT_FOUND_ITEM)),
-//                        (long) i + 1)).toList();
-//    }
 
     @Transactional
     public CommonSuccessDto putFundingAndFundingItem(Long memberId, RegisterFundingDto registerFundingDto) {
@@ -151,31 +137,28 @@ public class FundingService {
         List<CommonFriendFundingDto> commonFriendFundingDtoList = new ArrayList<>();
         List<Relationship> relationshipList = relationshipRepository.findFriendByMemberId(memberId);
         for (Relationship relationship : relationshipList) {
-            Optional<Funding> friendFunding = fundingRepository.findByMemberIdAndStatus(
+            Optional<Funding> findFriendFunding = fundingRepository.findByMemberIdAndStatus(
                     relationship.getFriend().getMemberId(), true);
 
-            if (friendFunding.isEmpty()) {
+            if (findFriendFunding.isEmpty()) {
                 continue;
             }
 
-            System.out.println(friendFunding.get().getFundingId());
-
-            int leftDate = (int) ChronoUnit.DAYS.between(LocalDate.now(),
-                    friendFunding.get().getDeadline());
-            String deadline = "D-" + leftDate;
+            Funding friendFunding = findFriendFunding.get();
+            String deadline = DateUtils.toDeadlineString(friendFunding);
 
             List<FundingItem> fundingItemList = fundingItemRepository.findFundingItemIdListByFunding(
-                    friendFunding.get().getFundingId());
+                    friendFunding.getFundingId());
             List<FriendFundingPageItemDto> friendFundingPageItemDtoList = fundingItemList.stream()
                     .map(fundingItem -> FriendFundingPageItemDto.fromEntity(fundingItem.getItem())).toList();
-            int totalPrice = friendFunding.get().getTotalPrice();
+            int totalPrice = friendFunding.getTotalPrice();
 
             if (totalPrice == 0) {
                 throw new CommonException(INVALID_FUNDING_STATUS);
             }
-            int fundingTotalPercent = friendFunding.get().getCollectPrice() * 100 / totalPrice;
+            int fundingTotalPercent = friendFunding.getCollectPrice() * 100 / totalPrice;
             commonFriendFundingDtoList.add(CommonFriendFundingDto.fromEntity(
-                    friendFunding.get(),
+                    friendFunding,
                     deadline,
                     fundingTotalPercent,
                     friendFundingPageItemDtoList
@@ -211,10 +194,11 @@ public class FundingService {
         // 사용자 정보: 이름, 프로필 이미지
         HomeMemberInfoDto homeMemberInfoDto = HomeMemberInfoDto.fromEntity(member);
 
-        // 사용자 펀딩 내용: 펀딩 이름, 완료일
-        HomeMyFundingStatusDto myFundingStatus = funding.map(this::getMyFundingStatus).orElse(null);
-        // 사용자 펀딩 상세: 펀딩 상품 이미지, 펀딩 진행률
-        List<HomeMyFundingItemDto> homeMyFundingItemList = getMyFundingItems(funding.get());
+        // 사용자 펀딩 내용: 펀딩 이름, 완료일, 내 펀딩 아이템들
+        HomeMyFundingStatusDto myFundingStatus = null;
+        if (funding.isPresent()) {
+            myFundingStatus = getMyFundingStatus(funding.get());
+        }
 
         // 친구 펀딩: 이름, 프로필 이미지, 펀딩Id, 현재 펀딩 진행중인 상품 이미지, 펀딩 진행률, 펀딩 마감일
         List<HomeFriendFundingDto> homeFriendFundingList = getFriendFundingListByHome(memberId);
@@ -224,8 +208,7 @@ public class FundingService {
                 .map(HomeItemDto::fromEntity)
                 .toList();
 
-        return HomeViewDto.fromEntity(homeMemberInfoDto, myFundingStatus, homeMyFundingItemList,
-                homeFriendFundingList, itemList);
+        return HomeViewDto.fromEntity(homeMemberInfoDto, myFundingStatus, homeFriendFundingList, itemList);
     }
 
     private List<HomeFriendFundingDto> getFriendFundingListByHome(Long memberId) {
@@ -263,7 +246,7 @@ public class FundingService {
                 collectPrice -= itemPrice;
                 percent = 100;
             } else {
-                percent = (int) collectPrice / itemPrice * 100;
+                percent = collectPrice * 100 / itemPrice;
             }
             HomeMyFundingItemDto homeMyFundingItemDto = HomeMyFundingItemDto.fromEntity(
                     myFundingItem, percent);
@@ -273,37 +256,49 @@ public class FundingService {
     }
 
     private HomeMyFundingStatusDto getMyFundingStatus(Funding funding) {
-        int leftDate = (int) ChronoUnit.DAYS.between(LocalDate.now(), funding.getDeadline());
-        String deadline = "D-" + leftDate;
-        return HomeMyFundingStatusDto.fromEntity(funding, deadline);
+        String deadline = DateUtils.toDeadlineString(funding);
+        // 사용자 펀딩 상세: 펀딩 상품 이미지, 펀딩 진행률
+        List<HomeMyFundingItemDto> homeMyFundingItemList = getMyFundingItems(funding);
+
+        List<FundingItem> fundingItems = funding.getFundingItems();
+
+        int totalPercent = getTotalPercent(funding);
+
+        return HomeMyFundingStatusDto.fromEntity(funding, deadline, totalPercent, homeMyFundingItemList);
     }
 
     public MyFundingStatusDto getMyFundingStatus(Long memberId) {
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new CommonException(NOT_FOUND_MEMBER));
-        Optional<Funding> funding = fundingRepository.findByMemberIdAndStatus(member.getMemberId(), true);
+        Optional<Funding> findFunding = fundingRepository.findByMemberIdAndStatus(member.getMemberId(), true);
         MyPageMemberDto myPageMemberDto = MyPageMemberDto.fromEntity(member);
-        if (funding.isEmpty()) {
+        if (findFunding.isEmpty()) {
             return MyFundingStatusDto.createNotExistFundingMyFundingStatusDto(myPageMemberDto);
+        } else {
+            Funding funding = findFunding.get();
+            List<MyPageFundingItemDto> myPageFundingItemList = getMyPageFundingItemDtoList(funding);
+            List<ParticipateFriendDto> participateFriendDtoList = getParticipateFriendDtoList(funding);
+
+            int totalPercent = funding.getCollectPrice() * 100 / funding.getTotalPrice();
+            String deadlineDate = DateUtils.toDeadlineString(funding);
+
+            return MyFundingStatusDto.createMyFundingStatusDto(
+                    myPageMemberDto,
+                    myPageFundingItemList,
+                    participateFriendDtoList,
+                    totalPercent,
+                    funding.getDeadline().format(DateTimeFormatter.ofPattern("yyyy-MM-dd")),
+                    deadlineDate,
+                    funding.getTag().getDisplayName(),
+                    funding.getMessage()
+            );
         }
-        List<MyPageFundingItemDto> myPageFundingItemList = getMyPageFundingItemDtoList(funding.get());
-        List<ParticipateFriendDto> participateFriendDtoList = getParticipateFriendDtoList(funding.get());
+    }
 
-        int totalPercent = funding.get().getCollectPrice() * 100 / funding.get().getTotalPrice();
-        int leftDate = (int) ChronoUnit.DAYS.between(LocalDate.now(),
-                funding.get().getDeadline());
-        String deadlineDate = "D-" + leftDate;
-
-        return MyFundingStatusDto.createMyFundingStatusDto(
-                myPageMemberDto,
-                myPageFundingItemList,
-                participateFriendDtoList,
-                totalPercent,
-                funding.get().getDeadline().format(DateTimeFormatter.ofPattern("yyyy-MM-dd")),
-                deadlineDate,
-                funding.get().getTag().getDisplayName(),
-                funding.get().getMessage()
-        );
+    private static int getTotalPercent(Funding funding) {
+        int totalPrice = funding.getTotalPrice();
+        int collectPrice = funding.getCollectPrice();
+        return collectPrice * 100 / totalPrice;
     }
 
     private List<ParticipateFriendDto> getParticipateFriendDtoList(Funding funding) {

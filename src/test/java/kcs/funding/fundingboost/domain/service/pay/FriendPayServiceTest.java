@@ -25,6 +25,7 @@ import kcs.funding.fundingboost.domain.model.FundingItemFixture;
 import kcs.funding.fundingboost.domain.model.ItemFixture;
 import kcs.funding.fundingboost.domain.model.MemberFixture;
 import kcs.funding.fundingboost.domain.repository.MemberRepository;
+import kcs.funding.fundingboost.domain.repository.contributor.ContributorRepository;
 import kcs.funding.fundingboost.domain.repository.funding.FundingRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -43,6 +44,8 @@ class FriendPayServiceTest {
     private MemberRepository memberRepository;
     @Mock
     private FundingRepository fundingRepository;
+    @Mock
+    private ContributorRepository contributorRepository;
     @InjectMocks
     private FriendPayService friendPayService;
     private Member me;
@@ -98,7 +101,7 @@ class FriendPayServiceTest {
         List<Item> items = ItemFixture.items3();
         FundingItemFixture.fundingItems(items, friendFunding);
 
-        FriendPayProcessDto friendPayProcessDto = new FriendPayProcessDto(myPoint);
+        FriendPayProcessDto friendPayProcessDto = new FriendPayProcessDto(myPoint, myPoint + 10000);
 
         when(me.getPoint()).thenReturn(100000);
         // 회원 id로 조회
@@ -110,22 +113,18 @@ class FriendPayServiceTest {
         when(friendFunding.getTotalPrice()).thenReturn(itemPriceSum);
         when(friendFunding.getCollectPrice()).thenReturn(itemPriceSum / 2);
 
-        //when & then
-        // Mockito-inline : 정적 메서드인 deductPointsIfPossible 메서드를 목킹하는 방법
-//        try (MockedStatic<PayUtils> mocked = Mockito.mockStatic(PayUtils.class)) { // MockedStatic<PayUtils> 객체 생성
-//            mocked.when(() -> PayUtils.deductPointsIfPossible(any(Member.class), anyInt()))
-//                    .thenAnswer(invocation -> null);
-
+        //when
         CommonSuccessDto result = friendPayService.fund(me.getMemberId(), friendFunding.getFundingId(),
                 friendPayProcessDto);
 
+        // then
         // success 응답을 반환해야 한다
         assertTrue(result.isSuccess());
         verify(memberRepository).findById(me.getMemberId());
         verify(fundingRepository).findById(friendFunding.getFundingId());
 
         // 친구 펀딩의 펀딩액이 myPoint만큼 올라가야 한다
-        verify(friendFunding).fund(myPoint);
+        verify(friendFunding).fund(friendPayProcessDto.fundingPrice());
         verify(me).minusPoint(myPoint);
 //        }
     }
@@ -135,7 +134,7 @@ class FriendPayServiceTest {
     @ValueSource(ints = {1000, 2000, 3000})
     void fund_MemberNotFound_ThrowsException(int myPoint) {
         //given
-        FriendPayProcessDto dto = new FriendPayProcessDto(myPoint);
+        FriendPayProcessDto dto = new FriendPayProcessDto(myPoint, myPoint + 1000);
 
         when(memberRepository.findById(me.getMemberId())).thenThrow(new CommonException(NOT_FOUND_MEMBER));
 
@@ -153,7 +152,7 @@ class FriendPayServiceTest {
     @ValueSource(ints = {1000, 2000, 3000})
     void fund_FundingNotFound_ThrowsException(int myPoint) {
         //given
-        FriendPayProcessDto dto = new FriendPayProcessDto(myPoint);
+        FriendPayProcessDto dto = new FriendPayProcessDto(myPoint, myPoint + 1000);
 
         when(memberRepository.findById(me.getMemberId())).thenReturn(Optional.of(me));
         when(fundingRepository.findById(friendFunding.getFundingId())).thenThrow(
@@ -173,7 +172,7 @@ class FriendPayServiceTest {
     void fund_InvalidFundingMoney_ThrowsException(int myPoint) throws NoSuchFieldException, IllegalAccessException {
         //given
         Funding friendFunding = FundingFixture.lowPriceRestFunding(friend);
-        FriendPayProcessDto dto = new FriendPayProcessDto(myPoint);
+        FriendPayProcessDto dto = new FriendPayProcessDto(myPoint, myPoint + 1000);
 
         when(memberRepository.findById(me.getMemberId())).thenReturn(Optional.of(me));
         when(fundingRepository.findById(friendFunding.getFundingId())).thenReturn(Optional.of(friendFunding));

@@ -16,8 +16,8 @@ public class FundingFixture {
      * 펀딩액이 모이지 않은 펀딩 생성 & createdDate 리플렉션
      */
     public static Funding Birthday(Member member) throws NoSuchFieldException, IllegalAccessException {
-        Funding funding = Funding.createFunding(member, "생일축하해주세욥 3월21일입니닷", BIRTHDAY, 197000,
-                LocalDateTime.now().plusDays(14));
+        Funding funding = Funding.createFundingForTest(member, "생일축하해주세욥 3월21일입니닷", BIRTHDAY, 197000,
+                LocalDateTime.now().plusDays(14), true);
 
         Field fundingId = funding.getClass().getDeclaredField("fundingId");
         fundingId.setAccessible(true);
@@ -34,7 +34,7 @@ public class FundingFixture {
      */
     public static Funding BirthdayWithCollectPrice(Member member, int collectPrice)
             throws NoSuchFieldException, IllegalAccessException {
-        Funding funding = Funding.createFundingForTest(member, "생일축하해주세욥 3월21일입니닷", BIRTHDAY, 197000, 98500,
+        Funding funding = Funding.createFundingForTest(member, "생일축하해주세욥 3월21일입니닷", BIRTHDAY, 98500,
                 LocalDateTime.now().plusDays(14), true);
 
         Field fundingId = funding.getClass().getDeclaredField("fundingId");
@@ -51,7 +51,8 @@ public class FundingFixture {
      * 펀딩액이 모이지 않은 졸업 펀딩
      */
     public static Funding Graduate(Member member) throws NoSuchFieldException, IllegalAccessException {
-        Funding funding = Funding.createFunding(member, "졸업축하해주세요 사실 졸업 못했어요ㅠㅠ", GRADUATE, LocalDateTime.now().plusDays(14));
+        Funding funding = Funding.createFunding(member, "졸업축하해주세요 사실 졸업 못했어요ㅠㅠ", GRADUATE,
+                LocalDateTime.now().plusDays(14));
         Field fundingId = funding.getClass().getDeclaredField("fundingId");
         fundingId.setAccessible(true);
         fundingId.set(funding, 3L);
@@ -68,6 +69,11 @@ public class FundingFixture {
         Field fundingId = funding.getClass().getDeclaredField("fundingId");
         fundingId.setAccessible(true);
         fundingId.set(funding, 4L);
+
+        Field createdDate = BaseTimeEntity.class.getDeclaredField("createdDate");
+        createdDate.setAccessible(true);
+        createdDate.set(funding, LocalDateTime.now());
+
         return funding;
     }
 
@@ -81,6 +87,11 @@ public class FundingFixture {
         Field fundingId = funding.getClass().getDeclaredField("fundingId");
         fundingId.setAccessible(true);
         fundingId.set(funding, 5L);
+
+        Field createdDate = BaseTimeEntity.class.getDeclaredField("createdDate");
+        createdDate.setAccessible(true);
+        createdDate.set(funding, LocalDateTime.now());
+
         return funding;
     }
 

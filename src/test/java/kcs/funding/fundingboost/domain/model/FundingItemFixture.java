@@ -22,7 +22,7 @@ public class FundingItemFixture {
 
     public static FundingItem fundingItem1FinishFunding(Item item, Funding funding) {
         FundingItem fundingItem = FundingItem.createFundingItem(funding, item, 1);
-        fundingItem.finishFunding();
+        fundingItem.finishFundingItem();
         return fundingItem;
     }
 
@@ -32,7 +32,7 @@ public class FundingItemFixture {
 
     public static FundingItem fundingItem2FinishFunding(Item item, Funding funding) {
         FundingItem fundingItem = FundingItem.createFundingItem(funding, item, 2);
-        fundingItem.finishFunding();
+        fundingItem.finishFundingItem();
         return fundingItem;
     }
 
