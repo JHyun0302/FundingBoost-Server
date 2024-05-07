@@ -6,14 +6,15 @@ import kcs.funding.fundingboost.domain.entity.Delivery;
 import kcs.funding.fundingboost.domain.entity.Member;
 
 public class DeliveryFixture {
+
     public static Delivery address1(Member member) throws NoSuchFieldException, IllegalAccessException {
-        Delivery delivery = Delivery.createDelivery("경기도 성남시 분당구 판교역로 166", "010-1234-5678", "사무실", member);
+        Delivery delivery = Delivery.createDelivery("경기도 성남시 분당구 판교역로 166", "010-1234-5678", "장이수", member);
         Field deliveryId = delivery.getClass().getDeclaredField("deliveryId");
         deliveryId.setAccessible(true);
         deliveryId.set(delivery, 1L);
         return delivery;
     }
-
+  
     public static Delivery address2(Member member) {
         return Delivery.createDelivery("서울특별시 강남구 테헤란로", "010-1234-1234", "홍길동", member);
     }
