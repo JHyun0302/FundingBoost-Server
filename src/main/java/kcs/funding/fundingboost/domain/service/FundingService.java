@@ -243,8 +243,11 @@ public class FundingService {
             if (collectPrice >= itemPrice) {
                 collectPrice -= itemPrice;
                 percent = 100;
-            } else {
+            } else if (collectPrice > 0) {
                 percent = collectPrice * 100 / itemPrice;
+                collectPrice = 0;
+            } else {
+                percent = 0;
             }
             HomeMyFundingItemDto homeMyFundingItemDto = HomeMyFundingItemDto.fromEntity(
                     myFundingItem, percent);
@@ -258,7 +261,7 @@ public class FundingService {
         // 사용자 펀딩 상세: 펀딩 상품 이미지, 펀딩 진행률
         List<HomeMyFundingItemDto> homeMyFundingItemList = getMyFundingItems(funding);
 
-        List<FundingItem> fundingItems = funding.getFundingItems();
+//        List<FundingItem> fundingItems = funding.getFundingItems();
 
         int totalPercent = getTotalPercent(funding);
 
@@ -315,8 +318,9 @@ public class FundingService {
             if (collectPrice >= fundingItem.getItem().getItemPrice()) {
                 collectPrice -= fundingItem.getItem().getItemPrice();
                 itemPercent = 100;
-            } else {
+            } else if (collectPrice > 0) {
                 itemPercent = collectPrice * 100 / fundingItem.getItem().getItemPrice();
+                collectPrice = 0;
             }
             myPageFundingItemList.add(MyPageFundingItemDto.fromEntity(funding, fundingItem.getItem(), itemPercent,
                     fundingItem.isFinishedStatus()));

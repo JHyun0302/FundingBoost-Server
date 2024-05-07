@@ -1,5 +1,6 @@
 package kcs.funding.fundingboost.domain.model;
 
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
 import kcs.funding.fundingboost.domain.entity.Funding;
@@ -16,27 +17,59 @@ public class FundingItemFixture {
         return fundingItems;
     }
 
-    public static FundingItem fundingItem1(Item item, Funding funding) {
-        return FundingItem.createFundingItem(funding, item, 1);
+    public static FundingItem fundingItem1(Item item, Funding funding)
+            throws NoSuchFieldException, IllegalAccessException {
+        FundingItem fundingItem = FundingItem.createFundingItem(funding, item, 1);
+
+        Field fundingItemId = fundingItem.getClass().getDeclaredField("fundingItemId");
+        fundingItemId.setAccessible(true);
+        fundingItemId.set(fundingItem, 1L);
+
+        return fundingItem;
     }
 
-    public static FundingItem fundingItem1FinishFunding(Item item, Funding funding) {
+    public static FundingItem fundingItem1FinishFunding(Item item, Funding funding)
+            throws IllegalAccessException, NoSuchFieldException {
         FundingItem fundingItem = FundingItem.createFundingItem(funding, item, 1);
         fundingItem.finishFundingItem();
+
+        Field fundingItemId = fundingItem.getClass().getDeclaredField("fundingItemId");
+        fundingItemId.setAccessible(true);
+        fundingItemId.set(fundingItem, 1L);
+
         return fundingItem;
     }
 
-    public static FundingItem fundingItem2(Item item, Funding funding) {
-        return FundingItem.createFundingItem(funding, item, 2);
-    }
-
-    public static FundingItem fundingItem2FinishFunding(Item item, Funding funding) {
+    public static FundingItem fundingItem2(Item item, Funding funding)
+            throws NoSuchFieldException, IllegalAccessException {
         FundingItem fundingItem = FundingItem.createFundingItem(funding, item, 2);
-        fundingItem.finishFundingItem();
+
+        Field fundingItemId = fundingItem.getClass().getDeclaredField("fundingItemId");
+        fundingItemId.setAccessible(true);
+        fundingItemId.set(fundingItem, 2L);
+
         return fundingItem;
     }
 
-    public static FundingItem fundingItem3(Item item, Funding funding) {
-        return FundingItem.createFundingItem(funding, item, 3);
+    public static FundingItem fundingItem2FinishFunding(Item item, Funding funding)
+            throws IllegalAccessException, NoSuchFieldException {
+        FundingItem fundingItem = FundingItem.createFundingItem(funding, item, 2);
+
+        Field fundingItemId = fundingItem.getClass().getDeclaredField("fundingItemId");
+        fundingItemId.setAccessible(true);
+        fundingItemId.set(fundingItem, 2L);
+
+        return fundingItem;
+    }
+
+    public static FundingItem fundingItem3(Item item, Funding funding)
+            throws NoSuchFieldException, IllegalAccessException {
+        FundingItem fundingItem = FundingItem.createFundingItem(funding, item, 3);
+
+        Field fundingItemId = fundingItem.getClass().getDeclaredField("fundingItemId");
+        fundingItemId.setAccessible(true);
+        fundingItemId.set(fundingItem, 3L);
+
+        return fundingItem;
     }
 }

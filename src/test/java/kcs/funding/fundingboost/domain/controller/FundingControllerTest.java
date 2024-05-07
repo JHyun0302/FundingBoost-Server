@@ -13,6 +13,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -24,7 +26,6 @@ import kcs.funding.fundingboost.domain.dto.response.friendFunding.FriendFundingD
 import kcs.funding.fundingboost.domain.dto.response.friendFundingDetail.ContributorDto;
 import kcs.funding.fundingboost.domain.dto.response.friendFundingDetail.FriendFundingDetailDto;
 import kcs.funding.fundingboost.domain.dto.response.friendFundingDetail.FriendFundingItemDto;
-import kcs.funding.fundingboost.domain.dto.response.fundingRegist.FundingRegistrationItemDto;
 import kcs.funding.fundingboost.domain.dto.response.home.HomeFriendFundingDto;
 import kcs.funding.fundingboost.domain.dto.response.home.HomeItemDto;
 import kcs.funding.fundingboost.domain.dto.response.home.HomeMemberInfoDto;
@@ -52,7 +53,6 @@ import kcs.funding.fundingboost.domain.model.ItemFixture;
 import kcs.funding.fundingboost.domain.model.MemberFixture;
 import kcs.funding.fundingboost.domain.service.FundingService;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -160,33 +160,6 @@ public class FundingControllerTest {
                 .andExpect(jsonPath("$.data.itemDtoList[0].itemImageUrl").value(
                         "https://img1.kakaocdn.net/thumb/C320x320@2x.fwebp.q82/?fname=https%3A%2F%2Fst.kakaocdn.net%2Fproduct%2Fgift%2Fproduct%2F20240319133310_1fda0cf74e4f43608184bce3050ae22a.jpg"))
                 .andExpect(jsonPath("$.data.itemDtoList[0].brandName").value("샤넬"));
-    }
-
-    @Disabled
-    @DisplayName("펀딩 등록 페이지 조회")
-    @Test
-    void viewFundingRegistration() throws Exception {
-        List<Long> registerFundingBringItemDto = List.of(1L, 2L);
-        List<FundingRegistrationItemDto> expectedDtoList = List.of(
-                FundingRegistrationItemDto.createFundingRegistrationItemDto(item1, 1L),
-                FundingRegistrationItemDto.createFundingRegistrationItemDto(item2, 2L));
-
-//        given(fundingService.getFundingRegister(registerFundingBringItemDto, member1.getMemberId())).willReturn(
-//                expectedDtoList);
-
-        mockMvc.perform(get("/api/v1/funding")
-                        .param("memberId", String.valueOf(member1.getMemberId()))
-                        .param("ItemList", registerFundingBringItemDto.stream().map(Object::toString).toArray(String[]::new)))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.success").value(true))
-                .andExpect(jsonPath("$.data.length()").value(2))
-                .andExpect(jsonPath("$.data[0].itemId").value(1))
-                .andExpect(jsonPath("$.data[0].itemSequence").value(1L))
-                .andExpect(jsonPath("$.data[0].itemName").value("NEW 루쥬 알뤼르 벨벳 뉘 블랑쉬 리미티드 에디션"))
-                .andExpect(jsonPath("$.data[0].itemImageUrl").value(
-                        "https://img1.kakaocdn.net/thumb/C320x320@2x.fwebp.q82/?fname=https%3A%2F%2Fst.kakaocdn.net%2Fproduct%2Fgift%2Fproduct%2F20240319133310_1fda0cf74e4f43608184bce3050ae22a.jpg"))
-                .andExpect(jsonPath("$.data[0].optionName").value("00:00"))
-                .andExpect(jsonPath("$.data[0].itemPrice").value(61000));
     }
 
     @DisplayName("펀딩 등록하기")
@@ -368,8 +341,10 @@ public class FundingControllerTest {
                         "https://p.kakaocdn.net/th/talkp/wnbbRhlyRW/XaGAXxS1OkUtXnomt6S4IK/ky0f9a_110x110_c.jpg"))
                 .andExpect(jsonPath("$.data.myPageFundingDetailHistoryDtos.length()").value(1))
                 .andExpect(jsonPath("$.data.myPageFundingDetailHistoryDtos[0].fundingId").value(1))
-                .andExpect(jsonPath("$.data.myPageFundingDetailHistoryDtos[0].createdDate").value("2024-05-03"))
-                .andExpect(jsonPath("$.data.myPageFundingDetailHistoryDtos[0].deadLine").value("2024-05-17"))
+                .andExpect(jsonPath("$.data.myPageFundingDetailHistoryDtos[0].createdDate")
+                        .value(LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd"))))
+                .andExpect(jsonPath("$.data.myPageFundingDetailHistoryDtos[0].deadLine")
+                        .value(LocalDateTime.now().plusDays(14L).format(DateTimeFormatter.ofPattern("yyyy-MM-dd"))))
                 .andExpect(jsonPath("$.data.myPageFundingDetailHistoryDtos[0].itemImageUrl").value(
                         "https://img1.kakaocdn.net/thumb/C320x320@2x.fwebp.q82/?fname=https%3A%2F%2Fst.kakaocdn.net%2Fproduct%2Fgift%2Fproduct%2F20240319133310_1fda0cf74e4f43608184bce3050ae22a.jpg"))
                 .andExpect(jsonPath("$.data.myPageFundingDetailHistoryDtos[0].optionName").value("00:00"))
@@ -450,7 +425,8 @@ public class FundingControllerTest {
                 .andExpect(jsonPath("$.data.FriendFundingContributionDto[0].friendProfileImg").value(
                         "https://p.kakaocdn.net/th/talkp/wowkAlwbLn/Ko25X6eV5bs1OycAz7n9Q1/lq4mv6_110x110_c.jpg"))
                 .andExpect(jsonPath("$.data.FriendFundingContributionDto[0].tag").value("#생일"))
-                .andExpect(jsonPath("$.data.FriendFundingContributionDto[0].createdDate").value("2024-05-03"));
+                .andExpect(jsonPath("$.data.FriendFundingContributionDto[0].createdDate")
+                        .value(LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd"))));
     }
 
     private void createRelationship(Member member1, Member member2) {
