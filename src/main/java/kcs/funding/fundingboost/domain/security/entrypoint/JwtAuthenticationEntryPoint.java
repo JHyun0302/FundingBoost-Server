@@ -1,4 +1,4 @@
-package kcs.funding.fundingboost.domain.security;
+package kcs.funding.fundingboost.domain.security.entrypoint;
 
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
