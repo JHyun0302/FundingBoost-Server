@@ -277,25 +277,25 @@ public class FundingControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.success")
                         .value(true))
-                .andExpect(jsonPath("$.data[0].commonFriendFundingDto.fundingId")
+                .andExpect(jsonPath("$.data[0].fundingId")
                         .value(funding2.getFundingId()))
-                .andExpect(jsonPath("$.data[0].commonFriendFundingDto.nickName")
+                .andExpect(jsonPath("$.data[0].nickName")
                         .value(member2.getNickName()))
-                .andExpect(jsonPath("$.data[0].commonFriendFundingDto.friendProfileImgUrl")
+                .andExpect(jsonPath("$.data[0].friendProfileImgUrl")
                         .value(member2.getProfileImgUrl()))
-                .andExpect(jsonPath("$.data[0].commonFriendFundingDto.friendFundingDeadlineDate")
+                .andExpect(jsonPath("$.data[0].friendFundingDeadlineDate")
                         .value("D-3"))
-                .andExpect(jsonPath("$.data[0].commonFriendFundingDto.tag")
+                .andExpect(jsonPath("$.data[0].tag")
                         .value(funding2.getTag().getDisplayName()))
-                .andExpect(jsonPath("$.data[0].commonFriendFundingDto.collectPrice")
+                .andExpect(jsonPath("$.data[0].collectPrice")
                         .value(funding2.getCollectPrice()))
-                .andExpect(jsonPath("$.data[0].commonFriendFundingDto.friendFundingPercent")
+                .andExpect(jsonPath("$.data[0].friendFundingPercent")
                         .value(80))
-                .andExpect(jsonPath("$.data[0].commonFriendFundingDto.friendFundingPageItemDtoList.length()")
+                .andExpect(jsonPath("$.data[0].friendFundingPageItemDtoList.length()")
                         .value(fundingItems.size()))
-                .andExpect(jsonPath("$.data[0].commonFriendFundingDto.friendFundingPageItemDtoList[0].itemPrice")
+                .andExpect(jsonPath("$.data[0].friendFundingPageItemDtoList[0].itemPrice")
                         .value(item.getItemPrice()))
-                .andExpect(jsonPath("$.data[0].commonFriendFundingDto.friendFundingPageItemDtoList[0].itemImageUrl")
+                .andExpect(jsonPath("$.data[0].friendFundingPageItemDtoList[0].itemImageUrl")
                         .value(item.getItemImageUrl()));
     }
 
@@ -477,7 +477,7 @@ public class FundingControllerTest {
     void viewFriendFundingHistory() throws Exception {
         List<FriendFundingContributionDto> friendFundingContributionDto = List.of(
                 FriendFundingContributionDto.fromEntity(
-                        Contributor.createContributor(20000, member2, funding1), funding2));
+                        Contributor.createContributor(20000, member2, funding2), funding2));
 
         FriendFundingHistoryDto friendFundingHistoryDto = FriendFundingHistoryDto.fromEntity(
                 MyPageMemberDto.fromEntity(member1), friendFundingContributionDto);
@@ -489,18 +489,26 @@ public class FundingControllerTest {
                         .contentType(APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.success").value(true))
-                .andExpect(jsonPath("$.data.myPageMemberDto.nickName").value("임창희"))
-                .andExpect(jsonPath("$.data.myPageMemberDto.email").value("dlackdgml3710@gmail.com"))
-                .andExpect(jsonPath("$.data.myPageMemberDto.profileImgUrl").value(
-                        "https://p.kakaocdn.net/th/talkp/wnbbRhlyRW/XaGAXxS1OkUtXnomt6S4IK/ky0f9a_110x110_c.jpg"))
-                .andExpect(jsonPath("$.data.myPageMemberDto.point").value(46000))
-                .andExpect(jsonPath("$.data.FriendFundingContributionDto.length()").value(1))
-                .andExpect(jsonPath("$.data.FriendFundingContributionDto[0].nickname").value("구태형"))
-                .andExpect(jsonPath("$.data.FriendFundingContributionDto[0].price").value(20000))
-                .andExpect(jsonPath("$.data.FriendFundingContributionDto[0].friendProfileImg").value(
-                        "https://p.kakaocdn.net/th/talkp/wowkAlwbLn/Ko25X6eV5bs1OycAz7n9Q1/lq4mv6_110x110_c.jpg"))
-                .andExpect(jsonPath("$.data.FriendFundingContributionDto[0].tag").value("#생일"))
-                .andExpect(jsonPath("$.data.FriendFundingContributionDto[0].createdDate").value("2024-05-03"));
+                .andExpect(jsonPath("$.data.myPageMemberDto.nickName")
+                        .value(member1.getNickName()))
+                .andExpect(jsonPath("$.data.myPageMemberDto.email")
+                        .value(member1.getEmail()))
+                .andExpect(jsonPath("$.data.myPageMemberDto.profileImgUrl")
+                        .value(member1.getProfileImgUrl()))
+                .andExpect(jsonPath("$.data.myPageMemberDto.point")
+                        .value(member1.getPoint()))
+                .andExpect(jsonPath("$.data.FriendFundingContributionDto.length()")
+                        .value(1))
+                .andExpect(jsonPath("$.data.FriendFundingContributionDto[0].nickname")
+                        .value(member2.getNickName()))
+                .andExpect(jsonPath("$.data.FriendFundingContributionDto[0].price")
+                        .value(20000))
+                .andExpect(jsonPath("$.data.FriendFundingContributionDto[0].friendProfileImg")
+                        .value(member2.getProfileImgUrl()))
+                .andExpect(jsonPath("$.data.FriendFundingContributionDto[0].tag")
+                        .value(funding1.getTag().getDisplayName()))
+                .andExpect(jsonPath("$.data.FriendFundingContributionDto[0].createdDate")
+                        .value(funding1.getCreatedDate().format(DateTimeFormatter.ofPattern("yyyy-MM-dd"))));
     }
 
     private void createRelationship(Member member1, Member member2) {
