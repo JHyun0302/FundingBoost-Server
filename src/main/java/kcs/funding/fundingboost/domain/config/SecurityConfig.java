@@ -1,14 +1,15 @@
 package kcs.funding.fundingboost.domain.config;
 
-import kcs.funding.fundingboost.domain.security.JwtAccessDeniedHandler;
-import kcs.funding.fundingboost.domain.security.JwtAuthenticationEntryPoint;
 import kcs.funding.fundingboost.domain.security.JwtAuthenticationProvider;
+import kcs.funding.fundingboost.domain.security.entrypoint.JwtAuthenticationEntryPoint;
+import kcs.funding.fundingboost.domain.security.handler.JwtAccessDeniedHandler;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 
 @Configuration
@@ -43,10 +44,16 @@ public class SecurityConfig {
                 .cors(cors -> cors.configurationSource(corsConfig.corsConfigurationSource()))
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(
-                        auth -> auth.anyRequest().authenticated()
+                        auth -> auth.requestMatchers("/api/v1/auth/authenticate").permitAll()
+                                .anyRequest().authenticated()
                 )
                 .with(new JwtSecurityConfig(jwtAuthenticationProvider), customizer -> {
                 });
         return http.build();
+    }
+
+    @Bean
+    public BCryptPasswordEncoder bCryptPasswordEncoder() {
+        return new BCryptPasswordEncoder();
     }
 }
