@@ -1,5 +1,6 @@
 package kcs.funding.fundingboost.domain.security.resolver;
 
+import kcs.funding.fundingboost.domain.security.CustomUserDetails;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -28,6 +29,7 @@ public class JwtAuthorizationArgumentResolver implements HandlerMethodArgumentRe
         log.info("JwtAuthorizationArgumentResolver called");
         Authentication authentication = SecurityContextHolder.getContextHolderStrategy().getContext()
                 .getAuthentication();
-        return Long.parseLong(authentication.getName());
+        CustomUserDetails principal = (CustomUserDetails) authentication.getPrincipal();
+        return principal.getUserDetailsId();
     }
 }
