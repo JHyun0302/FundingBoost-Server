@@ -1,13 +1,18 @@
 package kcs.funding.fundingboost.domain.service;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import java.util.List;
 import java.util.Optional;
 import kcs.funding.fundingboost.domain.dto.common.CommonSuccessDto;
+import kcs.funding.fundingboost.domain.dto.response.myPage.wishList.MyBookmarkListDto;
 import kcs.funding.fundingboost.domain.entity.Bookmark;
 import kcs.funding.fundingboost.domain.entity.Item;
 import kcs.funding.fundingboost.domain.entity.Member;
@@ -23,6 +28,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.test.util.ReflectionTestUtils;
 
 @ExtendWith(MockitoExtension.class)
 class BookmarkServiceTest {
@@ -40,14 +46,55 @@ class BookmarkServiceTest {
 
     private Item item;
 
+    private Item item2;
+
     @BeforeEach
     void beforeEach() throws NoSuchFieldException, IllegalAccessException {
         member = MemberFixture.member1();
         item = ItemFixture.item1();
+        item2 = ItemFixture.item2();
     }
 
+    @DisplayName("북마크 존재 시: 북마크 목록 조회 성공")
     @Test
-    void getMyWishList() {
+    void getMyWishList_Success() {
+        //given
+        ReflectionTestUtils.setField(member, "memberId", 1L);
+        ReflectionTestUtils.setField(item, "itemId", 1L);
+        ReflectionTestUtils.setField(item2, "itemId", 2L);
+
+        Bookmark bookmark1 = Bookmark.createBookmark(member, item);
+        Bookmark bookmark2 = Bookmark.createBookmark(member, item2);
+
+        when(memberRepository.findById(anyLong())).thenReturn(Optional.of(member));
+
+        when(bookmarkRepository.findAllByMemberId(member.getMemberId())).thenReturn(List.of(bookmark1, bookmark2));
+
+        //when
+        MyBookmarkListDto resultDto = bookmarkService.getMyBookmark(member.getMemberId());
+
+        //then
+        assertNotNull(resultDto);
+        assertThat(resultDto.myPageMemberDto().nickName()).isEqualTo(member.getNickName());
+        assertThat(resultDto.bookmarkItemDtos()).hasSize(2).extracting("itemId")
+                .contains(item.getItemId(), item2.getItemId());
+    }
+
+    @DisplayName("북마크가 존재하지 않을 시: 북마크 빈 리스트 값으로 반환")
+    @Test
+    void getMyWishList_Null() {
+        //given
+        ReflectionTestUtils.setField(member, "memberId", 1L);
+
+        when(memberRepository.findById(member.getMemberId())).thenReturn(Optional.of(member));
+
+        //when
+        MyBookmarkListDto resultDto = bookmarkService.getMyBookmark(member.getMemberId());
+
+        //then
+        assertNotNull(resultDto);
+        assertThat(resultDto.myPageMemberDto().nickName()).isEqualTo(member.getNickName());
+        assertThat(resultDto.bookmarkItemDtos()).isEmpty();
     }
 
     @DisplayName("북마크가 존재할 때 : 북마크 삭제")
@@ -84,4 +131,5 @@ class BookmarkServiceTest {
         verify(bookmarkRepository, times(1)).save(any(Bookmark.class));
         assertTrue(result.isSuccess());
     }
+
 }
