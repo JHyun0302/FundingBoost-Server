@@ -36,7 +36,7 @@ public class JwtUtils implements InitializingBean {
         return Jwts.builder()
                 .signWith(key, SignatureAlgorithm.HS512)
                 .setHeaderParam("typ", "JWT")
-                .setSubject(String.valueOf(userDetails.getUserDetailsId()))
+                .setSubject(String.valueOf(userDetails.getMemberId()))
                 .setExpiration(validity)
                 .setIssuedAt(new Date())
                 .compact();

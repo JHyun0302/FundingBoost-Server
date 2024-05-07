@@ -30,6 +30,6 @@ public class JwtAuthorizationArgumentResolver implements HandlerMethodArgumentRe
         Authentication authentication = SecurityContextHolder.getContextHolderStrategy().getContext()
                 .getAuthentication();
         CustomUserDetails principal = (CustomUserDetails) authentication.getPrincipal();
-        return principal.getUserDetailsId();
+        return principal.getMemberId();
     }
 }
