@@ -4,7 +4,7 @@ import java.util.List;
 import kcs.funding.fundingboost.domain.dto.common.CommonSuccessDto;
 import kcs.funding.fundingboost.domain.dto.global.ResponseDto;
 import kcs.funding.fundingboost.domain.dto.request.fundingRegist.RegisterFundingDto;
-import kcs.funding.fundingboost.domain.dto.response.friendFunding.FriendFundingDto;
+import kcs.funding.fundingboost.domain.dto.response.common.CommonFriendFundingDto;
 import kcs.funding.fundingboost.domain.dto.response.friendFundingDetail.FriendFundingDetailDto;
 import kcs.funding.fundingboost.domain.dto.response.home.HomeViewDto;
 import kcs.funding.fundingboost.domain.dto.response.myPage.friendFundingHistory.FriendFundingHistoryDto;
@@ -67,7 +67,7 @@ public class FundingController {
      * 친구 펀딩 목록 조회
      */
     @GetMapping("/api/v1/funding/friends")
-    public ResponseDto<List<FriendFundingDto>> viewFriendFundingList(
+    public ResponseDto<List<CommonFriendFundingDto>> viewFriendFundingList(
             @RequestParam(name = "memberId") Long memberId
     ) {
         return ResponseDto.ok(fundingService.getFriendFundingList(memberId));

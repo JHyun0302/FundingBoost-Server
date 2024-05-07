@@ -1,7 +1,6 @@
 package kcs.funding.fundingboost.domain.service;
 
 import static kcs.funding.fundingboost.domain.exception.ErrorCode.INVALID_ACCESS_URL;
-import static kcs.funding.fundingboost.domain.exception.ErrorCode.INVALID_ACCESS_URL;
 import static kcs.funding.fundingboost.domain.exception.ErrorCode.INVALID_FUNDING_STATUS;
 import static kcs.funding.fundingboost.domain.exception.ErrorCode.NOT_FOUND_FUNDING;
 import static kcs.funding.fundingboost.domain.exception.ErrorCode.NOT_FOUND_ITEM;
@@ -15,7 +14,6 @@ import kcs.funding.fundingboost.domain.dto.common.CommonSuccessDto;
 import kcs.funding.fundingboost.domain.dto.request.fundingRegist.RegisterFundingDto;
 import kcs.funding.fundingboost.domain.dto.response.common.CommonFriendFundingDto;
 import kcs.funding.fundingboost.domain.dto.response.common.FriendFundingPageItemDto;
-import kcs.funding.fundingboost.domain.dto.response.friendFunding.FriendFundingDto;
 import kcs.funding.fundingboost.domain.dto.response.friendFundingDetail.ContributorDto;
 import kcs.funding.fundingboost.domain.dto.response.friendFundingDetail.FriendFundingDetailDto;
 import kcs.funding.fundingboost.domain.dto.response.friendFundingDetail.FriendFundingItemDto;
@@ -166,10 +164,8 @@ public class FundingService {
         return commonFriendFundingDtoList;
     }
 
-    public List<FriendFundingDto> getFriendFundingList(Long memberId) {
-        List<CommonFriendFundingDto> commonFriendFundingDtoList = getCommonFriendFundingList(memberId);
-        return commonFriendFundingDtoList.stream()
-                .map(FriendFundingDto::fromEntity).toList();
+    public List<CommonFriendFundingDto> getFriendFundingList(Long memberId) {
+        return getCommonFriendFundingList(memberId);
     }
 
     @Transactional

@@ -21,7 +21,6 @@ import kcs.funding.fundingboost.domain.dto.common.CommonSuccessDto;
 import kcs.funding.fundingboost.domain.dto.request.fundingRegist.RegisterFundingDto;
 import kcs.funding.fundingboost.domain.dto.response.common.CommonFriendFundingDto;
 import kcs.funding.fundingboost.domain.dto.response.common.FriendFundingPageItemDto;
-import kcs.funding.fundingboost.domain.dto.response.friendFunding.FriendFundingDto;
 import kcs.funding.fundingboost.domain.dto.response.friendFundingDetail.ContributorDto;
 import kcs.funding.fundingboost.domain.dto.response.friendFundingDetail.FriendFundingDetailDto;
 import kcs.funding.fundingboost.domain.dto.response.friendFundingDetail.FriendFundingItemDto;
@@ -263,13 +262,13 @@ public class FundingControllerTest {
                         FriendFundingPageItemDto.fromEntity(item1),
                         FriendFundingPageItemDto.fromEntity(item2)));
 
-        List<FriendFundingDto> friendFundingList = List.of(FriendFundingDto.fromEntity(commonFriendFundingDto));
+        List<CommonFriendFundingDto> commonFriendFundingDtoList = List.of(commonFriendFundingDto);
 
         List<FundingItem> fundingItems = funding2.getFundingItems();
         FundingItem fundingItem = fundingItems.get(0);
         Item item = fundingItem.getItem();
 
-        when(fundingService.getFriendFundingList(member1.getMemberId())).thenReturn(friendFundingList);
+        when(fundingService.getFriendFundingList(member1.getMemberId())).thenReturn(commonFriendFundingDtoList);
 
         // 실행 및 검증
         mockMvc.perform(get("/api/v1/funding/friends")
