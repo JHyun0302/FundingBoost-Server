@@ -34,7 +34,7 @@ public class FundingFixture {
      */
     public static Funding BirthdayWithCollectPrice(Member member, int collectPrice)
             throws NoSuchFieldException, IllegalAccessException {
-        Funding funding = Funding.createFundingForTest(member, "생일축하해주세욥 3월21일입니닷", BIRTHDAY, 98500,
+        Funding funding = Funding.createFundingForTest(member, "생일축하해주세욥 3월21일입니닷", BIRTHDAY, collectPrice,
                 LocalDateTime.now().plusDays(14), true);
 
         Field fundingId = funding.getClass().getDeclaredField("fundingId");
