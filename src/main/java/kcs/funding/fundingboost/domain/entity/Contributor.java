@@ -48,6 +48,7 @@ public class Contributor extends BaseTimeEntity {
         contributor.contributorPrice = contributorPrice;
         contributor.member = member;
         contributor.funding = funding;
+        funding.fund(contributorPrice);
         return contributor;
     }
 }

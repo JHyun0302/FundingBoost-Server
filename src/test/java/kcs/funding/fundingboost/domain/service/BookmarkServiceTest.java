@@ -1,65 +1,106 @@
 package kcs.funding.fundingboost.domain.service;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import java.util.List;
 import java.util.Optional;
 import kcs.funding.fundingboost.domain.dto.common.CommonSuccessDto;
+import kcs.funding.fundingboost.domain.dto.response.myPage.wishList.MyBookmarkListDto;
 import kcs.funding.fundingboost.domain.entity.Bookmark;
 import kcs.funding.fundingboost.domain.entity.Item;
 import kcs.funding.fundingboost.domain.entity.member.Member;
+import kcs.funding.fundingboost.domain.model.ItemFixture;
+import kcs.funding.fundingboost.domain.model.MemberFixture;
 import kcs.funding.fundingboost.domain.repository.ItemRepository;
 import kcs.funding.fundingboost.domain.repository.MemberRepository;
 import kcs.funding.fundingboost.domain.repository.bookmark.BookmarkRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.CsvSource;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.springframework.boot.test.context.SpringBootTest;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.test.util.ReflectionTestUtils;
 
-@SpringBootTest
+@ExtendWith(MockitoExtension.class)
 class BookmarkServiceTest {
 
     @Mock
     private BookmarkRepository bookmarkRepository;
-
     @Mock
     private MemberRepository memberRepository;
-
     @Mock
     private ItemRepository itemRepository;
-
     @InjectMocks
     private BookmarkService bookmarkService;
 
     private Member member;
 
+    private Item item;
+
+    private Item item2;
+
     @BeforeEach
-    void setUp() {
-        member = createMember();
+    void beforeEach() throws NoSuchFieldException, IllegalAccessException {
+        member = MemberFixture.member1();
+        item = ItemFixture.item1();
+        item2 = ItemFixture.item2();
     }
 
+    @DisplayName("북마크 존재 시: 북마크 목록 조회 성공")
     @Test
-    void getMyWishList() {
+    void getMyWishList_Success() {
+        //given
+        ReflectionTestUtils.setField(member, "memberId", 1L);
+        ReflectionTestUtils.setField(item, "itemId", 1L);
+        ReflectionTestUtils.setField(item2, "itemId", 2L);
+
+        Bookmark bookmark1 = Bookmark.createBookmark(member, item);
+        Bookmark bookmark2 = Bookmark.createBookmark(member, item2);
+
+        when(memberRepository.findById(anyLong())).thenReturn(Optional.of(member));
+
+        when(bookmarkRepository.findAllByMemberId(member.getMemberId())).thenReturn(List.of(bookmark1, bookmark2));
+
+        //when
+        MyBookmarkListDto resultDto = bookmarkService.getMyBookmark(member.getMemberId());
+
+        //then
+        assertNotNull(resultDto);
+        assertThat(resultDto.myPageMemberDto().nickName()).isEqualTo(member.getNickName());
+        assertThat(resultDto.bookmarkItemDtos()).hasSize(2).extracting("itemId")
+                .contains(item.getItemId(), item2.getItemId());
+    }
+
+    @DisplayName("북마크가 존재하지 않을 시: 북마크 빈 리스트 값으로 반환")
+    @Test
+    void getMyWishList_Null() {
+        //given
+        ReflectionTestUtils.setField(member, "memberId", 1L);
+
+        when(memberRepository.findById(member.getMemberId())).thenReturn(Optional.of(member));
+
+        //when
+        MyBookmarkListDto resultDto = bookmarkService.getMyBookmark(member.getMemberId());
+
+        //then
+        assertNotNull(resultDto);
+        assertThat(resultDto.myPageMemberDto().nickName()).isEqualTo(member.getNickName());
+        assertThat(resultDto.bookmarkItemDtos()).isEmpty();
     }
 
     @DisplayName("북마크가 존재할 때 : 북마크 삭제")
-    @ParameterizedTest(name = "{index} {displayName} arguments = {arguments}")
-    @CsvSource({
-            "'NEW 루쥬 알뤼르 벨벳 뉘 블랑쉬 리미티드 에디션', 61000, 'https://img1.kakaocdn.net/thumb/C320x320@2x.fwebp.q82/?fname=https%3A%2F%2Fst.kakaocdn.net%2Fproduct%2Fgift%2Fproduct%2F20240319133310_1fda0cf74e4f43608184bce3050ae22a.jpg', '샤넬', '뷰티', '00:00'",
-            "'NEW 루쥬 코코 밤(+샤넬 기프트 카드)', 51000, 'https://img1.kakaocdn.net/thumb/C320x320@2x.fwebp.q82/?fname=https%3A%2F%2Fst.kakaocdn.net%2Fproduct%2Fgift%2Fproduct%2F20220111185052_b92447cb764d470ead70b2d0fe75fe5c.jpg', '샤넬', '뷰티', '934 코랄린 [NEW]'"
-    })
-    void givenBookmarkExists_whenToggleItemLike_thenDeleteBookmark(String itemName, int itemPrice,
-                                                                   String itemImageUrl, String brandName,
-                                                                   String category, String optionName) {
+    @Test
+    void givenBookmarkExists_whenToggleItemLike_thenDeleteBookmark() {
         //given
-        Item item = createItem(itemName, itemPrice, itemImageUrl, brandName, category, optionName);
         Bookmark bookmark = Bookmark.createBookmark(member, item);
 
         when(bookmarkRepository.findBookmarkByMemberAndItem(member.getMemberId(), item.getItemId()))
@@ -74,16 +115,9 @@ class BookmarkServiceTest {
     }
 
     @DisplayName("북마크가 존재하지 않을 때 : 북마크 저장")
-    @ParameterizedTest(name = "{index} {displayName} arguments = {arguments}")
-    @CsvSource({
-            "'NEW 루쥬 알뤼르 벨벳 뉘 블랑쉬 리미티드 에디션', 61000, 'https://img1.kakaocdn.net/thumb/C320x320@2x.fwebp.q82/?fname=https%3A%2F%2Fst.kakaocdn.net%2Fproduct%2Fgift%2Fproduct%2F20240319133310_1fda0cf74e4f43608184bce3050ae22a.jpg', '샤넬', '뷰티', '00:00'",
-            "'NEW 루쥬 코코 밤(+샤넬 기프트 카드)', 51000, 'https://img1.kakaocdn.net/thumb/C320x320@2x.fwebp.q82/?fname=https%3A%2F%2Fst.kakaocdn.net%2Fproduct%2Fgift%2Fproduct%2F20220111185052_b92447cb764d470ead70b2d0fe75fe5c.jpg', '샤넬', '뷰티', '934 코랄린 [NEW]'"})
-    void givenBookmarkNotExists_whenToggleItemLike_thenCreateBookmark(String itemName, int itemPrice,
-                                                                      String itemImageUrl, String brandName,
-                                                                      String category, String optionName) {
+    @Test
+    void givenBookmarkNotExists_whenToggleItemLike_thenCreateBookmark() {
         //given
-        Item item = createItem(itemName, itemPrice, itemImageUrl, brandName, category, optionName);
-
         when(bookmarkRepository.findBookmarkByMemberAndItem(member.getMemberId(), item.getItemId())).thenReturn(
                 Optional.empty());
         when(memberRepository.findById(member.getMemberId())).thenReturn(Optional.of(member));
@@ -98,15 +132,4 @@ class BookmarkServiceTest {
         assertTrue(result.isSuccess());
     }
 
-    private static Member createMember() {
-        return Member.createMemberWithPoint("임창희", "dlackdgml3710@gmail.com", "",
-                "https://p.kakaocdn.net/th/talkp/wnbbRhlyRW/XaGAXxS1OkUtXnomt6S4IK/ky0f9a_110x110_c.jpg",
-                46000,
-                "", "aFxoWGFUZlV5SH9MfE9-TH1PY1JiV2JRaF83");
-    }
-
-    private static Item createItem(String itemName, int itemPrice, String itemImageUrl, String brandName,
-                                   String category, String optionName) {
-        return Item.createItem(itemName, itemPrice, itemImageUrl, brandName, category, optionName);
-    }
 }
