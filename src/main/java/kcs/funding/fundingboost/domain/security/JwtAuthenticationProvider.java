@@ -14,7 +14,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 
 @Slf4j
@@ -61,7 +60,10 @@ public class JwtAuthenticationProvider {
                 .parseClaimsJws(token)
                 .getBody();
 
-        UserDetails principal = customUserDetailsService.loadUserByUsername(claims.getSubject());
+        long userId = Long.parseLong(claims.getSubject());
+
+        CustomUserDetails principal = customUserDetailsService.loadUserByUserId(userId);
+
         return new UsernamePasswordAuthenticationToken(principal, null,
                 List.of(new SimpleGrantedAuthority("ROLE_USER")));
     }
