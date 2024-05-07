@@ -56,6 +56,10 @@ public class FundingFixture {
         Field fundingId = funding.getClass().getDeclaredField("fundingId");
         fundingId.setAccessible(true);
         fundingId.set(funding, 3L);
+
+        Field createdDateField = BaseTimeEntity.class.getDeclaredField("createdDate");
+        createdDateField.setAccessible(true);
+        createdDateField.set(funding, LocalDateTime.now());
         return funding;
     }
 
@@ -106,6 +110,10 @@ public class FundingFixture {
         Field fundingId = funding.getClass().getDeclaredField("fundingId");
         fundingId.setAccessible(true);
         fundingId.set(funding, 6L);
+
+        Field createdDateField = BaseTimeEntity.class.getDeclaredField("createdDate");
+        createdDateField.setAccessible(true);
+        createdDateField.set(funding, LocalDateTime.now());
         return funding;
     }
 }
