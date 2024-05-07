@@ -22,7 +22,7 @@ public class BookmarkController {
     private final BookmarkService bookmarkService;
 
     @GetMapping("")
-    public ResponseDto<MyBookmarkListDto> viewMyFavoriteListDto(@RequestParam("memberId") Long memberId) {
+    public ResponseDto<MyBookmarkListDto> viewMyBookmarkListDto(@RequestParam("memberId") Long memberId) {
         return ResponseDto.ok(bookmarkService.getMyBookmark(memberId));
     }
 
