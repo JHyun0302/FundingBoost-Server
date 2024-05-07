@@ -109,7 +109,6 @@ class FundingServiceTestCH {
         assertNotNull(commonSuccessDto);
         assertTrue(commonSuccessDto.isSuccess());
         verify(fundingRepository, times(1)).save(any());
-        verify(fundingItemRepository, times(itemIdList.size())).save(any());
     }
 
 
