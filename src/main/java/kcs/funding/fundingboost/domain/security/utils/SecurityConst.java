@@ -3,6 +3,6 @@ package kcs.funding.fundingboost.domain.security.utils;
 public interface SecurityConst {
     String AUTHORITIES_KEY = "auth";
     String TOKEN_PREFIX = "Bearer ";
-    long tokenValidityInMilliseconds = 864000;
+    long tokenValidityInMilliseconds = 8640000;
     String secret = "tmptmptmptmptmptmptmptmptmptmptmptmptmptmptmptmptmptmptmptmptmptmptmptmptmptmptmptmptmptmptmptmp";
 }
