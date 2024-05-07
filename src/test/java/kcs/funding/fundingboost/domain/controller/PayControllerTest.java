@@ -4,43 +4,38 @@ import static org.mockito.BDDMockito.given;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-
 import java.util.List;
 import kcs.funding.fundingboost.domain.dto.common.CommonSuccessDto;
+import kcs.funding.fundingboost.domain.dto.request.pay.friendFundingPay.FriendPayProcessDto;
 import kcs.funding.fundingboost.domain.dto.request.pay.myPay.ItemPayDto;
+import kcs.funding.fundingboost.domain.dto.request.pay.myPay.ItemPayNowDto;
 import kcs.funding.fundingboost.domain.dto.request.pay.myPay.MyPayDto;
+import kcs.funding.fundingboost.domain.dto.request.pay.myPay.PayRemainDto;
 import kcs.funding.fundingboost.domain.dto.response.myPage.deliveryManage.DeliveryDto;
+import kcs.funding.fundingboost.domain.dto.response.pay.friendFundingPay.FriendFundingPayingDto;
 import kcs.funding.fundingboost.domain.dto.response.pay.myPay.MyFundingPayViewDto;
 import kcs.funding.fundingboost.domain.dto.response.pay.myPay.MyOrderPayViewDto;
-import kcs.funding.fundingboost.domain.dto.request.pay.friendFundingPay.FriendPayProcessDto;
-import kcs.funding.fundingboost.domain.dto.response.pay.friendFundingPay.FriendFundingPayingDto;
 import kcs.funding.fundingboost.domain.entity.Delivery;
 import kcs.funding.fundingboost.domain.entity.Funding;
 import kcs.funding.fundingboost.domain.entity.FundingItem;
 import kcs.funding.fundingboost.domain.entity.GiftHubItem;
 import kcs.funding.fundingboost.domain.entity.Item;
 import kcs.funding.fundingboost.domain.entity.Member;
-import kcs.funding.fundingboost.domain.entity.Order;
-import kcs.funding.fundingboost.domain.entity.OrderItem;
 import kcs.funding.fundingboost.domain.model.DeliveryFixture;
 import kcs.funding.fundingboost.domain.model.FundingFixture;
 import kcs.funding.fundingboost.domain.model.FundingItemFixture;
 import kcs.funding.fundingboost.domain.model.GiftHubItemFixture;
 import kcs.funding.fundingboost.domain.model.ItemFixture;
 import kcs.funding.fundingboost.domain.model.MemberFixture;
-import kcs.funding.fundingboost.domain.model.OrderFixture;
-import kcs.funding.fundingboost.domain.model.OrderItemFixture;
 import kcs.funding.fundingboost.domain.service.pay.FriendPayService;
 import kcs.funding.fundingboost.domain.service.pay.MyPayService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
-
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -68,8 +63,7 @@ class PayControllerTest {
     private Item item;
     private GiftHubItem giftHubItem;
     private Delivery delivery;
-    private Order order;
-    private OrderItem orderItem;
+
 
     @BeforeEach
     void setUp() throws NoSuchFieldException, IllegalAccessException {
@@ -77,11 +71,11 @@ class PayControllerTest {
         delivery = DeliveryFixture.address1(member);
         item = ItemFixture.item1();
         funding = FundingFixture.Birthday(member);
-        order = OrderFixture.order1(member, delivery);
-        orderItem = OrderItemFixture.quantity1(order, item);
+        fundingItem = FundingItemFixture.fundingItem1(item, funding);
         giftHubItem = GiftHubItemFixture.quantity1(item, member);
     }
 
+    @DisplayName("마이 페이 주문 페이지 조회 & 즉시 결제시 페이지 조회")
     @Test
     void myOrderPayView() throws Exception {
         List<DeliveryDto> deliveryDtoList = List.of(DeliveryDto.fromEntity(delivery));
@@ -102,6 +96,7 @@ class PayControllerTest {
                 .andExpect(jsonPath("$.data.point").value(member.getPoint()));
     }
 
+    @DisplayName("마이 페이 펀딩 페이지 조회 펀딩 종료된 펀딩 아이템에 대해서 배송지 입력하기, 전여 금액 결제하기")
     @Test
     void myFundingPayView() throws Exception {
         funding = FundingFixture.terminatedFundingSuccess(member, 10000);
@@ -128,6 +123,7 @@ class PayControllerTest {
                 .andExpect(jsonPath("$.data.collectPrice").value(funding.getCollectPrice()));
     }
 
+    @DisplayName("상품 구매하기")
     @Test
     void payMyOrder() throws Exception {
         ItemPayDto itemPayDto = new ItemPayDto(item.getItemId(), giftHubItem.getGiftHubItemId(), 2);
@@ -140,9 +136,11 @@ class PayControllerTest {
         String content = objectMapper.writeValueAsString(myPayDto);
 
         mockMvc.perform(post("/api/v1/pay/order")
-        funding = FundingFixture.Birthday(member);
-        order = OrderFixture.order1(member, delivery);
-        orderItem = OrderItemFixture.quantity1(order, item);
+                        .param("memberId", member.getMemberId().toString())
+                        .contentType(APPLICATION_JSON)
+                        .content(content))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.data.isSuccess").value(true));
     }
 
 
@@ -162,7 +160,7 @@ class PayControllerTest {
                 .andExpect(jsonPath("$.data.friendName").value("임창희"))
                 .andExpect(jsonPath("$.data.friendProfile").value(
                         "https://p.kakaocdn.net/th/talkp/wnbbRhlyRW/XaGAXxS1OkUtXnomt6S4IK/ky0f9a_110x110_c.jpg"))
-                .andExpect(jsonPath("$.data.totalPrice").value(0))
+                .andExpect(jsonPath("$.data.totalPrice").value(61000))
                 .andExpect(jsonPath("$.data.presentPrice").value(197000))
                 .andExpect(jsonPath("$.data.myPoint").value(46000));
     }
@@ -184,5 +182,44 @@ class PayControllerTest {
                         .content(content))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.data.isSuccess").value(true));
+    }
+
+    @DisplayName("상품 즉시 구매하기")
+    @Test
+    void payMyOrderNow() throws Exception {
+        ItemPayNowDto itemPayNowDto = new ItemPayNowDto(item.getItemId(), 1, delivery.getDeliveryId(), 1000);
+        CommonSuccessDto expectedResponse = new CommonSuccessDto(true);
+
+        given(myPayService.payMyItemNow(itemPayNowDto, member.getMemberId())).willReturn(expectedResponse);
+
+        String content = objectMapper.writeValueAsString(itemPayNowDto);
+
+        mockMvc.perform(post("/api/v1/pay/order/now")
+                        .param("memberId", member.getMemberId().toString())
+                        .contentType(APPLICATION_JSON)
+                        .content(content))
+                .andExpect(status().isOk())
+                .andDo(print())
+                .andExpect(jsonPath("$.data.isSuccess").value(true));
+    }
+
+    @DisplayName("펀딩 상품 구매하기")
+    @Test
+    void payMyFunding() throws Exception {
+        PayRemainDto payRemainDto = new PayRemainDto(1000, delivery.getDeliveryId());
+        CommonSuccessDto expectedResponse = new CommonSuccessDto(true);
+
+        given(myPayService.payMyFunding(fundingItem.getFundingItemId(), payRemainDto, member.getMemberId())).willReturn(
+                expectedResponse);
+
+        String content = objectMapper.writeValueAsString(payRemainDto);
+
+        mockMvc.perform(post("/api/v1/pay/funding/{fundingItemId}", fundingItem.getFundingItemId())
+                        .param("memberId", member.getMemberId().toString())
+                        .contentType(APPLICATION_JSON)
+                        .content(content))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.data.isSuccess").value(true));
+
     }
 }
