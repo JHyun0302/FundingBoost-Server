@@ -1,6 +1,6 @@
 package kcs.funding.fundingboost.domain.security.fliter;
 
-import static kcs.funding.fundingboost.domain.security.utils.SecurityConst.AUTHORIZATION_HEADER;
+import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 import static org.springframework.util.StringUtils.hasText;
 
 import jakarta.servlet.FilterChain;
@@ -29,7 +29,7 @@ public class JwtFilter extends GenericFilterBean {
             throws IOException, ServletException {
 
         HttpServletRequest httpServletRequest = (HttpServletRequest) servletRequest;
-        String jwt = resolveToken(httpServletRequest);
+        String jwt = resolveToken(httpServletRequest); // Bearer 뒤, 토큰 부분만 파싱
         String requestURI = httpServletRequest.getRequestURI();
 
         if (hasText(jwt) && jwtAuthenticationProvider.validateToken(jwt)) {
@@ -44,7 +44,7 @@ public class JwtFilter extends GenericFilterBean {
     }
 
     private String resolveToken(HttpServletRequest request) {
-        String bearerToken = request.getHeader(AUTHORIZATION_HEADER);
+        String bearerToken = request.getHeader(AUTHORIZATION);
         if (hasText(bearerToken) && bearerToken.startsWith("Bearer ")) {
             return bearerToken.substring(7);
         }
