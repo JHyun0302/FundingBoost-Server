@@ -197,7 +197,7 @@ public class InitH2DB {
             funding3 = Funding.createFunding(member3, "드디어 졸업 성공~~", Tag.GRADUATE,
                     LocalDateTime.now().plusDays(7));
             funding4 = Funding.createFundingForTest(member4, "졸업 성공~~",
-                    Tag.GRADUATE, 200000,
+                    Tag.GRADUATE, 112000,
                     LocalDateTime.now().plusDays(7), true);
             em.persist(funding3);
             em.persist(funding4);
