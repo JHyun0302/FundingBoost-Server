@@ -5,12 +5,18 @@ import static kcs.funding.fundingboost.domain.exception.ErrorCode.INVALID_TOKEN_
 import static kcs.funding.fundingboost.domain.exception.ErrorCode.TOKEN_MALFORMED_ERROR;
 import static kcs.funding.fundingboost.domain.exception.ErrorCode.TOKEN_UNSUPPORTED_ERROR;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
+import io.jsonwebtoken.Jws;
+import io.jsonwebtoken.JwsHeader;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.MalformedJwtException;
+import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.UnsupportedJwtException;
 import java.util.List;
+import java.util.Map;
 import kcs.funding.fundingboost.domain.exception.CommonException;
 import kcs.funding.fundingboost.domain.security.utils.JwtUtils;
 import lombok.RequiredArgsConstructor;
@@ -29,14 +35,47 @@ public class JwtAuthenticationProvider implements AuthenticationProvider {
 
     private final CustomUserDetailsService customUserDetailsService;
 
-    public boolean validateToken(String token) {
+    @Override
+    public Authentication authenticate(Authentication authentication) throws AuthenticationException {
+
         try {
-            Jwts.parserBuilder()
+            // Authentication에서 jwt token을 얻어옴
+            String token = (String) authentication.getPrincipal();
+
+            // jwt token에서 정보를 받기 위한 parser
+            Jws<Claims> tokenParser = Jwts.parserBuilder()
                     .setSigningKey(JwtUtils.getKey())
                     .build()
-                    .parseClaimsJws(token)
-                    .getBody();
-            return true;
+                    .parseClaimsJws(token);
+
+            ObjectMapper mapper = new ObjectMapper();
+
+            // client token 정보
+            JwsHeader header = tokenParser.getHeader();
+            Claims body = tokenParser.getBody();
+            String payLoad = mapper.writeValueAsString(body);
+
+            String signature = tokenParser.getSignature();
+
+            // header와 payLoad를 이용해 signature 계산
+            String calculatedSignature = Jwts.builder()
+                    .signWith(JwtUtils.getKey(), SignatureAlgorithm.HS512)
+                    .setHeader((Map<String, Object>) header)
+                    .setPayload(payLoad)
+                    .compact()
+                    .split("\\.")[2];
+
+            if (signature.equals(calculatedSignature)) {
+                // request에서 얻은 signature와 서버가 계산한 signature가 동일한 경우
+                long userId = Long.parseLong(body.getSubject());
+
+                CustomUserDetails principal = customUserDetailsService.loadUserByUserId(userId);
+
+                return new UsernamePasswordAuthenticationToken(principal, null,
+                        List.of(new SimpleGrantedAuthority("ROLE_USER")));
+            } else {
+                throw new CommonException(TOKEN_MALFORMED_ERROR);
+            }
         } catch (io.jsonwebtoken.security.SecurityException | MalformedJwtException exception) {
             throw new CommonException(TOKEN_MALFORMED_ERROR);
         } catch (ExpiredJwtException e) {
@@ -45,23 +84,9 @@ public class JwtAuthenticationProvider implements AuthenticationProvider {
             throw new CommonException(INVALID_TOKEN_ERROR);
         } catch (IllegalArgumentException e) {
             throw new CommonException(TOKEN_UNSUPPORTED_ERROR);
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException(e);
         }
-    }
-
-    @Override
-    public Authentication authenticate(Authentication authentication) throws AuthenticationException {
-        Claims claims = Jwts.parserBuilder()
-                .setSigningKey(JwtUtils.getKey())
-                .build()
-                .parseClaimsJws((String) authentication.getPrincipal())
-                .getBody();
-
-        long userId = Long.parseLong(claims.getSubject());
-
-        CustomUserDetails principal = customUserDetailsService.loadUserByUserId(userId);
-
-        return new UsernamePasswordAuthenticationToken(principal, null,
-                List.of(new SimpleGrantedAuthority("ROLE_USER")));
     }
 
     @Override
