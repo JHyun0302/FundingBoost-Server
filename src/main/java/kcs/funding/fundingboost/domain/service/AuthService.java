@@ -19,6 +19,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
@@ -45,10 +46,11 @@ public class AuthService {
         return new ResponseEntity<>(TokenDto.fromEntity(jwt), httpHeaders, HttpStatus.OK);
     }
 
+    @Transactional
     public CommonSuccessDto signup(SignupDto signupDto) {
         String encodedPassword = passwordEncoder.encode(signupDto.password());
 
-        Member member = Member.createSignUpMember(signupDto.nickname(), encodedPassword, signupDto.email());
+        Member member = Member.createSignUpMember(signupDto.nickName(), encodedPassword, signupDto.email());
         memberRepository.save(member);
 
         return CommonSuccessDto.fromEntity(true);
