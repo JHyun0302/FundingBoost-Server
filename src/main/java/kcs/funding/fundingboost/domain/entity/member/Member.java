@@ -55,6 +55,15 @@ public class Member extends BaseTimeEntity {
     @Column(length = 100)
     private String kakaoUuid;
 
+    public static Member createSignUpMember(String nickName, String password, String email) {
+        Member member = new Member();
+        member.nickName = nickName;
+        member.password = password;
+        member.email = email;
+
+        return member;
+    }
+
     public static Member createMember(String nickName, String email, String password, String profileImgUrl,
                                       String refreshToken, String kakaoUuid) {
         Member member = new Member();
