@@ -4,43 +4,35 @@ import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.MalformedJwtException;
-import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.UnsupportedJwtException;
-import java.util.Base64;
 import java.util.List;
 import kcs.funding.fundingboost.domain.security.utils.JwtUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.stereotype.Component;
 
 @Slf4j
 @Component
 @RequiredArgsConstructor
-public class JwtAuthenticationProvider {
+public class JwtAuthenticationProvider implements AuthenticationProvider {
 
     private final CustomUserDetailsService customUserDetailsService;
 
     public boolean validateToken(String token) {
         try {
+            Claims claims = Jwts
+                    .parserBuilder()
+                    .setSigningKey(JwtUtils.getKey())
+                    .build()
+                    .parseClaimsJws(token)
+                    .getBody();
 
-            String[] parts = token.split("\\.");
-            String payLoad = parts[1];
-            String signature = parts[2];
-
-            String decodedPayload = new String(Base64.getDecoder().decode(payLoad));
-
-            String calculatedJwt = Jwts.builder()
-                    .signWith(JwtUtils.getKey(), SignatureAlgorithm.HS512)
-                    .setHeaderParam("typ", "JWT")
-                    .setPayload(decodedPayload)
-                    .compact();
-
-            String calculatedSignature = calculatedJwt.split("\\.")[2];
-
-            return signature.equals(calculatedSignature);
+            return true;
         } catch (io.jsonwebtoken.security.SecurityException | MalformedJwtException exception) {
             log.info("잘못된 JWT 서명");
         } catch (ExpiredJwtException e) {
@@ -53,11 +45,12 @@ public class JwtAuthenticationProvider {
         return false;
     }
 
-    public Authentication getAuthentication(String token) {
+    @Override
+    public Authentication authenticate(Authentication authentication) throws AuthenticationException {
         Claims claims = Jwts.parserBuilder()
                 .setSigningKey(JwtUtils.getKey())
                 .build()
-                .parseClaimsJws(token)
+                .parseClaimsJws((String) authentication.getPrincipal())
                 .getBody();
 
         long userId = Long.parseLong(claims.getSubject());
@@ -66,5 +59,10 @@ public class JwtAuthenticationProvider {
 
         return new UsernamePasswordAuthenticationToken(principal, null,
                 List.of(new SimpleGrantedAuthority("ROLE_USER")));
+    }
+
+    @Override
+    public boolean supports(Class<?> authentication) {
+        return authentication.isAssignableFrom(UsernamePasswordAuthenticationToken.class);
     }
 }

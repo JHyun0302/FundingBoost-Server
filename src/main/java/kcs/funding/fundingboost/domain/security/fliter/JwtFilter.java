@@ -11,6 +11,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import kcs.funding.fundingboost.domain.security.JwtAuthenticationProvider;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.filter.GenericFilterBean;
@@ -34,7 +35,10 @@ public class JwtFilter extends GenericFilterBean {
 
         if (hasText(jwt) && jwtAuthenticationProvider.validateToken(jwt)) {
             // 검증에 성공하면 UserDetails를 조회하여 Authentication을 생성
-            Authentication authentication = jwtAuthenticationProvider.getAuthentication(jwt);
+            UsernamePasswordAuthenticationToken requestAuthentication = new UsernamePasswordAuthenticationToken(
+                    jwt, "");
+            // AuthenticationProvider를 이용해 검증
+            Authentication authentication = jwtAuthenticationProvider.authenticate(requestAuthentication);
 
             // 생성된 Authentication을 SecurityContextHolder에 있는 SecurityContext에 저장
             SecurityContextHolder.getContextHolderStrategy().getContext().setAuthentication(authentication);
