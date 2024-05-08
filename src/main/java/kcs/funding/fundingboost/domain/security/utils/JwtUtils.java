@@ -12,6 +12,7 @@ import java.util.Date;
 import kcs.funding.fundingboost.domain.security.CustomUserDetails;
 import lombok.Getter;
 import org.springframework.beans.factory.InitializingBean;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -29,14 +30,15 @@ public class JwtUtils implements InitializingBean {
     /**
      * 토큰 생성
      */
-    public static String createToken(CustomUserDetails userDetails) {
+    public static String createToken(Authentication authentication) {
+        CustomUserDetails principal = (CustomUserDetails) authentication.getPrincipal();
         long now = (new Date()).getTime();
         Date validity = new Date(now + tokenValidityInMilliseconds);
 
         return Jwts.builder()
                 .signWith(key, SignatureAlgorithm.HS512)
                 .setHeaderParam("typ", "JWT")
-                .setSubject(String.valueOf(userDetails.getMemberId()))
+                .setSubject(String.valueOf(principal.getMemberId()))
                 .setExpiration(validity)
                 .setIssuedAt(new Date())
                 .compact();
