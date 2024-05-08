@@ -1,11 +1,17 @@
 package kcs.funding.fundingboost.domain.security;
 
+import static kcs.funding.fundingboost.domain.exception.ErrorCode.EXPIRED_TOKEN_ERROR;
+import static kcs.funding.fundingboost.domain.exception.ErrorCode.INVALID_TOKEN_ERROR;
+import static kcs.funding.fundingboost.domain.exception.ErrorCode.TOKEN_MALFORMED_ERROR;
+import static kcs.funding.fundingboost.domain.exception.ErrorCode.TOKEN_UNSUPPORTED_ERROR;
+
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.MalformedJwtException;
 import io.jsonwebtoken.UnsupportedJwtException;
 import java.util.List;
+import kcs.funding.fundingboost.domain.exception.CommonException;
 import kcs.funding.fundingboost.domain.security.utils.JwtUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -25,24 +31,21 @@ public class JwtAuthenticationProvider implements AuthenticationProvider {
 
     public boolean validateToken(String token) {
         try {
-            Claims claims = Jwts
-                    .parserBuilder()
+            Jwts.parserBuilder()
                     .setSigningKey(JwtUtils.getKey())
                     .build()
                     .parseClaimsJws(token)
                     .getBody();
-
             return true;
         } catch (io.jsonwebtoken.security.SecurityException | MalformedJwtException exception) {
-            log.info("잘못된 JWT 서명");
+            throw new CommonException(TOKEN_MALFORMED_ERROR);
         } catch (ExpiredJwtException e) {
-            log.info("만료된 JWT 토큰");
+            throw new CommonException(EXPIRED_TOKEN_ERROR);
         } catch (UnsupportedJwtException e) {
-            log.info("지원되지 않는 JWT 토큰");
+            throw new CommonException(INVALID_TOKEN_ERROR);
         } catch (IllegalArgumentException e) {
-            log.info("JWT 토큰이 잘못됨");
+            throw new CommonException(TOKEN_UNSUPPORTED_ERROR);
         }
-        return false;
     }
 
     @Override

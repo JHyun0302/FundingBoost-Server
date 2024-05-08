@@ -42,10 +42,7 @@ public class JwtFilter extends GenericFilterBean {
 
             // 생성된 Authentication을 SecurityContextHolder에 있는 SecurityContext에 저장
             SecurityContextHolder.getContextHolderStrategy().getContext().setAuthentication(authentication);
-        } else {
-            log.debug("Invalid JWT Token, uri: {}", requestURI);
         }
-
         filterChain.doFilter(servletRequest, servletResponse);
     }
 
