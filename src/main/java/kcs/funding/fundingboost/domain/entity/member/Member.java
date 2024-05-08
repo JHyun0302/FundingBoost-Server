@@ -42,7 +42,6 @@ public class Member extends BaseTimeEntity {
     @Column(length = 50)
     private String email;
 
-    @NotNull
     @Column(name = "profile_img_url", length = 100)
     private String profileImgUrl;
 
@@ -60,6 +59,8 @@ public class Member extends BaseTimeEntity {
         member.nickName = nickName;
         member.password = password;
         member.email = email;
+        member.point = 0;
+        member.memberRole = MemberRole.ROLE_USER;
 
         return member;
     }
