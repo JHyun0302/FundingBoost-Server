@@ -1,4 +1,4 @@
-package kcs.funding.fundingboost.domain.security;
+package kcs.funding.fundingboost.domain.security.provider;
 
 import static kcs.funding.fundingboost.domain.exception.ErrorCode.EXPIRED_TOKEN_ERROR;
 import static kcs.funding.fundingboost.domain.exception.ErrorCode.INVALID_TOKEN_ERROR;
@@ -18,6 +18,8 @@ import io.jsonwebtoken.UnsupportedJwtException;
 import java.util.List;
 import java.util.Map;
 import kcs.funding.fundingboost.domain.exception.CommonException;
+import kcs.funding.fundingboost.domain.security.CustomUserDetails;
+import kcs.funding.fundingboost.domain.security.CustomUserDetailsService;
 import kcs.funding.fundingboost.domain.security.utils.JwtUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

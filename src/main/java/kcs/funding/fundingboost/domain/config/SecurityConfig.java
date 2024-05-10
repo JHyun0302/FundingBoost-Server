@@ -1,8 +1,8 @@
 package kcs.funding.fundingboost.domain.config;
 
-import kcs.funding.fundingboost.domain.security.JwtAuthenticationProvider;
 import kcs.funding.fundingboost.domain.security.entrypoint.JwtAuthenticationEntryPoint;
 import kcs.funding.fundingboost.domain.security.handler.JwtAccessDeniedHandler;
+import kcs.funding.fundingboost.domain.security.provider.JwtAuthenticationProvider;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;

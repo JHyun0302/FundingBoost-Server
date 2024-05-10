@@ -9,7 +9,7 @@ import kcs.funding.fundingboost.domain.dto.request.login.SignupDto;
 import kcs.funding.fundingboost.domain.dto.response.login.TokenDto;
 import kcs.funding.fundingboost.domain.entity.member.Member;
 import kcs.funding.fundingboost.domain.repository.MemberRepository;
-import kcs.funding.fundingboost.domain.security.SimpleAuthenticationProvider;
+import kcs.funding.fundingboost.domain.security.provider.SimpleAuthenticationProvider;
 import kcs.funding.fundingboost.domain.security.utils.JwtUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
