@@ -14,7 +14,6 @@ import kcs.funding.fundingboost.domain.dto.common.CommonSuccessDto;
 import kcs.funding.fundingboost.domain.dto.request.fundingRegist.RegisterFundingDto;
 import kcs.funding.fundingboost.domain.dto.response.common.CommonFriendFundingDto;
 import kcs.funding.fundingboost.domain.dto.response.common.FriendFundingPageItemDto;
-import kcs.funding.fundingboost.domain.dto.response.friendFunding.FriendFundingDto;
 import kcs.funding.fundingboost.domain.dto.response.friendFundingDetail.ContributorDto;
 import kcs.funding.fundingboost.domain.dto.response.friendFundingDetail.FriendFundingDetailDto;
 import kcs.funding.fundingboost.domain.dto.response.friendFundingDetail.FriendFundingItemDto;
@@ -114,7 +113,6 @@ public class FundingService {
             List<FriendFundingItemDto> friendFundingItemList = fundingItems.stream()
                     .map(FriendFundingItemDto::fromEntity)
                     .toList();
-
             Funding funding = fundingItems.get(0).getFunding();
 
             if (funding.getMember().getMemberId().equals(memberId)) {
@@ -170,15 +168,8 @@ public class FundingService {
         return commonFriendFundingDtoList;
     }
 
-    public List<FriendFundingDto> getFriendFundingList(Long memberId) {
-        List<CommonFriendFundingDto> commonFriendFundingDtoList = getCommonFriendFundingList(memberId);
-        List<FriendFundingDto> friendFundingDtoList = new ArrayList<>();
-
-        for (CommonFriendFundingDto commonFriendFundingDto : commonFriendFundingDtoList) {
-            friendFundingDtoList.add(FriendFundingDto.fromEntity(commonFriendFundingDto));
-        }
-
-        return friendFundingDtoList;
+    public List<CommonFriendFundingDto> getFriendFundingList(Long memberId) {
+        return getCommonFriendFundingList(memberId);
     }
 
     @Transactional
