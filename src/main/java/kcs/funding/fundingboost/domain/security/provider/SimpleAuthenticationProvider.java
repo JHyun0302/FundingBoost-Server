@@ -1,9 +1,11 @@
-package kcs.funding.fundingboost.domain.security;
+package kcs.funding.fundingboost.domain.security.provider;
 
 import static kcs.funding.fundingboost.domain.exception.ErrorCode.FAILURE_LOGIN;
 
 import java.util.List;
 import kcs.funding.fundingboost.domain.exception.CommonException;
+import kcs.funding.fundingboost.domain.security.CustomUserDetails;
+import kcs.funding.fundingboost.domain.security.CustomUserDetailsService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
