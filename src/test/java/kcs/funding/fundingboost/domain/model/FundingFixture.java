@@ -17,7 +17,7 @@ public class FundingFixture {
      */
     public static Funding Birthday(Member member) throws NoSuchFieldException, IllegalAccessException {
         Funding funding = Funding.createFunding(member, "생일축하해주세욥 3월21일입니닷", BIRTHDAY,
-                LocalDateTime.now());
+                LocalDateTime.now().plusDays(15));
 
         Field fundingId = funding.getClass().getDeclaredField("fundingId");
         fundingId.setAccessible(true);
@@ -35,7 +35,7 @@ public class FundingFixture {
     public static Funding BirthdayWithCollectPrice(Member member, int collectPrice)
             throws NoSuchFieldException, IllegalAccessException {
         Funding funding = Funding.createFundingForTest(member, "생일축하해주세욥 3월21일입니닷", BIRTHDAY, collectPrice,
-                LocalDateTime.now(), true);
+                LocalDateTime.now().plusDays(7), true);
 
         Field fundingId = funding.getClass().getDeclaredField("fundingId");
         fundingId.setAccessible(true);
@@ -52,7 +52,7 @@ public class FundingFixture {
      */
     public static Funding Graduate(Member member) throws NoSuchFieldException, IllegalAccessException {
         Funding funding = Funding.createFunding(member, "졸업축하해주세요 사실 졸업 못했어요ㅠㅠ", GRADUATE,
-                LocalDateTime.now());
+                LocalDateTime.now().plusDays(11));
         Field fundingId = funding.getClass().getDeclaredField("fundingId");
         fundingId.setAccessible(true);
         fundingId.set(funding, 3L);
@@ -105,7 +105,7 @@ public class FundingFixture {
     public static Funding lowPriceRestFunding(Member member)
             throws NoSuchFieldException, IllegalAccessException {
         Funding funding = Funding.createFundingForTest(member, "생일축하해주세욥 3월21일입니닷", BIRTHDAY, 195000,
-                LocalDateTime.now(), true);
+                LocalDateTime.now().plusDays(4), true);
 
         Field fundingId = funding.getClass().getDeclaredField("fundingId");
         fundingId.setAccessible(true);
