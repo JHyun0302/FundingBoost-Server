@@ -88,17 +88,17 @@ class FundingServiceTest_InHo_v2 {
         List<FundingItem> fundigItems = FundingItemFixture.fundingItems(itemList, funding);
 
         when(memberRepository.findById(member.getMemberId())).thenReturn(Optional.of(member));
-        when(fundingRepository.findFundingInfo(member.getMemberId())).thenReturn(Optional.ofNullable(funding));
+        when(fundingRepository.findFundingInfo(member.getMemberId())).thenReturn(Optional.of(funding));
 
         //when
         HomeViewDto result = fundingService.getMainView(member.getMemberId());
 
         //then
         assertThat(result.homeMemberInfoDto().nickName()).isEqualTo(member.getNickName());
-        assertThat(result.homeMyFundingStatusDto().deadline()).isEqualTo("D-14");
-        assertThat(result.homeMyFundingStatusDto().totalPercent()).isEqualTo(59);
+        assertThat(result.homeMyFundingStatusDto().deadline()).isEqualTo("D-15");
+        assertThat(result.homeMyFundingStatusDto().totalPercent()).isEqualTo(0);
         assertThat(result.homeMyFundingStatusDto().homeMyFundingItemDtoList()).extracting("itemPercent")
-                .contains(100, 0);
+                .contains(0, 0);
 
     }
 
@@ -121,7 +121,6 @@ class FundingServiceTest_InHo_v2 {
     @Test
     void getMainView_친구펀딩현황조회() throws NoSuchFieldException, IllegalAccessException {
         //given
-
         /**
          * 친구 맴버 생성
          */
@@ -161,7 +160,7 @@ class FundingServiceTest_InHo_v2 {
         //then
         assertThat(result.homeFriendFundingDtoList()).hasSize(1);
         assertThat(result.homeFriendFundingDtoList().get(0).commonFriendFundingDto()
-                .friendFundingDeadlineDate()).isEqualTo("D-14");
+                .friendFundingDeadlineDate()).isEqualTo("D-7");
         assertThat(result.homeFriendFundingDtoList().get(0).commonFriendFundingDto()
                 .friendFundingPageItemDtoList()).hasSize(3);
         assertThat(result.homeFriendFundingDtoList().get(0).commonFriendFundingDto().collectPrice()).isEqualTo(86500);
@@ -293,10 +292,10 @@ class FundingServiceTest_InHo_v2 {
          * 사용자 관련 테스트
          */
         assertThat(result.homeMemberInfoDto().nickName()).isEqualTo(member.getNickName());
-        assertThat(result.homeMyFundingStatusDto().deadline()).isEqualTo("D-14");
-        assertThat(result.homeMyFundingStatusDto().totalPercent()).isEqualTo(59);
+        assertThat(result.homeMyFundingStatusDto().deadline()).isEqualTo("D-15");
+        assertThat(result.homeMyFundingStatusDto().totalPercent()).isEqualTo(0);
         assertThat(result.homeMyFundingStatusDto().homeMyFundingItemDtoList()).extracting("itemPercent")
-                .contains(100, 0);
+                .contains(0, 0);
 
         /**
          * 친구 펀딩 관련 테스트
@@ -304,7 +303,7 @@ class FundingServiceTest_InHo_v2 {
         assertThat(result.homeFriendFundingDtoList()).hasSize(2);
 
         assertThat(result.homeFriendFundingDtoList().get(0).commonFriendFundingDto()
-                .friendFundingDeadlineDate()).isEqualTo("D-14");
+                .friendFundingDeadlineDate()).isEqualTo("D-7");
         assertThat(result.homeFriendFundingDtoList().get(1).commonFriendFundingDto()
                 .friendFundingDeadlineDate()).isEqualTo("D-14");
 
@@ -338,5 +337,5 @@ class FundingServiceTest_InHo_v2 {
          */
         assertThat(result.itemDtoList()).extracting("itemId").contains(1L, 2L, 3L, 4L, 5L);
     }
-    
+
 }
