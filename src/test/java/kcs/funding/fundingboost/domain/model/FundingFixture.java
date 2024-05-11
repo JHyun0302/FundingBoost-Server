@@ -52,7 +52,7 @@ public class FundingFixture {
      */
     public static Funding Graduate(Member member) throws NoSuchFieldException, IllegalAccessException {
         Funding funding = Funding.createFunding(member, "졸업축하해주세요 사실 졸업 못했어요ㅠㅠ", GRADUATE,
-                LocalDateTime.now().plusDays(11));
+                LocalDateTime.now().plusDays(14));
         Field fundingId = funding.getClass().getDeclaredField("fundingId");
         fundingId.setAccessible(true);
         fundingId.set(funding, 3L);

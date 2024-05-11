@@ -160,8 +160,7 @@ class FundingServiceTestCH {
     void terminateFunding_Success() throws NoSuchFieldException, IllegalAccessException {
         //given
         Funding funding = FundingFixture.Graduate(member);
-        String expectDeadline = funding.getDeadline()
-                .format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+        String expectDeadline = LocalDate.now().toString();
 
         // member에 대한 funding 생성
         when(fundingRepository.findById(funding.getFundingId())).thenReturn(Optional.of(funding));
@@ -173,7 +172,7 @@ class FundingServiceTestCH {
         assertTrue(commonSuccessDto.isSuccess());
         verify(fundingRepository, times(1)).findById(any());
         assertEquals(expectDeadline, funding.getDeadline()
-                .format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
+                .format(DateTimeFormatter.ofPattern("yyyy-MM-dd")));
     }
 
 
