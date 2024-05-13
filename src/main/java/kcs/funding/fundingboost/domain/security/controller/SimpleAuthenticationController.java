@@ -1,13 +1,9 @@
 package kcs.funding.fundingboost.domain.security.controller;
 
-import static org.springframework.http.HttpHeaders.AUTHORIZATION;
-
-import jakarta.servlet.http.HttpServletRequest;
 import kcs.funding.fundingboost.domain.dto.common.CommonSuccessDto;
 import kcs.funding.fundingboost.domain.dto.global.ResponseDto;
 import kcs.funding.fundingboost.domain.dto.request.login.LoginDto;
 import kcs.funding.fundingboost.domain.dto.request.login.SignupDto;
-import kcs.funding.fundingboost.domain.dto.response.login.JwtAccessTokenDto;
 import kcs.funding.fundingboost.domain.dto.response.login.UsernamePasswordJwtDto;
 import kcs.funding.fundingboost.domain.security.service.SimpleAuthenticationService;
 import lombok.RequiredArgsConstructor;
@@ -19,7 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/auth")
-public class AuthController {
+public class SimpleAuthenticationController {
 
     private final SimpleAuthenticationService simpleAuthenticationService;
 
@@ -28,7 +24,7 @@ public class AuthController {
      */
     @PostMapping("/signin")
     public ResponseDto<UsernamePasswordJwtDto> signIn(@RequestBody LoginDto loginDto) {
-        return ResponseDto.ok(simpleAuthenticationService.createJwtToken(loginDto));
+        return ResponseDto.ok(simpleAuthenticationService.initialLogin(loginDto));
     }
 
     /**
@@ -42,9 +38,5 @@ public class AuthController {
     /**
      * access token 재발급
      */
-    @PostMapping("/access-reissue")
-    public ResponseDto<JwtAccessTokenDto> reIssueAccessToken(HttpServletRequest request) {
-        String refreshToken = request.getHeader(AUTHORIZATION);
-        simpleAuthenticationService.createAccessToken(refreshToken);
-    }
+
 }
