@@ -46,7 +46,8 @@ public class FundingRepositoryImpl implements FundingRepositoryCustom {
         return queryFactory
                 .selectFrom(funding)
                 .join(funding.member, member).fetchJoin()
-                .where(funding.member.memberId.eq(memberId))
+                .where(funding.member.memberId.eq(memberId)
+                        .and(funding.fundingStatus.eq(false)))
                 .orderBy(funding.createdDate.desc())
                 .fetch();
     }
