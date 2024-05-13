@@ -1,22 +1,19 @@
 package kcs.funding.fundingboost.domain.security.entity;
 
+import static kcs.funding.fundingboost.domain.security.utils.SecurityConst.ACCESS_TOKEN_VALIDITY_IN_SECONDS;
+
 import lombok.Getter;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.redis.core.RedisHash;
-import org.springframework.data.redis.core.TimeToLive;
 
 @Getter
-@RedisHash(value = "refreshToken")
+@RedisHash(value = "refreshToken", timeToLive = ACCESS_TOKEN_VALIDITY_IN_SECONDS)
 public class BlackList {
 
     @Id
     private String token;
 
-    @TimeToLive
-    private Long expiration;
-
-    public BlackList(String token, Long expiration) {
+    public BlackList(String token) {
         this.token = token;
-        this.expiration = expiration;
     }
 }

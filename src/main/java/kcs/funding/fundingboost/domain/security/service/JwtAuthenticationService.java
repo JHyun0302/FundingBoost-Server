@@ -1,9 +1,8 @@
 package kcs.funding.fundingboost.domain.security.service;
 
 import static kcs.funding.fundingboost.domain.exception.ErrorCode.EXPIRED_REFRESH_TOKEN_ERROR;
-import static kcs.funding.fundingboost.domain.security.utils.SecurityConst.accessTokenValidityInMilliseconds;
-import static kcs.funding.fundingboost.domain.security.utils.SecurityConst.refreshTokenValidityInMilliseconds;
-import static kcs.funding.fundingboost.domain.security.utils.SecurityConst.secret;
+import static kcs.funding.fundingboost.domain.security.utils.SecurityConst.ACCESS_TOKEN_VALIDITY_IN_MILLISECONDS;
+import static kcs.funding.fundingboost.domain.security.utils.SecurityConst.SECRET;
 
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
@@ -33,7 +32,7 @@ public class JwtAuthenticationService implements InitializingBean {
 
     @Override
     public void afterPropertiesSet() {
-        byte[] keyBytes = Decoders.BASE64.decode(secret);
+        byte[] keyBytes = Decoders.BASE64.decode(SECRET);
         key = Keys.hmacShaKeyFor(keyBytes);
     }
 
@@ -59,7 +58,7 @@ public class JwtAuthenticationService implements InitializingBean {
 
     private String getAccessToken(Long memberId) {
         long now = (new Date()).getTime();
-        Date accessTokenValidity = new Date(now + accessTokenValidityInMilliseconds);
+        Date accessTokenValidity = new Date(now + ACCESS_TOKEN_VALIDITY_IN_MILLISECONDS);
 
         return Jwts.builder()
                 .signWith(key, SignatureAlgorithm.HS512)
@@ -73,13 +72,10 @@ public class JwtAuthenticationService implements InitializingBean {
     public RefreshToken createRefreshToken(Authentication authentication) {
         CustomUserDetails principal = (CustomUserDetails) authentication.getPrincipal();
         Long memberId = principal.getMemberId();
-        long now = (new Date()).getTime();
-        Date refreshTokenValidity = new Date(now + refreshTokenValidityInMilliseconds);
 
         String token = Jwts.builder()
                 .signWith(key, SignatureAlgorithm.HS512)
                 .setSubject(String.valueOf(memberId))
-                .setExpiration(refreshTokenValidity)
                 .compact();
         RefreshToken refreshToken = RefreshToken.createRefreshToken(token, memberId);
         // redis에 refresh token 저장
@@ -87,5 +83,4 @@ public class JwtAuthenticationService implements InitializingBean {
 
         return refreshToken;
     }
-
 }
