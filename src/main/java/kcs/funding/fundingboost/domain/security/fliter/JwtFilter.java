@@ -33,7 +33,7 @@ public class JwtFilter extends GenericFilterBean {
         String jwt = resolveToken(httpServletRequest); // Bearer 뒤, 토큰 부분만 파싱
 
         if (hasText(jwt)) {
-            // 검증에 성공하면 UserDetails를 조회하여 Authentication을 생성
+            // Bearer 텍스트로 갖는 accessToken을 갖는다면 authentication을 만들어 검증을 시도
             UsernamePasswordAuthenticationToken requestAuthentication = new UsernamePasswordAuthenticationToken(
                     jwt, "");
             // AuthenticationProvider를 이용해 검증
@@ -45,6 +45,9 @@ public class JwtFilter extends GenericFilterBean {
         filterChain.doFilter(servletRequest, servletResponse);
     }
 
+    /**
+     * accessToken을 반환
+     */
     private String resolveToken(HttpServletRequest request) {
         String bearerToken = request.getHeader(AUTHORIZATION);
         if (hasText(bearerToken) && bearerToken.startsWith("Bearer ")) {
