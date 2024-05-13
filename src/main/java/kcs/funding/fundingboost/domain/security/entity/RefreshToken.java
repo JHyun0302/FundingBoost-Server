@@ -1,4 +1,4 @@
-package kcs.funding.fundingboost.domain.security.entity.token;
+package kcs.funding.fundingboost.domain.security.entity;
 
 import lombok.Getter;
 import org.springframework.data.annotation.Id;

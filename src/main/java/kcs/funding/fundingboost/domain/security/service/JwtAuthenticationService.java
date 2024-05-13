@@ -14,7 +14,7 @@ import java.util.Date;
 import kcs.funding.fundingboost.domain.dto.response.login.JwtAccessTokenDto;
 import kcs.funding.fundingboost.domain.exception.CommonException;
 import kcs.funding.fundingboost.domain.security.CustomUserDetails;
-import kcs.funding.fundingboost.domain.security.entity.token.RefreshToken;
+import kcs.funding.fundingboost.domain.security.entity.RefreshToken;
 import kcs.funding.fundingboost.domain.security.repository.RefreshTokenRepository;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;

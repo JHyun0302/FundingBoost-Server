@@ -6,7 +6,7 @@ import kcs.funding.fundingboost.domain.dto.request.login.SignupDto;
 import kcs.funding.fundingboost.domain.dto.response.login.UsernamePasswordJwtDto;
 import kcs.funding.fundingboost.domain.entity.member.Member;
 import kcs.funding.fundingboost.domain.repository.MemberRepository;
-import kcs.funding.fundingboost.domain.security.entity.token.RefreshToken;
+import kcs.funding.fundingboost.domain.security.entity.RefreshToken;
 import kcs.funding.fundingboost.domain.security.provider.SimpleAuthenticationProvider;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
