@@ -41,7 +41,7 @@ public class JwtAuthenticationProvider implements AuthenticationProvider {
     public Authentication authenticate(Authentication authentication) throws AuthenticationException {
 
         try {
-            // Authentication에서 jwt token을 얻어옴
+            // Authentication에서 access token을 얻어옴
             String token = (String) authentication.getPrincipal();
 
             // jwt token에서 정보를 받기 위한 parser
@@ -81,6 +81,7 @@ public class JwtAuthenticationProvider implements AuthenticationProvider {
         } catch (io.jsonwebtoken.security.SecurityException | MalformedJwtException exception) {
             throw new CommonException(TOKEN_MALFORMED_ERROR);
         } catch (ExpiredJwtException e) {
+            // 토큰이 만료되면 EXPIRED_TOKEN_ERROR를 던짐
             throw new CommonException(EXPIRED_TOKEN_ERROR);
         } catch (UnsupportedJwtException e) {
             throw new CommonException(INVALID_TOKEN_ERROR);
