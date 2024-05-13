@@ -244,28 +244,21 @@ public class InitH2DB {
             List<Member> memberInfos = Arrays.asList(
                     Member.createMemberWithPoint("임창희", "dlackdgml3710@gmail.com", "",
                             "https://p.kakaocdn.net/th/talkp/wnbbRhlyRW/XaGAXxS1OkUtXnomt6S4IK/ky0f9a_110x110_c.jpg",
-                            46000,
-                            "", "aFxoWGFUZlV5SH9MfE9-TH1PY1JiV2JRaF83"),
+                            46000, "aFxoWGFUZlV5SH9MfE9-TH1PY1JiV2JRaF83"),
                     Member.createMemberWithPoint("구태형", "rnxogud136@gmail.com", "1234",
                             "https://p.kakaocdn.net/th/talkp/wowkAlwbLn/Ko25X6eV5bs1OycAz7n9Q1/lq4mv6_110x110_c.jpg",
-                            999999999,
-                            "", "aFtpX2lZaFhvQ3JLe0J2QnFDcFxtXWhdbldgDA"),
+                            999999999, "aFtpX2lZaFhvQ3JLe0J2QnFDcFxtXWhdbldgDA"),
                     Member.createMemberWithPoint("맹인호", "aoddlsgh98@gmail.com", "",
                             "https://p.kakaocdn.net/th/talkp/woBG0lIJfU/M6aVERkQ2Lv2sNfQaLMYrK/pzfmfl_110x110_c.jpg",
-                            200000,
-                            "", "aFluW29Ya1hpRXdBdEdyQHBGdlprW25baFFmDQ"),
+                            200000, "aFluW29Ya1hpRXdBdEdyQHBGdlprW25baFFmDQ"),
                     Member.createMemberWithPoint("양혜인", "helen66626662@gmail.com", "",
                             "https://p.kakaocdn.net/th/talkp/woGALKKcHt/jiOhwZDs9RTkkXPwNYjxF1/wzruf2_110x110_c.jpg",
-                            300000,
-                            "", "aFtpXm1ZaVtuQnRMeUp9Tn5PY1JiV2JRaF8z"),
+                            300000, "aFtpXm1ZaVtuQnRMeUp9Tn5PY1JiV2JRaF8z"),
                     Member.createMemberWithPoint("이재현", "jhyun030299@gmail.com", "",
                             "https://k.kakaocdn.net/dn/jrT50/btsF9BGMPni/7oxQfq58KmKxIl8UX01mn0/img_110x110.jpg",
-                            400000,
-                            "",
-                            "aFpqUmZVYFRsQHFIfU53R3ZDdlprW25baFFmDw"),
+                            400000, "aFpqUmZVYFRsQHFIfU53R3ZDdlprW25baFFmDw"),
                     Member.createMemberWithPoint("현세미", "gustpal08@gmail.com", "", "",
-                            500000,
-                            "", "aFlvVm9bbFpoRHBGf0Z0RHRDb15uW25dZFM_")
+                            500000, "aFlvVm9bbFpoRHBGf0Z0RHRDb15uW25dZFM_")
             );
 
             for (Member member : memberInfos) {
