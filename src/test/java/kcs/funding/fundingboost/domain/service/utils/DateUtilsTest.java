@@ -36,7 +36,7 @@ class DateUtilsTest {
     @DisplayName("펀딩 마감일이 과거인 경우")
     @Test
     public void testToFundingDeadlineStringWithPastDate() {
-        LocalDateTime pastDate = LocalDateTime.now().minusDays(1);
+        LocalDateTime pastDate = LocalDateTime.now().minusSeconds(1);
         Funding funding = Funding.createFunding(member, FUNDING_MESSAGE, Tag.BIRTHDAY, pastDate);
 
         assertEquals(FUNDING_FINISHED_MESSAGE, toDeadlineString(funding));

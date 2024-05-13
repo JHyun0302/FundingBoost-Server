@@ -38,10 +38,6 @@ public class Delivery extends BaseTimeEntity {
     @OnDelete(action = OnDeleteAction.CASCADE)
     private Member member;
 
-
-    @Column(name = "delivery_status")
-    private boolean deliveryStatus;
-
     public static Delivery createDelivery(String address, String phoneNumber, String customerName, Member member) {
         Delivery delivery = new Delivery();
         delivery.address = address;

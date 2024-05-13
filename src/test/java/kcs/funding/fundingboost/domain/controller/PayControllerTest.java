@@ -58,8 +58,10 @@ class PayControllerTest {
     private ObjectMapper objectMapper;
 
     private Member member;
+    private Member friend;
     private FundingItem fundingItem;
     private Funding funding;
+    private Funding friendFunding;
     private Item item;
     private GiftHubItem giftHubItem;
     private Delivery delivery;
@@ -68,9 +70,11 @@ class PayControllerTest {
     @BeforeEach
     void setUp() throws NoSuchFieldException, IllegalAccessException {
         member = MemberFixture.member1();
+        friend = MemberFixture.member2();
         delivery = DeliveryFixture.address1(member);
         item = ItemFixture.item1();
         funding = FundingFixture.Birthday(member);
+        friendFunding = FundingFixture.Graduate(friend);
         fundingItem = FundingItemFixture.fundingItem1(item, funding);
         giftHubItem = GiftHubItemFixture.quantity1(item, member);
     }
@@ -147,22 +151,30 @@ class PayControllerTest {
     @DisplayName("친구 펀딩 결제 페이지 조회")
     @Test
     void viewFriendsFundingDetail() throws Exception {
-        FriendFundingPayingDto friendFundingPayingDto = FriendFundingPayingDto.fromEntity(funding, member.getPoint());
+        // given
+        FriendFundingPayingDto friendFundingPayingDto = FriendFundingPayingDto.fromEntity(friendFunding,
+                member.getPoint());
 
-        given(friendPayService.getFriendFundingPay(funding.getFundingId(), member.getMemberId())).willReturn(
+        given(friendPayService.getFriendFundingPay(friendFunding.getFundingId(), member.getMemberId())).willReturn(
                 friendFundingPayingDto);
 
-        mockMvc.perform(get("/api/v1/pay/friends/{fundingId}", funding.getFundingId())
+        // when & then
+        mockMvc.perform(get("/api/v1/pay/friends/{fundingId}", friendFunding.getFundingId())
                         .param("memberId", member.getMemberId().toString())
                         .contentType(APPLICATION_JSON))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.success").value(true))
-                .andExpect(jsonPath("$.data.friendName").value("임창희"))
-                .andExpect(jsonPath("$.data.friendProfile").value(
-                        "https://p.kakaocdn.net/th/talkp/wnbbRhlyRW/XaGAXxS1OkUtXnomt6S4IK/ky0f9a_110x110_c.jpg"))
-                .andExpect(jsonPath("$.data.totalPrice").value(61000))
-                .andExpect(jsonPath("$.data.presentPrice").value(197000))
-                .andExpect(jsonPath("$.data.myPoint").value(46000));
+                .andExpect(jsonPath("$.success")
+                        .value(true))
+                .andExpect(jsonPath("$.data.friendName")
+                        .value(friend.getNickName()))
+                .andExpect(jsonPath("$.data.friendProfile")
+                        .value(friend.getProfileImgUrl()))
+                .andExpect(jsonPath("$.data.totalPrice")
+                        .value(friendFunding.getTotalPrice()))
+                .andExpect(jsonPath("$.data.presentPrice")
+                        .value(friendFunding.getCollectPrice()))
+                .andExpect(jsonPath("$.data.myPoint")
+                        .value(46000));
     }
 
     @DisplayName("친구 펀딩 결제하기")

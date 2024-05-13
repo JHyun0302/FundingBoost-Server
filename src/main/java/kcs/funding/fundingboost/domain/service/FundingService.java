@@ -14,7 +14,6 @@ import kcs.funding.fundingboost.domain.dto.common.CommonSuccessDto;
 import kcs.funding.fundingboost.domain.dto.request.fundingRegist.RegisterFundingDto;
 import kcs.funding.fundingboost.domain.dto.response.common.CommonFriendFundingDto;
 import kcs.funding.fundingboost.domain.dto.response.common.FriendFundingPageItemDto;
-import kcs.funding.fundingboost.domain.dto.response.friendFunding.FriendFundingDto;
 import kcs.funding.fundingboost.domain.dto.response.friendFundingDetail.ContributorDto;
 import kcs.funding.fundingboost.domain.dto.response.friendFundingDetail.FriendFundingDetailDto;
 import kcs.funding.fundingboost.domain.dto.response.friendFundingDetail.FriendFundingItemDto;
@@ -76,6 +75,10 @@ public class FundingService {
                 .map(itemIdList -> itemRepository.findById(itemIdList)
                         .orElseThrow(() -> new CommonException(NOT_FOUND_ITEM))).toList();
 
+        if (itemList.isEmpty()) {
+            throw new CommonException(INVALID_FUNDING_STATUS);
+        }
+
         Member member = memberRepository.findById(memberId).orElseThrow(() -> new CommonException(NOT_FOUND_MEMBER));
 
         Funding funding = Funding.createFunding(
@@ -110,7 +113,6 @@ public class FundingService {
             List<FriendFundingItemDto> friendFundingItemList = fundingItems.stream()
                     .map(FriendFundingItemDto::fromEntity)
                     .toList();
-
             Funding funding = fundingItems.get(0).getFunding();
 
             if (funding.getMember().getMemberId().equals(memberId)) {
@@ -166,15 +168,8 @@ public class FundingService {
         return commonFriendFundingDtoList;
     }
 
-    public List<FriendFundingDto> getFriendFundingList(Long memberId) {
-        List<CommonFriendFundingDto> commonFriendFundingDtoList = getCommonFriendFundingList(memberId);
-        List<FriendFundingDto> friendFundingDtoList = new ArrayList<>();
-
-        for (CommonFriendFundingDto commonFriendFundingDto : commonFriendFundingDtoList) {
-            friendFundingDtoList.add(FriendFundingDto.fromEntity(commonFriendFundingDto));
-        }
-
-        return friendFundingDtoList;
+    public List<CommonFriendFundingDto> getFriendFundingList(Long memberId) {
+        return getCommonFriendFundingList(memberId);
     }
 
     @Transactional
@@ -186,9 +181,9 @@ public class FundingService {
     }
 
     public HomeViewDto getMainView(Long memberId) {
-        Optional<Funding> funding = fundingRepository.findFundingInfo(memberId);
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new CommonException(NOT_FOUND_MEMBER));
+        Optional<Funding> funding = fundingRepository.findFundingInfo(memberId);
         // 사용자 정보: 이름, 프로필 이미지
         HomeMemberInfoDto homeMemberInfoDto = HomeMemberInfoDto.fromEntity(member);
 
@@ -224,6 +219,7 @@ public class FundingService {
                     collectPrice -= itemPrice;
                 } else {
                     nowFundingItemImageUrl = friendFundingPageItemDto.itemImageUrl();
+                    break;
                 }
             }
             friendFundingDtoList.add(HomeFriendFundingDto.fromEntity(
