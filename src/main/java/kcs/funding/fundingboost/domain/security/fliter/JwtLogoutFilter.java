@@ -1,17 +1,18 @@
 package kcs.funding.fundingboost.domain.security.fliter;
 
+import static kcs.funding.fundingboost.domain.security.utils.SecurityConst.LOG_OUT_URI;
+
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
-import jakarta.servlet.ServletRequest;
-import jakarta.servlet.ServletResponse;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import kcs.funding.fundingboost.domain.security.handler.JwtLogoutHandler;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.web.filter.GenericFilterBean;
+import org.springframework.web.filter.OncePerRequestFilter;
 
 @Slf4j
-public class JwtLogoutFilter extends GenericFilterBean {
+public class JwtLogoutFilter extends OncePerRequestFilter {
 
     private final JwtLogoutHandler jwtLogoutHandler;
 
@@ -19,15 +20,17 @@ public class JwtLogoutFilter extends GenericFilterBean {
         this.jwtLogoutHandler = jwtLogoutHandler;
     }
 
+
     @Override
-    public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain filterChain)
-            throws IOException, ServletException {
-        HttpServletRequest httpServletRequest = (HttpServletRequest) servletRequest;
-        if (httpServletRequest.getHeader("access_token") != null
-                && httpServletRequest.getHeader("refresh_token") != null) {
-            jwtLogoutHandler.handle(httpServletRequest);
+    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
+            throws ServletException, IOException {
+        String requestURI = request.getRequestURI();
+        log.info("requestURI in JwtLogoutFilter");
+        if (requestURI.equals(LOG_OUT_URI) && request.getHeader("access_token") != null
+                && request.getHeader("refresh_token") != null) {
+            jwtLogoutHandler.handle(request);
             return;
         }
-        filterChain.doFilter(servletRequest, servletResponse);
+        filterChain.doFilter(request, response);
     }
 }

@@ -5,19 +5,18 @@ import static org.springframework.util.StringUtils.hasText;
 
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
-import jakarta.servlet.ServletRequest;
-import jakarta.servlet.ServletResponse;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import kcs.funding.fundingboost.domain.security.provider.JwtAuthenticationProvider;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.web.filter.GenericFilterBean;
+import org.springframework.web.filter.OncePerRequestFilter;
 
 @Slf4j
-public class JwtFilter extends GenericFilterBean {
+public class JwtFilter extends OncePerRequestFilter {
 
     private final JwtAuthenticationProvider jwtAuthenticationProvider;
 
@@ -26,11 +25,9 @@ public class JwtFilter extends GenericFilterBean {
     }
 
     @Override
-    public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain filterChain)
-            throws IOException, ServletException {
-
-        HttpServletRequest httpServletRequest = (HttpServletRequest) servletRequest;
-        String jwt = resolveToken(httpServletRequest); // Bearer 뒤, 토큰 부분만 파싱
+    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
+            throws ServletException, IOException {
+        String jwt = resolveToken(request); // Bearer 뒤, 토큰 부분만 파싱
 
         if (hasText(jwt)) {
             // Bearer 텍스트로 갖는 accessToken을 갖는다면 authentication을 만들어 검증을 시도
@@ -42,7 +39,7 @@ public class JwtFilter extends GenericFilterBean {
             // 생성된 Authentication을 SecurityContextHolder에 있는 SecurityContext에 저장
             SecurityContextHolder.getContextHolderStrategy().getContext().setAuthentication(authentication);
         }
-        filterChain.doFilter(servletRequest, servletResponse);
+        filterChain.doFilter(request, response);
     }
 
     /**
