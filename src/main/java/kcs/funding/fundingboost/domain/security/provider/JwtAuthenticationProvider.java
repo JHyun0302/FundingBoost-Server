@@ -21,6 +21,7 @@ import kcs.funding.fundingboost.domain.exception.CommonException;
 import kcs.funding.fundingboost.domain.security.CustomUserDetails;
 import kcs.funding.fundingboost.domain.security.CustomUserDetailsService;
 import kcs.funding.fundingboost.domain.security.service.JwtAuthenticationService;
+import kcs.funding.fundingboost.domain.security.service.RedisTemplateService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.AuthenticationProvider;
@@ -36,6 +37,7 @@ import org.springframework.stereotype.Component;
 public class JwtAuthenticationProvider implements AuthenticationProvider {
 
     private final CustomUserDetailsService customUserDetailsService;
+    private final RedisTemplateService redisTemplateService;
 
     @Override
     public Authentication authenticate(Authentication authentication) throws AuthenticationException {
@@ -43,6 +45,11 @@ public class JwtAuthenticationProvider implements AuthenticationProvider {
 
             // Authentication에서 access token을 얻어옴
             String token = (String) authentication.getPrincipal();
+
+            if (redisTemplateService.isBlackList(token)) {
+                throw new CommonException(EXPIRED_TOKEN_ERROR);
+            }
+
             ObjectMapper mapper = new ObjectMapper();
 
             Jws<Claims> tokenParser = Jwts.parserBuilder()

@@ -23,6 +23,11 @@ public class JwtLogoutFilter extends GenericFilterBean {
     public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain filterChain)
             throws IOException, ServletException {
         HttpServletRequest httpServletRequest = (HttpServletRequest) servletRequest;
-        jwtLogoutHandler.handle(httpServletRequest);
+        if (httpServletRequest.getHeader("access_token") != null
+                && httpServletRequest.getHeader("refresh_token") != null) {
+            jwtLogoutHandler.handle(httpServletRequest);
+            return;
+        }
+        filterChain.doFilter(servletRequest, servletResponse);
     }
 }

@@ -1,12 +1,9 @@
 package kcs.funding.fundingboost.domain.security.handler;
 
-import static kcs.funding.fundingboost.domain.security.utils.SecurityConst.REDIS_BLACK_KEY;
-
 import jakarta.servlet.http.HttpServletRequest;
 import kcs.funding.fundingboost.domain.security.repository.RefreshTokenRepository;
+import kcs.funding.fundingboost.domain.security.service.RedisTemplateService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.data.redis.core.SetOperations;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -14,7 +11,7 @@ import org.springframework.stereotype.Component;
 public class JwtLogoutHandler {
 
     private final RefreshTokenRepository refreshTokenRepository;
-    private final RedisTemplate<String, String> redisTemplate;
+    private final RedisTemplateService redisTemplateService;
 
     public void handle(HttpServletRequest request) {
         String accessToken = request.getHeader("access_token");
@@ -24,7 +21,6 @@ public class JwtLogoutHandler {
         refreshTokenRepository.deleteById(refreshToken);
 
         // accessToken 블랙 처리
-        SetOperations<String, String> setOperations = redisTemplate.opsForSet();
-        setOperations.add(REDIS_BLACK_KEY, accessToken);
+        redisTemplateService.addBlackList(accessToken);
     }
 }
