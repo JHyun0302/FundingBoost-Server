@@ -1,5 +1,6 @@
 package kcs.funding.fundingboost.domain.security.service;
 
+import static kcs.funding.fundingboost.domain.exception.ErrorCode.EXPIRED_REFRESH_TOKEN_ERROR;
 import static kcs.funding.fundingboost.domain.security.utils.SecurityConst.accessTokenValidityInMilliseconds;
 import static kcs.funding.fundingboost.domain.security.utils.SecurityConst.refreshTokenValidityInMilliseconds;
 import static kcs.funding.fundingboost.domain.security.utils.SecurityConst.secret;
@@ -10,9 +11,11 @@ import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import java.security.Key;
 import java.util.Date;
+import kcs.funding.fundingboost.domain.dto.response.login.JwtAccessTokenDto;
 import kcs.funding.fundingboost.domain.entity.token.RefreshToken;
-import kcs.funding.fundingboost.domain.repository.token.RefreshTokenRepository;
+import kcs.funding.fundingboost.domain.exception.CommonException;
 import kcs.funding.fundingboost.domain.security.CustomUserDetails;
+import kcs.funding.fundingboost.domain.security.repository.RefreshTokenRepository;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.InitializingBean;
@@ -35,24 +38,36 @@ public class JwtAuthenticationService implements InitializingBean {
     }
 
     /**
-     * 토큰 생성
+     * SimpleAuthenticatoinService에서 accessToken 생성 nickname과 password 이용
      */
     public String createAccessToken(Authentication authentication) {
         CustomUserDetails principal = (CustomUserDetails) authentication.getPrincipal();
+        Long memberId = principal.getMemberId();
+        return getAccessToken(memberId);
+    }
+
+    /**
+     * refreshToken을 이용해 accessToken 생성
+     */
+    public JwtAccessTokenDto createAccessToken(String refreshToken) {
+        RefreshToken findRefreshToken = refreshTokenRepository.findById(refreshToken)
+                .orElseThrow(() -> new CommonException(EXPIRED_REFRESH_TOKEN_ERROR));
+
+        String accessToken = getAccessToken(findRefreshToken.getUserId());
+        return JwtAccessTokenDto.fromEntity(accessToken);
+    }
+
+    private String getAccessToken(Long memberId) {
         long now = (new Date()).getTime();
         Date accessTokenValidity = new Date(now + accessTokenValidityInMilliseconds);
 
         return Jwts.builder()
                 .signWith(key, SignatureAlgorithm.HS512)
                 .setHeaderParam("typ", "JWT")
-                .setSubject(String.valueOf(principal.getMemberId()))
+                .setSubject(String.valueOf(memberId))
                 .setExpiration(accessTokenValidity)
                 .setIssuedAt(new Date())
                 .compact();
-    }
-
-    public String createAccessToken(String refreshToken) {
-
     }
 
     public RefreshToken createRefreshToken(Authentication authentication) {
@@ -73,10 +88,4 @@ public class JwtAuthenticationService implements InitializingBean {
         return refreshToken;
     }
 
-    /**
-     * accessToken 생성
-     */
-//    public static String createAccessToken(Authentication authentication) {
-//
-//    }
 }
