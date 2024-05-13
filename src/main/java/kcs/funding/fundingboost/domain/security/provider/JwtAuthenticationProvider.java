@@ -46,6 +46,7 @@ public class JwtAuthenticationProvider implements AuthenticationProvider {
             // Authentication에서 access token을 얻어옴
             String token = (String) authentication.getPrincipal();
 
+            // access token이 blackList에 등록되어 있는지 확인
             if (redisTemplateService.isBlackList(token)) {
                 throw new CommonException(EXPIRED_TOKEN_ERROR);
             }

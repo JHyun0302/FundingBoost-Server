@@ -37,7 +37,7 @@ public class SimpleAuthenticationService {
 
         // username과 password를 이용해 token 생성
         String accessToken = jwtAuthenticationService.createAccessToken(authenticate);
-        RefreshToken refreshToken = jwtAuthenticationService.createRefreshToken(authentication);
+        RefreshToken refreshToken = jwtAuthenticationService.createRefreshToken(authenticate);
 
         return UsernamePasswordJwtDto.fromEntity(accessToken, refreshToken.getToken());
     }

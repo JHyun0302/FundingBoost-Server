@@ -8,4 +8,5 @@ public interface SecurityConst {
     long ACCESS_TOKEN_VALIDITY_IN_MILLISECONDS = 864000;
     long ACCESS_TOKEN_VALIDITY_IN_SECONDS = ACCESS_TOKEN_VALIDITY_IN_MILLISECONDS / 1000;
     String SECRET = "tmptmptmptmptmptmptmptmptmptmptmptmptmptmptmptmptmptmptmptmptmptmptmptmptmptmptmptmptmptmptmptmp";
+    String LOG_OUT_URI = "/api/v1/auth/logout";
 }
