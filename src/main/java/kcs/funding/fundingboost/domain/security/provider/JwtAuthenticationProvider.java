@@ -39,24 +39,25 @@ public class JwtAuthenticationProvider implements AuthenticationProvider {
 
     @Override
     public Authentication authenticate(Authentication authentication) throws AuthenticationException {
-
         try {
+
             // Authentication에서 access token을 얻어옴
             String token = (String) authentication.getPrincipal();
+            ObjectMapper mapper = new ObjectMapper();
 
-            // jwt token에서 정보를 받기 위한 parser
             Jws<Claims> tokenParser = Jwts.parserBuilder()
                     .setSigningKey(JwtAuthenticationService.getKey())
                     .build()
                     .parseClaimsJws(token);
 
-            ObjectMapper mapper = new ObjectMapper();
-
-            // client token 정보
+            // header 정보
             JwsHeader header = tokenParser.getHeader();
+
+            // body 정보
             Claims body = tokenParser.getBody();
             String payLoad = mapper.writeValueAsString(body);
 
+            // signature 정보
             String signature = tokenParser.getSignature();
 
             // header와 payLoad를 이용해 signature 계산
@@ -69,8 +70,7 @@ public class JwtAuthenticationProvider implements AuthenticationProvider {
 
             if (signature.equals(calculatedSignature)) {
                 // request에서 얻은 signature와 서버가 계산한 signature가 동일한 경우
-                long userId = Long.parseLong(body.getSubject());
-
+                Long userId = Long.parseLong(body.getSubject());
                 CustomUserDetails principal = customUserDetailsService.loadUserByUserId(userId);
 
                 return new UsernamePasswordAuthenticationToken(principal, null,
@@ -90,10 +90,6 @@ public class JwtAuthenticationProvider implements AuthenticationProvider {
         } catch (JsonProcessingException e) {
             throw new RuntimeException(e);
         }
-    }
-
-    public boolean authenticateRefreshToken(String refreshToken) {
-
     }
 
     @Override

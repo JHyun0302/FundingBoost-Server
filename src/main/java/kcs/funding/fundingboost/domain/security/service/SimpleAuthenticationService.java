@@ -20,20 +20,20 @@ import org.springframework.transaction.annotation.Transactional;
 public class SimpleAuthenticationService {
 
     private final JwtAuthenticationService jwtAuthenticationService;
-    private final SimpleAuthenticationProvider authenticationProvider;
+    private final SimpleAuthenticationProvider simpleAuthenticationProvider;
     private final MemberRepository memberRepository;
     private final PasswordEncoder passwordEncoder;
 
     /**
      * 토큰이 없는 사용자는 SimpleAuthenticationProvider가 검증을 하고 검증에 성공하면 Jwt Token을 생성해서 반환
      */
-    public UsernamePasswordJwtDto createJwtToken(LoginDto loginDto) {
+    public UsernamePasswordJwtDto initialLogin(LoginDto loginDto) {
         UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
                 loginDto.nickName(),
                 loginDto.password());
 
         // username과 password를 검증
-        Authentication authenticate = authenticationProvider.authenticate(authentication);
+        Authentication authenticate = simpleAuthenticationProvider.authenticate(authentication);
 
         // username과 password를 이용해 token 생성
         String accessToken = jwtAuthenticationService.createAccessToken(authenticate);
