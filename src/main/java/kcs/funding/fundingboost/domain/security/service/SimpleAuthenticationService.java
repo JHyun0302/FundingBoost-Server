@@ -1,4 +1,4 @@
-package kcs.funding.fundingboost.domain.service;
+package kcs.funding.fundingboost.domain.security.service;
 
 import kcs.funding.fundingboost.domain.dto.common.CommonSuccessDto;
 import kcs.funding.fundingboost.domain.dto.request.login.LoginDto;
@@ -9,7 +9,6 @@ import kcs.funding.fundingboost.domain.entity.token.RefreshToken;
 import kcs.funding.fundingboost.domain.repository.MemberRepository;
 import kcs.funding.fundingboost.domain.repository.token.RefreshTokenRepository;
 import kcs.funding.fundingboost.domain.security.provider.SimpleAuthenticationProvider;
-import kcs.funding.fundingboost.domain.security.utils.JwtUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -19,12 +18,12 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
-public class AuthService {
+public class SimpleAuthenticationService {
 
     private final SimpleAuthenticationProvider authenticationProvider;
+    private final RefreshTokenRepository refreshTokenRepository;
     private final MemberRepository memberRepository;
     private final PasswordEncoder passwordEncoder;
-    private final RefreshTokenRepository refreshTokenRepository;
 
     /**
      * 토큰이 없는 사용자는 SimpleAuthenticationProvider가 검증을 하고 검증에 성공하면 Jwt Token을 생성해서 반환
@@ -38,8 +37,8 @@ public class AuthService {
         Authentication authenticate = authenticationProvider.authenticate(authentication);
 
         // username과 password를 이용해 token 생성
-        String accessToken = JwtUtils.createAccessToken(authenticate);
-        RefreshToken refreshToken = JwtUtils.createRefreshToken(authentication);
+        String accessToken = JwtAuthenticationService.createAccessToken(authenticate);
+        RefreshToken refreshToken = JwtAuthenticationService.createRefreshToken(authentication);
 
         // redis에 refresh token 저장
         refreshTokenRepository.save(refreshToken);

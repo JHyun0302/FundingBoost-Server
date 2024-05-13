@@ -1,4 +1,4 @@
-package kcs.funding.fundingboost.domain.security.utils;
+package kcs.funding.fundingboost.domain.security.service;
 
 import static kcs.funding.fundingboost.domain.security.utils.SecurityConst.accessTokenValidityInMilliseconds;
 import static kcs.funding.fundingboost.domain.security.utils.SecurityConst.refreshTokenValidityInMilliseconds;
@@ -16,10 +16,10 @@ import kcs.funding.fundingboost.domain.security.CustomUserDetails;
 import lombok.Getter;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.security.core.Authentication;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 
-@Component
-public class JwtUtils implements InitializingBean {
+@Service
+public class JwtAuthenticationService implements InitializingBean {
 
     private RefreshTokenRepository refreshTokenRepository;
 
@@ -35,7 +35,7 @@ public class JwtUtils implements InitializingBean {
     /**
      * 토큰 생성
      */
-    public static String createAccessToken(Authentication authentication) {
+    public String createAccessToken(Authentication authentication) {
         CustomUserDetails principal = (CustomUserDetails) authentication.getPrincipal();
         long now = (new Date()).getTime();
         Date accessTokenValidity = new Date(now + accessTokenValidityInMilliseconds);
@@ -49,7 +49,7 @@ public class JwtUtils implements InitializingBean {
                 .compact();
     }
 
-    public static RefreshToken createRefreshToken(Authentication authentication) {
+    public RefreshToken createRefreshToken(Authentication authentication) {
         CustomUserDetails principal = (CustomUserDetails) authentication.getPrincipal();
         Long memberId = principal.getMemberId();
         long now = (new Date()).getTime();

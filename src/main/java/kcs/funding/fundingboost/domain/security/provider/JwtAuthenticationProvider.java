@@ -20,7 +20,7 @@ import java.util.Map;
 import kcs.funding.fundingboost.domain.exception.CommonException;
 import kcs.funding.fundingboost.domain.security.CustomUserDetails;
 import kcs.funding.fundingboost.domain.security.CustomUserDetailsService;
-import kcs.funding.fundingboost.domain.security.utils.JwtUtils;
+import kcs.funding.fundingboost.domain.security.service.JwtAuthenticationService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.AuthenticationProvider;
@@ -46,7 +46,7 @@ public class JwtAuthenticationProvider implements AuthenticationProvider {
 
             // jwt token에서 정보를 받기 위한 parser
             Jws<Claims> tokenParser = Jwts.parserBuilder()
-                    .setSigningKey(JwtUtils.getKey())
+                    .setSigningKey(JwtAuthenticationService.getKey())
                     .build()
                     .parseClaimsJws(token);
 
@@ -61,7 +61,7 @@ public class JwtAuthenticationProvider implements AuthenticationProvider {
 
             // header와 payLoad를 이용해 signature 계산
             String calculatedSignature = Jwts.builder()
-                    .signWith(JwtUtils.getKey(), SignatureAlgorithm.HS512)
+                    .signWith(JwtAuthenticationService.getKey(), SignatureAlgorithm.HS512)
                     .setHeader((Map<String, Object>) header)
                     .setPayload(payLoad)
                     .compact()
@@ -91,6 +91,8 @@ public class JwtAuthenticationProvider implements AuthenticationProvider {
             throw new RuntimeException(e);
         }
     }
+
+    public
 
     @Override
     public boolean supports(Class<?> authentication) {

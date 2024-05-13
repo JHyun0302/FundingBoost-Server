@@ -12,6 +12,6 @@ public record UsernamePasswordJwtDto(@JsonProperty("access_token") String access
     public static UsernamePasswordJwtDto fromEntity(String accessToken, String refreshToken) {
         return new UsernamePasswordJwtDto(
                 TOKEN_PREFIX + accessToken,
-                TOKEN_PREFIX + refreshToken);
+                refreshToken);
     }
 }
