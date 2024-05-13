@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/v1/auth")
+@RequestMapping("/api/v1")
 public class SimpleAuthenticationController {
 
     private final SimpleAuthenticationService simpleAuthenticationService;
@@ -22,8 +22,8 @@ public class SimpleAuthenticationController {
     /**
      * 토큰 없이 로그인 시도
      */
-    @PostMapping("/signin")
-    public ResponseDto<UsernamePasswordJwtDto> signIn(@RequestBody LoginDto loginDto) {
+    @PostMapping("/login")
+    public ResponseDto<UsernamePasswordJwtDto> logIn(@RequestBody LoginDto loginDto) {
         return ResponseDto.ok(simpleAuthenticationService.initialLogin(loginDto));
     }
 

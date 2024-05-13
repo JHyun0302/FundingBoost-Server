@@ -10,6 +10,7 @@ import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import java.security.Key;
 import java.util.Date;
+import kcs.funding.fundingboost.domain.dto.common.CommonSuccessDto;
 import kcs.funding.fundingboost.domain.dto.response.login.JwtAccessTokenDto;
 import kcs.funding.fundingboost.domain.exception.CommonException;
 import kcs.funding.fundingboost.domain.security.CustomUserDetails;
@@ -26,6 +27,7 @@ import org.springframework.stereotype.Service;
 public class JwtAuthenticationService implements InitializingBean {
 
     private final RefreshTokenRepository refreshTokenRepository;
+    private final RedisTemplateService redisTemplateService;
 
     @Getter
     private static Key key;
@@ -82,5 +84,15 @@ public class JwtAuthenticationService implements InitializingBean {
         refreshTokenRepository.save(refreshToken);
 
         return refreshToken;
+    }
+
+    public CommonSuccessDto deleteRefreshAndAccessToken(String accessToken, String refreshToken) {
+        // refreshToken 삭제
+        refreshTokenRepository.deleteById(refreshToken);
+
+        // accessToken 블랙 처리
+        redisTemplateService.addBlackList(accessToken);
+
+        return CommonSuccessDto.fromEntity(true);
     }
 }

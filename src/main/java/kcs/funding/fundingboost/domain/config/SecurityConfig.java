@@ -47,12 +47,11 @@ public class SecurityConfig {
                 .cors(cors -> cors.configurationSource(corsConfig.corsConfigurationSource()))
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(
-                        auth -> auth.requestMatchers("/api/v1/auth/**").permitAll()
-                                .anyRequest().authenticated()
-                )
+                        auth -> auth.requestMatchers(
+                                        "/api/v1/login",
+                                        "api/v1/signup").permitAll()
+                                .anyRequest().authenticated())
                 .with(new JwtSecurityConfig(jwtAuthenticationProvider), customizer -> {
-                })
-                .with(new LogoutConfigurer(jwtLogoutHandler), customizer -> {
                 });
         return http.build();
     }
