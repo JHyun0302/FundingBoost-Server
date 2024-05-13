@@ -37,7 +37,6 @@ public class JwtFilter extends GenericFilterBean {
          */
         if (httpServletRequest.getRequestURI().equals("/api/v1/auth/access-reissue")) {
             String refreshToken = httpServletRequest.getHeader(AUTHORIZATION);
-            jwtAuthenticationProvider.authenticateRef(refreshToken);
         }
 
         if (hasText(jwt)) {

@@ -1,4 +1,4 @@
-package kcs.funding.fundingboost.domain.controller;
+package kcs.funding.fundingboost.domain.security.controller;
 
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 

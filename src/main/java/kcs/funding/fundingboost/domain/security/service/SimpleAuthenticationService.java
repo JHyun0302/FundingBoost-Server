@@ -7,7 +7,6 @@ import kcs.funding.fundingboost.domain.dto.response.login.UsernamePasswordJwtDto
 import kcs.funding.fundingboost.domain.entity.member.Member;
 import kcs.funding.fundingboost.domain.entity.token.RefreshToken;
 import kcs.funding.fundingboost.domain.repository.MemberRepository;
-import kcs.funding.fundingboost.domain.repository.token.RefreshTokenRepository;
 import kcs.funding.fundingboost.domain.security.provider.SimpleAuthenticationProvider;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -20,8 +19,8 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class SimpleAuthenticationService {
 
+    private final JwtAuthenticationService jwtAuthenticationService;
     private final SimpleAuthenticationProvider authenticationProvider;
-    private final RefreshTokenRepository refreshTokenRepository;
     private final MemberRepository memberRepository;
     private final PasswordEncoder passwordEncoder;
 
@@ -37,11 +36,8 @@ public class SimpleAuthenticationService {
         Authentication authenticate = authenticationProvider.authenticate(authentication);
 
         // username과 password를 이용해 token 생성
-        String accessToken = JwtAuthenticationService.createAccessToken(authenticate);
-        RefreshToken refreshToken = JwtAuthenticationService.createRefreshToken(authentication);
-
-        // redis에 refresh token 저장
-        refreshTokenRepository.save(refreshToken);
+        String accessToken = jwtAuthenticationService.createAccessToken(authenticate);
+        RefreshToken refreshToken = jwtAuthenticationService.createRefreshToken(authentication);
 
         return UsernamePasswordJwtDto.fromEntity(accessToken, refreshToken.getToken());
     }

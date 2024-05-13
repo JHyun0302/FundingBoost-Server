@@ -14,14 +14,16 @@ import kcs.funding.fundingboost.domain.entity.token.RefreshToken;
 import kcs.funding.fundingboost.domain.repository.token.RefreshTokenRepository;
 import kcs.funding.fundingboost.domain.security.CustomUserDetails;
 import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 
 @Service
+@RequiredArgsConstructor
 public class JwtAuthenticationService implements InitializingBean {
 
-    private RefreshTokenRepository refreshTokenRepository;
+    private final RefreshTokenRepository refreshTokenRepository;
 
     @Getter
     private static Key key;
@@ -49,18 +51,26 @@ public class JwtAuthenticationService implements InitializingBean {
                 .compact();
     }
 
+    public String createAccessToken(String refreshToken) {
+
+    }
+
     public RefreshToken createRefreshToken(Authentication authentication) {
         CustomUserDetails principal = (CustomUserDetails) authentication.getPrincipal();
         Long memberId = principal.getMemberId();
         long now = (new Date()).getTime();
         Date refreshTokenValidity = new Date(now + refreshTokenValidityInMilliseconds);
 
-        String refreshToken = Jwts.builder()
+        String token = Jwts.builder()
                 .signWith(key, SignatureAlgorithm.HS512)
                 .setSubject(String.valueOf(memberId))
                 .setExpiration(refreshTokenValidity)
                 .compact();
-        return RefreshToken.createRefreshToken(refreshToken, memberId);
+        RefreshToken refreshToken = RefreshToken.createRefreshToken(token, memberId);
+        // redis에 refresh token 저장
+        refreshTokenRepository.save(refreshToken);
+
+        return refreshToken;
     }
 
     /**

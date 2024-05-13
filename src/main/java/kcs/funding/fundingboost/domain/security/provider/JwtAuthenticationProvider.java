@@ -92,7 +92,9 @@ public class JwtAuthenticationProvider implements AuthenticationProvider {
         }
     }
 
-    public
+    public boolean authenticateRefreshToken(String refreshToken) {
+
+    }
 
     @Override
     public boolean supports(Class<?> authentication) {
