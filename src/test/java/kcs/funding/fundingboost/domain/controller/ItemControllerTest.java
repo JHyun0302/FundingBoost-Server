@@ -11,7 +11,7 @@ import java.util.List;
 import kcs.funding.fundingboost.domain.dto.response.shopping.ShopDto;
 import kcs.funding.fundingboost.domain.dto.response.shoppingDetail.ItemDetailDto;
 import kcs.funding.fundingboost.domain.entity.Item;
-import kcs.funding.fundingboost.domain.entity.Member;
+import kcs.funding.fundingboost.domain.entity.member.Member;
 import kcs.funding.fundingboost.domain.model.ItemFixture;
 import kcs.funding.fundingboost.domain.model.MemberFixture;
 import kcs.funding.fundingboost.domain.service.ItemService;
