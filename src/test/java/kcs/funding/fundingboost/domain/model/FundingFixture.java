@@ -6,8 +6,8 @@ import static kcs.funding.fundingboost.domain.entity.Tag.GRADUATE;
 import java.lang.reflect.Field;
 import java.time.LocalDateTime;
 import kcs.funding.fundingboost.domain.entity.Funding;
-import kcs.funding.fundingboost.domain.entity.Member;
 import kcs.funding.fundingboost.domain.entity.common.BaseTimeEntity;
+import kcs.funding.fundingboost.domain.entity.member.Member;
 
 public class FundingFixture {
 

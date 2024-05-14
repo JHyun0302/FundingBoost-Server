@@ -19,7 +19,7 @@ import kcs.funding.fundingboost.domain.dto.request.giftHub.ItemQuantityDto;
 import kcs.funding.fundingboost.domain.dto.response.giftHub.GiftHubDto;
 import kcs.funding.fundingboost.domain.entity.GiftHubItem;
 import kcs.funding.fundingboost.domain.entity.Item;
-import kcs.funding.fundingboost.domain.entity.Member;
+import kcs.funding.fundingboost.domain.entity.member.Member;
 import kcs.funding.fundingboost.domain.model.GiftHubItemFixture;
 import kcs.funding.fundingboost.domain.model.ItemFixture;
 import kcs.funding.fundingboost.domain.model.MemberFixture;

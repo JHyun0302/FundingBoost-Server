@@ -11,6 +11,7 @@ import kcs.funding.fundingboost.domain.dto.response.myPage.friendFundingHistory.
 import kcs.funding.fundingboost.domain.dto.response.myPage.myFundingHistory.MyFundingHistoryDto;
 import kcs.funding.fundingboost.domain.dto.response.myPage.myFundingStatus.MyFundingHistoryDetailDto;
 import kcs.funding.fundingboost.domain.dto.response.myPage.myFundingStatus.MyFundingStatusDto;
+import kcs.funding.fundingboost.domain.security.resolver.Login;
 import kcs.funding.fundingboost.domain.service.FundingService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -30,7 +31,7 @@ public class FundingController {
      * 메인페이지 조회
      */
     @GetMapping("/api/v1/home")
-    public ResponseDto<HomeViewDto> home(@RequestParam("memberId") Long memberId) {
+    public ResponseDto<HomeViewDto> home(@Login Long memberId) {
         return ResponseDto.ok(fundingService.getMainView(memberId));
     }
 
@@ -39,7 +40,7 @@ public class FundingController {
      */
     @PostMapping("/api/v1/funding")
     public ResponseDto<CommonSuccessDto> registerFunding(
-            @RequestParam(name = "memberId") Long memberId,
+            @Login Long memberId,
             @RequestBody RegisterFundingDto registerFundingDto
     ) {
 
@@ -58,8 +59,8 @@ public class FundingController {
      * 친구 펀딩 디테일 페이지 조회
      */
     @GetMapping("/api/v1/funding/friends/{fundingId}")
-    public ResponseDto<FriendFundingDetailDto> viewFriendsFundingDetail(@PathVariable("fundingId") Long fundingId,
-                                                                        @RequestParam(name = "memberId") Long memberId) {
+    public ResponseDto<FriendFundingDetailDto> viewFriendsFundingDetail(@Login Long memberId,
+                                                                        @PathVariable("fundingId") Long fundingId) {
         return ResponseDto.ok(fundingService.viewFriendsFundingDetail(fundingId, memberId));
     }
 
@@ -68,7 +69,7 @@ public class FundingController {
      */
     @GetMapping("/api/v1/funding/friends")
     public ResponseDto<List<CommonFriendFundingDto>> viewFriendFundingList(
-            @RequestParam(name = "memberId") Long memberId
+            @Login Long memberId
     ) {
         return ResponseDto.ok(fundingService.getFriendFundingList(memberId));
     }
@@ -77,8 +78,8 @@ public class FundingController {
      * 펀딩 기간 늘리기
      */
     @PostMapping("/api/v1/funding/extension/{fundingId}")
-    public ResponseDto<CommonSuccessDto> extendMyFunding(@PathVariable("fundingId") Long fundingId,
-                                                         @RequestParam("memberId") Long memberId) {
+    public ResponseDto<CommonSuccessDto> extendMyFunding(@Login Long memberId,
+                                                         @PathVariable("fundingId") Long fundingId) {
         return ResponseDto.ok(fundingService.extendFunding(fundingId));
     }
 

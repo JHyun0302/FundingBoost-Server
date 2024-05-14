@@ -7,8 +7,8 @@ import static org.mockito.Mockito.mock;
 
 import java.time.LocalDateTime;
 import kcs.funding.fundingboost.domain.entity.Funding;
-import kcs.funding.fundingboost.domain.entity.Member;
 import kcs.funding.fundingboost.domain.entity.Tag;
+import kcs.funding.fundingboost.domain.entity.member.Member;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
