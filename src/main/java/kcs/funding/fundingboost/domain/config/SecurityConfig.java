@@ -2,7 +2,6 @@ package kcs.funding.fundingboost.domain.config;
 
 import kcs.funding.fundingboost.domain.security.entrypoint.JwtAuthenticationEntryPoint;
 import kcs.funding.fundingboost.domain.security.handler.JwtAccessDeniedHandler;
-import kcs.funding.fundingboost.domain.security.handler.JwtLogoutHandler;
 import kcs.funding.fundingboost.domain.security.provider.JwtAuthenticationProvider;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -20,17 +19,14 @@ public class SecurityConfig {
     private final JwtAuthenticationProvider jwtAuthenticationProvider;
     private final JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint;
     private final JwtAccessDeniedHandler jwtAccessDeniedHandler;
-    private final JwtLogoutHandler jwtLogoutHandler;
 
     public SecurityConfig(CorsConfig corsConfig, JwtAuthenticationProvider jwtAuthenticationProvider,
                           JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint,
-                          JwtAccessDeniedHandler jwtAccessDeniedHandler,
-                          JwtLogoutHandler jwtLogoutHandler) {
+                          JwtAccessDeniedHandler jwtAccessDeniedHandler) {
         this.corsConfig = corsConfig;
         this.jwtAuthenticationProvider = jwtAuthenticationProvider;
         this.jwtAuthenticationEntryPoint = jwtAuthenticationEntryPoint;
         this.jwtAccessDeniedHandler = jwtAccessDeniedHandler;
-        this.jwtLogoutHandler = jwtLogoutHandler;
     }
 
     @Bean
