@@ -1,4 +1,4 @@
-package kcs.funding.fundingboost.domain.security;
+package kcs.funding.fundingboost.domain.security.provider;
 
 import static kcs.funding.fundingboost.domain.exception.ErrorCode.EXPIRED_TOKEN_ERROR;
 import static kcs.funding.fundingboost.domain.exception.ErrorCode.INVALID_TOKEN_ERROR;
@@ -18,7 +18,10 @@ import io.jsonwebtoken.UnsupportedJwtException;
 import java.util.List;
 import java.util.Map;
 import kcs.funding.fundingboost.domain.exception.CommonException;
-import kcs.funding.fundingboost.domain.security.utils.JwtUtils;
+import kcs.funding.fundingboost.domain.security.CustomUserDetails;
+import kcs.funding.fundingboost.domain.security.CustomUserDetailsService;
+import kcs.funding.fundingboost.domain.security.service.JwtAuthenticationService;
+import kcs.funding.fundingboost.domain.security.service.RedisTemplateService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.AuthenticationProvider;
@@ -34,32 +37,40 @@ import org.springframework.stereotype.Component;
 public class JwtAuthenticationProvider implements AuthenticationProvider {
 
     private final CustomUserDetailsService customUserDetailsService;
+    private final RedisTemplateService redisTemplateService;
 
     @Override
     public Authentication authenticate(Authentication authentication) throws AuthenticationException {
-
         try {
-            // Authentication에서 jwt token을 얻어옴
+
+            // Authentication에서 access token을 얻어옴
             String token = (String) authentication.getPrincipal();
 
-            // jwt token에서 정보를 받기 위한 parser
-            Jws<Claims> tokenParser = Jwts.parserBuilder()
-                    .setSigningKey(JwtUtils.getKey())
-                    .build()
-                    .parseClaimsJws(token);
+            // access token이 blackList에 등록되어 있는지 확인
+            if (redisTemplateService.isBlackList(token)) {
+                throw new CommonException(EXPIRED_TOKEN_ERROR);
+            }
 
             ObjectMapper mapper = new ObjectMapper();
 
-            // client token 정보
+            Jws<Claims> tokenParser = Jwts.parserBuilder()
+                    .setSigningKey(JwtAuthenticationService.getKey())
+                    .build()
+                    .parseClaimsJws(token);
+
+            // header 정보
             JwsHeader header = tokenParser.getHeader();
+
+            // body 정보
             Claims body = tokenParser.getBody();
             String payLoad = mapper.writeValueAsString(body);
 
+            // signature 정보
             String signature = tokenParser.getSignature();
 
             // header와 payLoad를 이용해 signature 계산
             String calculatedSignature = Jwts.builder()
-                    .signWith(JwtUtils.getKey(), SignatureAlgorithm.HS512)
+                    .signWith(JwtAuthenticationService.getKey(), SignatureAlgorithm.HS512)
                     .setHeader((Map<String, Object>) header)
                     .setPayload(payLoad)
                     .compact()
@@ -67,8 +78,7 @@ public class JwtAuthenticationProvider implements AuthenticationProvider {
 
             if (signature.equals(calculatedSignature)) {
                 // request에서 얻은 signature와 서버가 계산한 signature가 동일한 경우
-                long userId = Long.parseLong(body.getSubject());
-
+                Long userId = Long.parseLong(body.getSubject());
                 CustomUserDetails principal = customUserDetailsService.loadUserByUserId(userId);
 
                 return new UsernamePasswordAuthenticationToken(principal, null,
@@ -79,6 +89,7 @@ public class JwtAuthenticationProvider implements AuthenticationProvider {
         } catch (io.jsonwebtoken.security.SecurityException | MalformedJwtException exception) {
             throw new CommonException(TOKEN_MALFORMED_ERROR);
         } catch (ExpiredJwtException e) {
+            // 토큰이 만료되면 EXPIRED_TOKEN_ERROR를 던짐
             throw new CommonException(EXPIRED_TOKEN_ERROR);
         } catch (UnsupportedJwtException e) {
             throw new CommonException(INVALID_TOKEN_ERROR);

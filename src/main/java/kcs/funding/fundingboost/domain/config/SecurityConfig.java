@@ -1,8 +1,8 @@
 package kcs.funding.fundingboost.domain.config;
 
-import kcs.funding.fundingboost.domain.security.JwtAuthenticationProvider;
 import kcs.funding.fundingboost.domain.security.entrypoint.JwtAuthenticationEntryPoint;
 import kcs.funding.fundingboost.domain.security.handler.JwtAccessDeniedHandler;
+import kcs.funding.fundingboost.domain.security.provider.JwtAuthenticationProvider;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -43,9 +43,10 @@ public class SecurityConfig {
                 .cors(cors -> cors.configurationSource(corsConfig.corsConfigurationSource()))
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(
-                        auth -> auth.requestMatchers("/api/v1/auth/**").permitAll()
-                                .anyRequest().authenticated()
-                )
+                        auth -> auth.requestMatchers(
+                                        "/api/v1/login",
+                                        "api/v1/signup").permitAll()
+                                .anyRequest().authenticated())
                 .with(new JwtSecurityConfig(jwtAuthenticationProvider), customizer -> {
                 });
         return http.build();

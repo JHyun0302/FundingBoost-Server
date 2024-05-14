@@ -1,9 +1,11 @@
-package kcs.funding.fundingboost.domain.security;
+package kcs.funding.fundingboost.domain.security.provider;
 
 import static kcs.funding.fundingboost.domain.exception.ErrorCode.FAILURE_LOGIN;
 
 import java.util.List;
 import kcs.funding.fundingboost.domain.exception.CommonException;
+import kcs.funding.fundingboost.domain.security.CustomUserDetails;
+import kcs.funding.fundingboost.domain.security.CustomUserDetailsService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -28,12 +30,15 @@ public class SimpleAuthenticationProvider implements AuthenticationProvider {
         String nickname = (String) authentication.getPrincipal();
         String password = (String) authentication.getCredentials();
 
+        // nickname 검증은 userDetailsService에서 진행
         CustomUserDetails userDetails = customUserDetailsService.loadUserByUsername(nickname);
 
+        // password 검증은 passwordEncoder가 진행
         if (!passwordEncoder.matches(password, userDetails.getPassword())) {
             throw new CommonException(FAILURE_LOGIN);
         }
 
+        // principal을 갖는 authentication 생성
         return new UsernamePasswordAuthenticationToken(userDetails, null,
                 List.of(new SimpleGrantedAuthority("ROLE_USER")));
     }

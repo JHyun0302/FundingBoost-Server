@@ -1,7 +1,7 @@
 package kcs.funding.fundingboost.domain.config;
 
-import kcs.funding.fundingboost.domain.security.JwtAuthenticationProvider;
 import kcs.funding.fundingboost.domain.security.fliter.JwtFilter;
+import kcs.funding.fundingboost.domain.security.provider.JwtAuthenticationProvider;
 import org.springframework.security.config.annotation.SecurityConfigurerAdapter;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.web.DefaultSecurityFilterChain;
