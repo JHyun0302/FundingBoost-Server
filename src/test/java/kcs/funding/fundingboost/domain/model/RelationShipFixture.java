@@ -2,8 +2,8 @@ package kcs.funding.fundingboost.domain.model;
 
 import java.util.ArrayList;
 import java.util.List;
-import kcs.funding.fundingboost.domain.entity.Member;
 import kcs.funding.fundingboost.domain.entity.Relationship;
+import kcs.funding.fundingboost.domain.entity.member.Member;
 
 public class RelationShipFixture {
 

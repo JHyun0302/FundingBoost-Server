@@ -29,8 +29,8 @@ import kcs.funding.fundingboost.domain.dto.response.myPage.myFundingHistory.MyPa
 import kcs.funding.fundingboost.domain.entity.Funding;
 import kcs.funding.fundingboost.domain.entity.FundingItem;
 import kcs.funding.fundingboost.domain.entity.Item;
-import kcs.funding.fundingboost.domain.entity.Member;
 import kcs.funding.fundingboost.domain.entity.Relationship;
+import kcs.funding.fundingboost.domain.entity.member.Member;
 import kcs.funding.fundingboost.domain.exception.CommonException;
 import kcs.funding.fundingboost.domain.model.FundingFixture;
 import kcs.funding.fundingboost.domain.model.FundingItemFixture;
