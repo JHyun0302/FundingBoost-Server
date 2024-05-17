@@ -6,6 +6,7 @@ import kcs.funding.fundingboost.domain.dto.global.ResponseDto;
 import kcs.funding.fundingboost.domain.dto.request.fundingRegist.RegisterFundingDto;
 import kcs.funding.fundingboost.domain.dto.response.common.CommonFriendFundingDto;
 import kcs.funding.fundingboost.domain.dto.response.friendFundingDetail.FriendFundingDetailDto;
+import kcs.funding.fundingboost.domain.dto.response.fundingRegist.FundingRegisterStatusDto;
 import kcs.funding.fundingboost.domain.dto.response.home.HomeViewDto;
 import kcs.funding.fundingboost.domain.dto.response.myPage.friendFundingHistory.FriendFundingHistoryDto;
 import kcs.funding.fundingboost.domain.dto.response.myPage.myFundingHistory.MyFundingHistoryDto;
@@ -33,6 +34,14 @@ public class FundingController {
     @GetMapping("/api/v1/home")
     public ResponseDto<HomeViewDto> home(@Login Long memberId) {
         return ResponseDto.ok(fundingService.getMainView(memberId));
+    }
+
+    /**
+     * 펀딩 등록페이지 조회
+     */
+    @GetMapping("/api/v1/funding")
+    public ResponseDto<FundingRegisterStatusDto> viewRegisterFunding(@Login Long memberId) {
+        return ResponseDto.ok(fundingService.getRegisterFunding(memberId));
     }
 
     /**
