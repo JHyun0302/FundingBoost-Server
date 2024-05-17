@@ -40,7 +40,7 @@ public class FundingController {
      * 펀딩 등록페이지 조회
      */
     @GetMapping("/api/v1/funding")
-    public ResponseDto<FundingRegisterStatusDto> viewRegisterFunding(@RequestParam("memberId") Long memberId) {
+    public ResponseDto<FundingRegisterStatusDto> viewRegisterFunding(@Login Long memberId) {
         return ResponseDto.ok(fundingService.getRegisterFunding(memberId));
     }
 
