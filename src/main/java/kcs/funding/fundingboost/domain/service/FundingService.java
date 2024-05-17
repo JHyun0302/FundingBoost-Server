@@ -17,6 +17,7 @@ import kcs.funding.fundingboost.domain.dto.response.common.FriendFundingPageItem
 import kcs.funding.fundingboost.domain.dto.response.friendFundingDetail.ContributorDto;
 import kcs.funding.fundingboost.domain.dto.response.friendFundingDetail.FriendFundingDetailDto;
 import kcs.funding.fundingboost.domain.dto.response.friendFundingDetail.FriendFundingItemDto;
+import kcs.funding.fundingboost.domain.dto.response.fundingRegist.FundingRegisterStatusDto;
 import kcs.funding.fundingboost.domain.dto.response.home.HomeFriendFundingDto;
 import kcs.funding.fundingboost.domain.dto.response.home.HomeItemDto;
 import kcs.funding.fundingboost.domain.dto.response.home.HomeMemberInfoDto;
@@ -377,5 +378,13 @@ public class FundingService {
         MyPageMemberDto myPageMemberDto = MyPageMemberDto.fromEntity(member);
 
         return FriendFundingHistoryDto.fromEntity(myPageMemberDto, friendFundingContributionDtoList);
+    }
+
+    public FundingRegisterStatusDto getRegisterFunding(Long memberId) {
+        Optional<Funding> funding = fundingRepository.findByMemberIdAndStatus(memberId, true);
+
+        return FundingRegisterStatusDto.builder()
+                .isRegisterFunding(funding.isPresent())
+                .build();
     }
 }
