@@ -5,6 +5,7 @@ import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.MethodParameter;
+import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
@@ -29,6 +30,9 @@ public class JwtAuthorizationArgumentResolver implements HandlerMethodArgumentRe
         log.info("JwtAuthorizationArgumentResolver called");
         Authentication authentication = SecurityContextHolder.getContextHolderStrategy().getContext()
                 .getAuthentication();
+        if (authentication instanceof AnonymousAuthenticationToken) {
+            return null;
+        }
         CustomUserDetails principal = (CustomUserDetails) authentication.getPrincipal();
         return principal.getMemberId();
     }

@@ -33,7 +33,7 @@ public class ItemController {
     /**
      * 쇼핑 상세 페이지 조회
      */
-    @GetMapping("/items/{itemId}")
+    @GetMapping("/{itemId}")
     public ResponseDto<ItemDetailDto> showItemDetail(@Login Long memberId,
                                                      @PathVariable(name = "itemId") Long itemId) {
         return ResponseDto.ok(itemService.getItemDetail(memberId, itemId));
