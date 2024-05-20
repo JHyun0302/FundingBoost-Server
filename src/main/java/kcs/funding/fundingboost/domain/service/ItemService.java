@@ -34,15 +34,17 @@ public class ItemService {
     }
 
     public ItemDetailDto getItemDetail(Long memberId, Long itemId) {
-
-        Optional<Bookmark> bookmark = bookmarkRepository.findBookmarkByMemberAndItem(memberId, itemId);
-        if (bookmark.isPresent()) {
-            return ItemDetailDto.fromEntity(bookmark.get().getItem(), true);
-        } else {
-            Item item = itemRepository.findById(itemId)
-                    .orElseThrow(() -> new CommonException(NOT_FOUND_ITEM));
-
-            return ItemDetailDto.fromEntity(item, false);
+        if (memberId != null) {
+            Optional<Bookmark> bookmark = bookmarkRepository.findBookmarkByMemberAndItem(memberId, itemId);
+            if (bookmark.isPresent()) {
+                return ItemDetailDto.fromEntity(bookmark.get().getItem(), true);
+            } else {
+                Item item = itemRepository.findById(itemId)
+                        .orElseThrow(() -> new CommonException(NOT_FOUND_ITEM));
+                return ItemDetailDto.fromEntity(item, false);
+            }
         }
+        return ItemDetailDto.fromEntity(itemRepository.findById(itemId)
+                .orElseThrow(() -> new CommonException(NOT_FOUND_ITEM)), false);
     }
 }

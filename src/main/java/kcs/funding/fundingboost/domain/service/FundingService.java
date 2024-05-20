@@ -182,6 +182,15 @@ public class FundingService {
     }
 
     public HomeViewDto getMainView(Long memberId) {
+
+        // 상품 목록: 상품Id, 이름, 가격, 이미지, 브랜드명
+        List<HomeItemDto> itemList = itemRepository.findAll().stream()
+                .map(HomeItemDto::fromEntity)
+                .toList();
+        // 로그인하지 않은 사용자가 home 조회시 ItemList만 출력
+        if (memberId == null) {
+            return HomeViewDto.fromEntity(null, null, null, itemList);
+        }
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new CommonException(NOT_FOUND_MEMBER));
         Optional<Funding> funding = fundingRepository.findFundingInfo(memberId);
@@ -196,11 +205,6 @@ public class FundingService {
 
         // 친구 펀딩: 이름, 프로필 이미지, 펀딩Id, 현재 펀딩 진행중인 상품 이미지, 펀딩 진행률, 펀딩 마감일
         List<HomeFriendFundingDto> homeFriendFundingList = getFriendFundingListByHome(memberId);
-
-        // 상품 목록: 상품Id, 이름, 가격, 이미지, 브랜드명
-        List<HomeItemDto> itemList = itemRepository.findAll().stream()
-                .map(HomeItemDto::fromEntity)
-                .toList();
 
         return HomeViewDto.fromEntity(homeMemberInfoDto, myFundingStatus, homeFriendFundingList, itemList);
     }

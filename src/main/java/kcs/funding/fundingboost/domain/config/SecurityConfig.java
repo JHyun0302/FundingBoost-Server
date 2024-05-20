@@ -57,6 +57,10 @@ public class SecurityConfig {
                                 "/v3/api-docs/**",
                                 "/api/v1"
                         ).permitAll()
+                        .requestMatchers(
+                                "/api/v1/home",
+                                "/api/v1/items/**"
+                        ).permitAll()
                         .anyRequest().authenticated())
                 .with(new JwtSecurityConfig(jwtAuthenticationProvider), customizer -> {
                 });
