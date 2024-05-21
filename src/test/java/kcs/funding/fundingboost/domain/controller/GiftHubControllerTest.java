@@ -3,6 +3,7 @@ package kcs.funding.fundingboost.domain.controller;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
@@ -24,7 +25,7 @@ import kcs.funding.fundingboost.domain.entity.member.Member;
 import kcs.funding.fundingboost.domain.model.GiftHubItemFixture;
 import kcs.funding.fundingboost.domain.model.ItemFixture;
 import kcs.funding.fundingboost.domain.model.MemberFixture;
-import kcs.funding.fundingboost.domain.security.CustomUserDetails;
+import kcs.funding.fundingboost.domain.model.SecurityContextHolderFixture;
 import kcs.funding.fundingboost.domain.service.GiftHubItemService;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.BeforeEach;
@@ -35,9 +36,6 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.FilterType;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.test.web.servlet.MockMvc;
 
 @Slf4j
@@ -63,11 +61,7 @@ class GiftHubControllerTest {
         member = MemberFixture.member1();
         item = ItemFixture.item1();
         giftHubItem = GiftHubItemFixture.quantity1(item, member);
-
-        CustomUserDetails userDetails = new CustomUserDetails(member);
-        UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(userDetails, null,
-                List.of(new SimpleGrantedAuthority("ROLE_USER")));
-        SecurityContextHolder.getContextHolderStrategy().getContext().setAuthentication(authentication);
+        SecurityContextHolderFixture.setContext(member);
     }
 
     @DisplayName("Gifthub 페이지 조회")
@@ -103,7 +97,8 @@ class GiftHubControllerTest {
 
         mockMvc.perform(post("/api/v1/gifthub/{itemId}", item.getItemId())
                         .contentType(APPLICATION_JSON)
-                        .content(content))
+                        .content(content)
+                        .with(csrf()))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.data.isSuccess").value(true));
     }
@@ -119,7 +114,8 @@ class GiftHubControllerTest {
 
         mockMvc.perform(patch("/api/v1/gifthub/quantity/{gifthubItemId}", giftHubItem.getGiftHubItemId())
                         .contentType(APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(itemQuantity)))
+                        .content(objectMapper.writeValueAsString(itemQuantity))
+                        .with(csrf()))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.data.isSuccess").value(true));
     }
@@ -133,7 +129,8 @@ class GiftHubControllerTest {
                 .willReturn(expectedResponse);
 
         mockMvc.perform(delete("/api/v1/gifthub/{giftHubItemId}", giftHubItem.getGiftHubItemId())
-                        .contentType(APPLICATION_JSON))
+                        .contentType(APPLICATION_JSON)
+                        .with(csrf()))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.data.isSuccess").value(true));
     }
