@@ -5,6 +5,7 @@ import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.anyLong;
 import static org.mockito.Mockito.when;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
@@ -49,6 +50,7 @@ import kcs.funding.fundingboost.domain.model.FundingFixture;
 import kcs.funding.fundingboost.domain.model.FundingItemFixture;
 import kcs.funding.fundingboost.domain.model.ItemFixture;
 import kcs.funding.fundingboost.domain.model.MemberFixture;
+import kcs.funding.fundingboost.domain.model.SecurityContextHolderFixture;
 import kcs.funding.fundingboost.domain.service.FundingService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -96,7 +98,8 @@ public class FundingControllerTest {
         fundingItem1 = FundingItemFixture.fundingItem1(item1, funding2);
         fundingItem2 = FundingItemFixture.fundingItem1(item2, funding2);
 
-        createRelationship(member1, member2);
+        Relationship.createRelationships(member1, member2);
+        SecurityContextHolderFixture.setContext(member1);
     }
 
     @DisplayName("메인페이지 조회")
@@ -127,8 +130,8 @@ public class FundingControllerTest {
         given(fundingService.getMainView(member1.getMemberId())).willReturn(homeViewDto);
 
         mockMvc.perform(get("/api/v1/home")
-                        .param("memberId", member1.getMemberId().toString())
-                        .contentType(APPLICATION_JSON))
+                        .contentType(APPLICATION_JSON)
+                        .with(csrf()))
                 .andExpect(status().isOk())
                 .andDo(print())
                 .andExpect(jsonPath("$.success").value(true))
@@ -175,9 +178,9 @@ public class FundingControllerTest {
                 .thenReturn(expectedResponse);
 
         mockMvc.perform(post("/api/v1/funding")
-                        .param("memberId", member1.getMemberId().toString())
                         .contentType(APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(registerFundingDto)))
+                        .content(objectMapper.writeValueAsString(registerFundingDto))
+                        .with(csrf()))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.success").value(true))
                 .andExpect(jsonPath("$.data.isSuccess").value(true));
@@ -191,7 +194,8 @@ public class FundingControllerTest {
         when(fundingService.terminateFunding(funding1.getFundingId())).thenReturn(expectedResponse);
 
         mockMvc.perform(post("/api/v1/funding/close/{fundingId}", funding1.getFundingId())
-                        .contentType(APPLICATION_JSON))
+                        .contentType(APPLICATION_JSON)
+                        .with(csrf()))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.success").value(true))
                 .andExpect(jsonPath("$.data.isSuccess").value(true));
@@ -212,8 +216,8 @@ public class FundingControllerTest {
                 friendFundingDetailDto);
 
         mockMvc.perform(get("/api/v1/funding/friends/{fundingId}", funding1.getFundingId())
-                        .param("memberId", member1.getMemberId().toString())
-                        .contentType(APPLICATION_JSON))
+                        .contentType(APPLICATION_JSON)
+                        .with(csrf()))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.success").value(true))
                 .andExpect(jsonPath("$.data.friendFundingItemList.length()").value(2))
@@ -243,8 +247,8 @@ public class FundingControllerTest {
 
         // 실행 및 검증
         mockMvc.perform(get("/api/v1/funding/friends")
-                        .param("memberId", member1.getMemberId().toString())
-                        .contentType(APPLICATION_JSON))
+                        .contentType(APPLICATION_JSON)
+                        .with(csrf()))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.success")
                         .value(true))
@@ -278,8 +282,8 @@ public class FundingControllerTest {
         when(fundingService.extendFunding(funding1.getFundingId())).thenReturn(expectedResponse);
 
         mockMvc.perform(post("/api/v1/funding/extension/{fundingId}", funding1.getFundingId())
-                        .param("memberId", member1.getMemberId().toString())
-                        .contentType(APPLICATION_JSON))
+                        .contentType(APPLICATION_JSON)
+                        .with(csrf()))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.success").value(true))
                 .andExpect(jsonPath("$.data.isSuccess").value(true));
@@ -307,8 +311,8 @@ public class FundingControllerTest {
         given(fundingService.getMyFundingStatus(member1.getMemberId())).willReturn(myFundingStatusDto);
 
         mockMvc.perform(get("/api/v1/funding/my-funding-status")
-                        .param("memberId", member1.getMemberId().toString())
-                        .contentType(APPLICATION_JSON))
+                        .contentType(APPLICATION_JSON)
+                        .with(csrf()))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.success").value(true))
                 .andExpect(jsonPath("$.data.myPageMemberDto.nickName").value("임창희"))
@@ -404,8 +408,8 @@ public class FundingControllerTest {
 
         // then
         mockMvc.perform(get("/api/v1/funding/history/{fundingId}", funding1.getFundingId())
-                        .param("memberId", member1.getMemberId().toString())
-                        .contentType(APPLICATION_JSON))
+                        .contentType(APPLICATION_JSON)
+                        .with(csrf()))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.success").value(true))
                 .andExpect(jsonPath("$.data.myPageMemberDto.nickName")
@@ -456,8 +460,8 @@ public class FundingControllerTest {
         given(fundingService.getFriendFundingHistory(member1.getMemberId())).willReturn(friendFundingHistoryDto);
 
         mockMvc.perform(get("/api/v1/funding/history/friend")
-                        .param("memberId", "1")
-                        .contentType(APPLICATION_JSON))
+                        .contentType(APPLICATION_JSON)
+                        .with(csrf()))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.success").value(true))
                 .andExpect(jsonPath("$.data.myPageMemberDto.nickName")
@@ -480,9 +484,5 @@ public class FundingControllerTest {
                         .value(funding1.getTag().getDisplayName()))
                 .andExpect(jsonPath("$.data.FriendFundingContributionDto[0].createdDate")
                         .value(funding1.getCreatedDate().format(DateTimeFormatter.ofPattern("yyyy-MM-dd"))));
-    }
-
-    private void createRelationship(Member member1, Member member2) {
-        Relationship.createRelationships(member1, member2);
     }
 }
