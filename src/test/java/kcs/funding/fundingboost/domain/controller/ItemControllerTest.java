@@ -14,6 +14,7 @@ import kcs.funding.fundingboost.domain.entity.Item;
 import kcs.funding.fundingboost.domain.entity.member.Member;
 import kcs.funding.fundingboost.domain.model.ItemFixture;
 import kcs.funding.fundingboost.domain.model.MemberFixture;
+import kcs.funding.fundingboost.domain.model.SecurityContextHolderFixture;
 import kcs.funding.fundingboost.domain.service.ItemService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -38,6 +39,7 @@ class ItemControllerTest {
     @BeforeEach
     void setUp() throws NoSuchFieldException, IllegalAccessException {
         member = MemberFixture.member1();
+        SecurityContextHolderFixture.setContext(member);
         item = ItemFixture.item1();
     }
 
@@ -54,12 +56,11 @@ class ItemControllerTest {
                         .contentType(APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.success").value(true))
-                .andExpect(jsonPath("$.data[0].itemId").value(1L))
-                .andExpect(jsonPath("$.data[0].itemName").value("NEW 루쥬 알뤼르 벨벳 뉘 블랑쉬 리미티드 에디션"))
-                .andExpect(jsonPath("$.data[0].price").value(61000))
-                .andExpect(jsonPath("$.data[0].itemImageUrl").value(
-                        "https://img1.kakaocdn.net/thumb/C320x320@2x.fwebp.q82/?fname=https%3A%2F%2Fst.kakaocdn.net%2Fproduct%2Fgift%2Fproduct%2F20240319133310_1fda0cf74e4f43608184bce3050ae22a.jpg"))
-                .andExpect(jsonPath("$.data[0].brandName").value("샤넬"));
+                .andExpect(jsonPath("$.data[0].itemId").value(item.getItemId()))
+                .andExpect(jsonPath("$.data[0].itemName").value(item.getItemName()))
+                .andExpect(jsonPath("$.data[0].price").value(item.getItemPrice()))
+                .andExpect(jsonPath("$.data[0].itemImageUrl").value(item.getItemImageUrl()))
+                .andExpect(jsonPath("$.data[0].brandName").value(item.getBrandName()));
     }
 
 
@@ -71,15 +72,13 @@ class ItemControllerTest {
         given(itemService.getItemDetail(member.getMemberId(), item.getItemId())).willReturn(itemDetailDto);
 
         // when & then
-        mockMvc.perform(get("/api/v1/items/items/{itemId}", item.getItemId())
-                        .param("memberId", member.getMemberId().toString()))
+        mockMvc.perform(get("/api/v1/items/{itemId}", item.getItemId()))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.success").value(true))
-                .andExpect(jsonPath("$.data.itemThumbnailImageUrl").value(
-                        "https://img1.kakaocdn.net/thumb/C320x320@2x.fwebp.q82/?fname=https%3A%2F%2Fst.kakaocdn.net%2Fproduct%2Fgift%2Fproduct%2F20240319133310_1fda0cf74e4f43608184bce3050ae22a.jpg"))
-                .andExpect(jsonPath("$.data.itemName").value("NEW 루쥬 알뤼르 벨벳 뉘 블랑쉬 리미티드 에디션"))
-                .andExpect(jsonPath("$.data.itemPrice").value(61000))
+                .andExpect(jsonPath("$.data.itemThumbnailImageUrl").value(item.getItemImageUrl()))
+                .andExpect(jsonPath("$.data.itemName").value(item.getItemName()))
+                .andExpect(jsonPath("$.data.itemPrice").value(item.getItemPrice()))
                 .andExpect(jsonPath("$.data.bookmark").value(true))
-                .andExpect(jsonPath("$.data.option").value("00:00"));
+                .andExpect(jsonPath("$.data.option").value(item.getOptionName()));
     }
 }
