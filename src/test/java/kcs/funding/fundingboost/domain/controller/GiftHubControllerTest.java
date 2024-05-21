@@ -60,7 +60,7 @@ class GiftHubControllerTest {
     void giftHubPage() throws Exception {
         List<GiftHubDto> giftHubDtoList = Collections.singletonList(
                 new GiftHubDto(item.getItemId(), item.getItemName(), item.getItemImageUrl(),
-                        item.getOptionName(), item.getItemPrice(), 1)
+                        item.getOptionName(), item.getItemPrice(), 1, giftHubItem.getGiftHubItemId())
         );
 
         given(giftHubItemService.getGiftHub(member.getMemberId())).willReturn(giftHubDtoList);
