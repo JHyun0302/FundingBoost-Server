@@ -361,7 +361,7 @@ public class InitH2DB {
                     Member.createMemberWithPoint("구태형", "rnxogud136@gmail.com", "",
                             "https://p.kakaocdn.net/th/talkp/wowkAlwbLn/Ko25X6eV5bs1OycAz7n9Q1/lq4mv6_110x110_c.jpg",
                             999999999, "aFtpX2lZaFhvQ3JLe0J2QnFDcFxtXWhdbldgDA"),
-                    Member.createMemberWithPoint("맹인호", "aoddlsgh98@gmail.com", "",
+                    Member.createMemberWithPoint("맹인호", "aoddlsgh99@gmail.com", "",
                             "https://p.kakaocdn.net/th/talkp/woBG0lIJfU/M6aVERkQ2Lv2sNfQaLMYrK/pzfmfl_110x110_c.jpg",
                             200000, "aFluW29Ya1hpRXdBdEdyQHBGdlprW25baFFmDQ"),
                     Member.createMemberWithPoint("양혜인", "helen66626662@gmail.com", "",

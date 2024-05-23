@@ -4,7 +4,7 @@ import kcs.funding.fundingboost.domain.dto.common.CommonSuccessDto;
 import kcs.funding.fundingboost.domain.dto.global.ResponseDto;
 import kcs.funding.fundingboost.domain.dto.request.login.LoginDto;
 import kcs.funding.fundingboost.domain.dto.request.login.SignupDto;
-import kcs.funding.fundingboost.domain.dto.response.login.UsernamePasswordJwtDto;
+import kcs.funding.fundingboost.domain.dto.response.login.JwtDto;
 import kcs.funding.fundingboost.domain.security.service.SimpleAuthenticationService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -23,7 +23,7 @@ public class SimpleAuthenticationController {
      * 토큰 없이 로그인 시도
      */
     @PostMapping("/login")
-    public ResponseDto<UsernamePasswordJwtDto> logIn(@RequestBody LoginDto loginDto) {
+    public ResponseDto<JwtDto> logIn(@RequestBody LoginDto loginDto) {
         return ResponseDto.ok(simpleAuthenticationService.initialLogin(loginDto));
     }
 

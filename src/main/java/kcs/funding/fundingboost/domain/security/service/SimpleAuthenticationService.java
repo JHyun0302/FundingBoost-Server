@@ -3,7 +3,7 @@ package kcs.funding.fundingboost.domain.security.service;
 import kcs.funding.fundingboost.domain.dto.common.CommonSuccessDto;
 import kcs.funding.fundingboost.domain.dto.request.login.LoginDto;
 import kcs.funding.fundingboost.domain.dto.request.login.SignupDto;
-import kcs.funding.fundingboost.domain.dto.response.login.UsernamePasswordJwtDto;
+import kcs.funding.fundingboost.domain.dto.response.login.JwtDto;
 import kcs.funding.fundingboost.domain.entity.member.Member;
 import kcs.funding.fundingboost.domain.repository.MemberRepository;
 import kcs.funding.fundingboost.domain.security.entity.RefreshToken;
@@ -27,9 +27,9 @@ public class SimpleAuthenticationService {
     /**
      * 토큰이 없는 사용자는 SimpleAuthenticationProvider가 검증을 하고 검증에 성공하면 Jwt Token을 생성해서 반환
      */
-    public UsernamePasswordJwtDto initialLogin(LoginDto loginDto) {
+    public JwtDto initialLogin(LoginDto loginDto) {
         UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
-                loginDto.nickName(),
+                loginDto.email(),
                 loginDto.password());
 
         // username과 password를 검증
@@ -39,7 +39,7 @@ public class SimpleAuthenticationService {
         String accessToken = jwtAuthenticationService.createAccessToken(authenticate);
         RefreshToken refreshToken = jwtAuthenticationService.createRefreshToken(authenticate);
 
-        return UsernamePasswordJwtDto.fromEntity(accessToken, refreshToken.getToken());
+        return JwtDto.fromEntity(accessToken, refreshToken.getToken());
     }
 
     /**
