@@ -14,5 +14,6 @@ public final class NoAuthPath {
             "/api/v1/loginForm",//테스트용 로그인 폼
             //oauth provider uri 설정
             "/oauth2/authorization",
-            "/login/oauth2/code");
+            "/login/oauth2/code",
+            "/api/v1/access-reissue");
 }
