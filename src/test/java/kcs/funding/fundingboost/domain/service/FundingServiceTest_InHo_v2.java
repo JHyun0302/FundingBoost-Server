@@ -18,10 +18,10 @@ import kcs.funding.fundingboost.domain.model.FundingItemFixture;
 import kcs.funding.fundingboost.domain.model.ItemFixture;
 import kcs.funding.fundingboost.domain.model.MemberFixture;
 import kcs.funding.fundingboost.domain.model.RelationShipFixture;
-import kcs.funding.fundingboost.domain.repository.ItemRepository;
 import kcs.funding.fundingboost.domain.repository.MemberRepository;
 import kcs.funding.fundingboost.domain.repository.funding.FundingRepository;
 import kcs.funding.fundingboost.domain.repository.fundingItem.FundingItemRepository;
+import kcs.funding.fundingboost.domain.repository.item.ItemRepository;
 import kcs.funding.fundingboost.domain.repository.relationship.RelationshipRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.assertj.core.api.Assertions;
@@ -32,6 +32,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.Pageable;
 
 @Slf4j
 @ExtendWith(MockitoExtension.class)
@@ -59,12 +60,13 @@ class FundingServiceTest_InHo_v2 {
     private Member member;
 
     private Funding funding;
-
+    private Pageable pageable;
 
     @BeforeEach
     void setUp() throws NoSuchFieldException, IllegalAccessException {
         member = MemberFixture.member2();
         funding = FundingFixture.Birthday(member);
+        pageable = Pageable.ofSize(30);
     }
 
     @DisplayName("getMainView: 로그인이 되지 않았을 시 예외처리가 되어야한다.")
@@ -74,7 +76,7 @@ class FundingServiceTest_InHo_v2 {
         when(memberRepository.findById(member.getMemberId())).thenReturn(Optional.empty());
 
         //when & then
-        Assertions.assertThatThrownBy(() -> fundingService.getMainView(member.getMemberId()))
+        Assertions.assertThatThrownBy(() -> fundingService.getMainView(member.getMemberId(), pageable))
                 .isInstanceOf(CommonException.class)
                 .hasMessageContaining("해당 사용자가 존재하지 않습니다.");
     }
@@ -91,7 +93,7 @@ class FundingServiceTest_InHo_v2 {
         when(fundingRepository.findFundingInfo(member.getMemberId())).thenReturn(Optional.of(funding));
 
         //when
-        HomeViewDto result = fundingService.getMainView(member.getMemberId());
+        HomeViewDto result = fundingService.getMainView(member.getMemberId(), pageable);
 
         //then
         assertThat(result.homeMemberInfoDto().nickName()).isEqualTo(member.getNickName());
@@ -111,7 +113,7 @@ class FundingServiceTest_InHo_v2 {
         when(fundingRepository.findFundingInfo(member.getMemberId())).thenReturn(Optional.empty());
 
         //when
-        HomeViewDto result = fundingService.getMainView(member.getMemberId());
+        HomeViewDto result = fundingService.getMainView(member.getMemberId(), pageable);
         //then
         assertThat(result.homeMemberInfoDto().nickName()).isEqualTo(member.getNickName());
         assertThat(result.homeMyFundingStatusDto()).isNull();
@@ -156,7 +158,7 @@ class FundingServiceTest_InHo_v2 {
         when(fundingItemRepository.findFundingItemIdListByFunding(friendFunding.getFundingId()))
                 .thenReturn(friendFundingItems);
         //when
-        HomeViewDto result = fundingService.getMainView(member.getMemberId());
+        HomeViewDto result = fundingService.getMainView(member.getMemberId(), pageable);
         //then
         assertThat(result.homeFriendFundingDtoList()).hasSize(1);
         assertThat(result.homeFriendFundingDtoList().get(0).commonFriendFundingDto()
@@ -182,7 +184,7 @@ class FundingServiceTest_InHo_v2 {
         when(memberRepository.findById(member.getMemberId())).thenReturn(Optional.of(member));
         when(relationshipRepository.findFriendByMemberId(member.getMemberId())).thenReturn(relationships);
         //when
-        HomeViewDto result = fundingService.getMainView(member.getMemberId());
+        HomeViewDto result = fundingService.getMainView(member.getMemberId(), pageable);
         //then
         assertThat(result.homeFriendFundingDtoList()).isEmpty();
     }
@@ -197,7 +199,7 @@ class FundingServiceTest_InHo_v2 {
 
         //when
 
-        HomeViewDto result = fundingService.getMainView(member.getMemberId());
+        HomeViewDto result = fundingService.getMainView(member.getMemberId(), pageable);
 
         //then
 
@@ -215,7 +217,7 @@ class FundingServiceTest_InHo_v2 {
         when(itemRepository.findAll()).thenReturn(itemList);
 
         //when
-        HomeViewDto result = fundingService.getMainView(member.getMemberId());
+        HomeViewDto result = fundingService.getMainView(member.getMemberId(), pageable);
 
         //then
         assertThat(result.itemDtoList()).isEmpty();
@@ -285,7 +287,7 @@ class FundingServiceTest_InHo_v2 {
         when(itemRepository.findAll()).thenReturn(ItemFixture.items5());
 
         //when
-        HomeViewDto result = fundingService.getMainView(member.getMemberId());
+        HomeViewDto result = fundingService.getMainView(member.getMemberId(), pageable);
 
         //then
         /**

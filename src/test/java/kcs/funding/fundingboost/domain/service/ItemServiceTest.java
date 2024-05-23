@@ -15,8 +15,8 @@ import kcs.funding.fundingboost.domain.entity.Item;
 import kcs.funding.fundingboost.domain.entity.member.Member;
 import kcs.funding.fundingboost.domain.model.ItemFixture;
 import kcs.funding.fundingboost.domain.model.MemberFixture;
-import kcs.funding.fundingboost.domain.repository.ItemRepository;
 import kcs.funding.fundingboost.domain.repository.bookmark.BookmarkRepository;
+import kcs.funding.fundingboost.domain.repository.item.ItemRepository;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -25,6 +25,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
 
 @ExtendWith(MockitoExtension.class)
 class ItemServiceTest {
@@ -50,13 +52,13 @@ class ItemServiceTest {
         //given
         List<Item> items = ItemFixture.items3();
         when(itemRepository.findAll()).thenReturn(items);
-
+        Pageable pageable = Pageable.ofSize(30);
         //when
-        List<ShopDto> result = itemService.getItems();
+        Slice<ShopDto> result = itemService.getItems(items.get(0).getCategory(), pageable);
 
         //then
         assertNotNull(result);
-        assertEquals(items.size(), result.size());
+        assertEquals(items.size(), result.getSize());
         verify(itemRepository, times(1)).findAll();
     }
 

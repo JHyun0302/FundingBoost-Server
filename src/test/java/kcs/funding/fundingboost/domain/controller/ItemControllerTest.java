@@ -1,8 +1,11 @@
 package kcs.funding.fundingboost.domain.controller;
 
 import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -22,6 +25,9 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
+import org.springframework.data.domain.SliceImpl;
 import org.springframework.test.web.servlet.MockMvc;
 
 @WebMvcTest(ItemController.class)
@@ -41,6 +47,7 @@ class ItemControllerTest {
         member = MemberFixture.member1();
         SecurityContextHolderFixture.setContext(member);
         item = ItemFixture.item1();
+
     }
 
     @DisplayName("쇼핑 페이지 조회")
@@ -48,13 +55,19 @@ class ItemControllerTest {
     void viewShoppingList() throws Exception {
         //given
         List<ShopDto> shopDtoList = Collections.singletonList(ShopDto.createGiftHubDto(item));
+        String category = "뷰티";
+        Pageable pageable = mock(Pageable.class);
+        when(pageable.getPageNumber()).thenReturn(0);
+        when(pageable.getPageSize()).thenReturn(10);
 
-        given(itemService.getItems()).willReturn(shopDtoList);
-
+        Slice<ShopDto> shopDtoSlice = new SliceImpl<>(shopDtoList, pageable, true);
+        System.out.println(shopDtoSlice.stream().toList());
+        given(itemService.getItems(category, pageable)).willReturn(shopDtoSlice);
         // when & then
         mockMvc.perform(get("/api/v1/items")
                         .contentType(APPLICATION_JSON))
                 .andExpect(status().isOk())
+                .andDo(print())
                 .andExpect(jsonPath("$.success").value(true))
                 .andExpect(jsonPath("$.data[0].itemId").value(item.getItemId()))
                 .andExpect(jsonPath("$.data[0].itemName").value(item.getItemName()))
