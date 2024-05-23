@@ -29,7 +29,7 @@ public class SimpleAuthenticationService {
      */
     public JwtDto initialLogin(LoginDto loginDto) {
         UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
-                loginDto.nickName(),
+                loginDto.email(),
                 loginDto.password());
 
         // username과 password를 검증
