@@ -1,5 +1,6 @@
 package kcs.funding.fundingboost.domain.config;
 
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -12,24 +13,25 @@ import org.springframework.data.redis.serializer.StringRedisSerializer;
 
 @Configuration
 @EnableRedisRepositories(enableKeyspaceEvents = EnableKeyspaceEvents.ON_STARTUP)
-public class RedisConfig {
-    @Value("${spring.data.redis.host}")
+public class RefreshTokenConfig {
+    @Value("${spring.data.redis.refresh-token.host}")
     private String host;
 
-    @Value("${spring.data.redis.port}")
+    @Value("${spring.data.redis.refresh-token.port}")
     private int port;
 
     @Bean
-    public RedisConnectionFactory redisConnectionFactory() {
+    public RedisConnectionFactory refreshTokenRedisConnectionFactory() {
         return new LettuceConnectionFactory(host, port);
     }
 
     @Bean
-    public RedisTemplate<String, Object> redisTemplate() {
+    @Qualifier("redisRefreshTokenTemplate")
+    public RedisTemplate<String, Object> refreshTokenTemplate() {
         RedisTemplate<String, Object> redisTemplate = new RedisTemplate<>();
         redisTemplate.setKeySerializer(new StringRedisSerializer());
         redisTemplate.setValueSerializer(new StringRedisSerializer());
-        redisTemplate.setConnectionFactory(redisConnectionFactory());
+        redisTemplate.setConnectionFactory(refreshTokenRedisConnectionFactory());
         return redisTemplate;
     }
 }
