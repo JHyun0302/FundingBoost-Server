@@ -1,6 +1,5 @@
 package kcs.funding.fundingboost.domain.config;
 
-
 import io.swagger.v3.oas.annotations.OpenAPIDefinition;
 import io.swagger.v3.oas.models.Components;
 import io.swagger.v3.oas.models.OpenAPI;
@@ -25,13 +24,23 @@ public class SwaggerConfig implements WebMvcConfigurer {
                 .title("FundingBoost API")
                 .description("FundingBoost API 목록입니다.");
 
-        SecurityScheme securityScheme = new SecurityScheme()
+        SecurityScheme accessTokensecurityScheme = new SecurityScheme()
                 .type(SecurityScheme.Type.HTTP).scheme("bearer").bearerFormat("JWT")
                 .in(SecurityScheme.In.HEADER).name("Authorization");
-        SecurityRequirement securityRequirement = new SecurityRequirement().addList("bearerAuth");
+
+        SecurityScheme refreshTokenSecurityScheme = new SecurityScheme()
+                .type(SecurityScheme.Type.APIKEY).in(SecurityScheme.In.HEADER).name("Authorization");
+
+        SecurityRequirement securityRequirement = new SecurityRequirement()
+                .addList("bearerAuth")
+                .addList("refreshTokenAuth");
+
+        Components components = new Components()
+                .addSecuritySchemes("bearerAuth", accessTokensecurityScheme)
+                .addSecuritySchemes("refreshTokenAuth", refreshTokenSecurityScheme);
 
         return new OpenAPI()
-                .components(new Components().addSecuritySchemes("bearerAuth", securityScheme))
+                .components(components)
                 .security(Arrays.asList(securityRequirement))
                 .info(info);
     }
