@@ -87,10 +87,10 @@ class GiftHubControllerTest {
     @DisplayName("Gifthub에 담기")
     @Test
     void addGiftHub() throws Exception {
-        AddGiftHubDto addGiftHubDto = new AddGiftHubDto(member.getMemberId(), 1);
+        AddGiftHubDto addGiftHubDto = new AddGiftHubDto(1);
         CommonSuccessDto expectedResponse = new CommonSuccessDto(true);
 
-        given(giftHubItemService.addGiftHub(any(Long.class), any(AddGiftHubDto.class)))
+        given(giftHubItemService.addGiftHub(any(Long.class), any(AddGiftHubDto.class), any(Long.class)))
                 .willReturn(expectedResponse);
 
         String content = objectMapper.writeValueAsString(addGiftHubDto);

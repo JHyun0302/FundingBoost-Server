@@ -48,11 +48,11 @@ public class GiftHubItemService {
     }
 
     @Transactional
-    public CommonSuccessDto addGiftHub(Long itemId, AddGiftHubDto addGiftHubDto) {
+    public CommonSuccessDto addGiftHub(Long itemId, AddGiftHubDto addGiftHubDto, Long memberId) {
         Item item = itemRepository.findById(itemId)
                 .orElseThrow(() -> new CommonException(NOT_FOUND_ITEM));
 
-        Member member = memberRepository.findById(addGiftHubDto.memberId())
+        Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new CommonException(NOT_FOUND_MEMBER));
 
         GiftHubItem giftHubItem = GiftHubItem.createGiftHubItem(addGiftHubDto.quantity(), item, member);
