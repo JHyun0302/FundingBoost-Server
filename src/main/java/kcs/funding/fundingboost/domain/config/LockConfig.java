@@ -21,14 +21,16 @@ public class LockConfig {
     private int port;
 
     @Bean
+    @Qualifier("lockRedisConnectionFactory")
     public RedisConnectionFactory lockRedisConnectionFactory() {
         return new LettuceConnectionFactory(host, port);
     }
 
     @Bean
-    @Qualifier("redisLockTemplate")
-    public RedisTemplate<String, Object> lockTemplate() {
-        RedisTemplate<String, Object> redisTemplate = new RedisTemplate<>();
+    @Qualifier("lockTemplate")
+    public RedisTemplate<String, String> lockTemplate(
+            @Qualifier("lockRedisConnectionFactory") RedisConnectionFactory lockRedisConnectionFactory) {
+        RedisTemplate<String, String> redisTemplate = new RedisTemplate<>();
         redisTemplate.setKeySerializer(new StringRedisSerializer());
         redisTemplate.setValueSerializer(new StringRedisSerializer());
         redisTemplate.setConnectionFactory(lockRedisConnectionFactory());
