@@ -6,7 +6,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import kcs.funding.fundingboost.domain.dto.global.ResponseDto;
-import kcs.funding.fundingboost.domain.dto.response.login.JwtTokenDto;
+import kcs.funding.fundingboost.domain.dto.response.login.JwtDto;
 import kcs.funding.fundingboost.domain.security.service.JwtAuthenticationService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -26,8 +26,8 @@ public class OAuth2AuthenticationSuccessHandler implements AuthenticationSuccess
         String accessToken = "Bearer " + jwtAuthenticationService.createAccessToken(authentication);
         String refreshToken = jwtAuthenticationService.createRefreshToken(authentication).getToken();
 
-        JwtTokenDto jwtTokenDto = JwtTokenDto.fromEntity(accessToken, refreshToken);
-        ResponseDto<JwtTokenDto> responseDto = ResponseDto.ok(jwtTokenDto);
+        JwtDto jwtTokenDto = JwtDto.fromEntity(accessToken, refreshToken);
+        ResponseDto<JwtDto> responseDto = ResponseDto.ok(jwtTokenDto);
 
         //body에 넣어 전송
         response.setContentType("application/json; charset=utf-8");

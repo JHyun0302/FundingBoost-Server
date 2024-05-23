@@ -6,12 +6,10 @@ import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import kcs.funding.fundingboost.domain.dto.global.ResponseDto;
 import kcs.funding.fundingboost.domain.exception.ErrorCode;
-import lombok.RequiredArgsConstructor;
 import net.minidev.json.JSONValue;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.authentication.AuthenticationFailureHandler;
 
-@RequiredArgsConstructor
 public class OAuth2AuthenticationFailureHandler implements AuthenticationFailureHandler {
 
 
