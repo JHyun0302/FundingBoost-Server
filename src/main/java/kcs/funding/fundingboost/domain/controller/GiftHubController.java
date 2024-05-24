@@ -40,9 +40,11 @@ public class GiftHubController {
      * Gifthub에 담기
      */
     @PostMapping("/{itemId}")
-    public ResponseDto<CommonSuccessDto> addGiftHub(@PathVariable(name = "itemId") Long itemId,
-                                                    @RequestBody AddGiftHubDto addGiftHubDto) {
-        return ResponseDto.created(giftHubItemService.addGiftHub(itemId, addGiftHubDto));
+    public ResponseDto<CommonSuccessDto> addGiftHub(
+            @Login Long memberId,
+            @PathVariable(name = "itemId") Long itemId,
+            @RequestBody AddGiftHubDto addGiftHubDto) {
+        return ResponseDto.created(giftHubItemService.addGiftHub(itemId, addGiftHubDto, memberId));
     }
 
     /**
