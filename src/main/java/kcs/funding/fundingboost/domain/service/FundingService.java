@@ -148,7 +148,7 @@ public class FundingService {
             Funding friendFunding = findFriendFunding.get();
             String deadline = DateUtils.toDeadlineString(friendFunding);
 
-            List<FundingItem> fundingItemList = fundingItemRepository.findFundingItemIdListByFunding(
+            List<FundingItem> fundingItemList = fundingItemRepository.findFundingItemIdListByFundingId(
                     friendFunding.getFundingId());
             List<FriendFundingPageItemDto> friendFundingPageItemDtoList = fundingItemList.stream()
                     .map(fundingItem -> FriendFundingPageItemDto.fromEntity(fundingItem.getItem())).toList();
