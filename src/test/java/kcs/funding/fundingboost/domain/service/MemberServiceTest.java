@@ -80,14 +80,14 @@ class MemberServiceTest {
         int expectExchangePoint = terminatedFunding.getCollectPrice() - finishedFundingItemPrice;
 
         // fundingRepository.FINDMemberByFundingId가 호출되면 종료된 terminatedFunding을 반환한다
-        when(fundingRepository.findMemberByFundingId(transformPointDto.fundingId())).thenReturn(terminatedFunding);
+        when(fundingRepository.findByFundingId(transformPointDto.fundingId())).thenReturn(terminatedFunding);
 
         //when
         CommonSuccessDto commonSuccessDto = memberService.exchangePoint(transformPointDto);
 
         //then
-        verify(fundingRepository).findMemberByFundingId(transformPointDto.fundingId());
-        verify(fundingRepository).findMemberByFundingId(transformPointDto.fundingId());
+        verify(fundingRepository).findByFundingId(transformPointDto.fundingId());
+        verify(fundingRepository).findByFundingId(transformPointDto.fundingId());
 
         // 포인트 전환 후 fundingItem은 펀딩 종료가 되어야 한다
         assertFalse(terminatedFunding.getFundingItems().get(1).getFunding().isFundingStatus());
@@ -103,7 +103,7 @@ class MemberServiceTest {
     @Test
     void exchangePoint_FundingNotFound() {
         TransformPointDto transformPointDto = new TransformPointDto(terminatedFunding.getFundingId());
-        when(fundingRepository.findMemberByFundingId(anyLong())).thenReturn(null);
+        when(fundingRepository.findByFundingId(anyLong())).thenReturn(null);
 
         //when
         CommonException exception = assertThrows(CommonException.class, () -> {
