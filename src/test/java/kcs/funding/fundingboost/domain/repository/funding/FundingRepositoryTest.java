@@ -68,19 +68,19 @@ class FundingRepositoryTest {
         // given
 
         // when
-        Funding foundFunding1 = fundingRepository.findByMemberIdAndStatus(member1.getMemberId(), true)
+        Funding result1 = fundingRepository.findByMemberIdAndStatus(member1.getMemberId(), true)
                 .orElse(null);
-        Funding foundFunding2 = fundingRepository.findByMemberIdAndStatus(member2.getMemberId(), false)
+        Funding result2 = fundingRepository.findByMemberIdAndStatus(member2.getMemberId(), false)
                 .orElse(null);
 
         // then
-        assertThat(foundFunding1).isNotNull();
-        assertThat(foundFunding2).isNotNull();
+        assertThat(result1).isNotNull();
+        assertThat(result2).isNotNull();
         /**
          * 맴버
          */
-        assertThat(foundFunding1.getMember().getNickName()).isEqualTo("임창희");
-        assertThat(foundFunding2.getMember().getNickName()).isEqualTo("구태형");
+        assertThat(result1.getMember().getNickName()).isEqualTo("임창희");
+        assertThat(result2.getMember().getNickName()).isEqualTo("구태형");
     }
 
     @Test
@@ -89,11 +89,11 @@ class FundingRepositoryTest {
         //given
 
         //when - 펀딩 샅애 두개 조회
-        Funding foundFunding1 = fundingRepository.findByMemberIdAndStatus(member3.getMemberId(), true).orElse(null);
-        Funding foundFunding2 = fundingRepository.findByMemberIdAndStatus(member3.getMemberId(), false).orElse(null);
+        Funding result1 = fundingRepository.findByMemberIdAndStatus(member3.getMemberId(), true).orElse(null);
+        Funding result2 = fundingRepository.findByMemberIdAndStatus(member3.getMemberId(), false).orElse(null);
         //then
-        assertThat(foundFunding1).isNull();
-        assertThat(foundFunding2).isNull();
+        assertThat(result1).isNull();
+        assertThat(result2).isNull();
     }
 
     @Test
@@ -102,31 +102,31 @@ class FundingRepositoryTest {
 
         //given
         //when
-        Funding foundFunding1 = fundingRepository.findByMemberIdAndStatus(member2.getMemberId(), true).orElse(null);
+        Funding result1 = fundingRepository.findByMemberIdAndStatus(member2.getMemberId(), true).orElse(null);
         //then
-        assertThat(foundFunding1).isNull();
+        assertThat(result1).isNull();
     }
 
     @Test
-    @DisplayName("findByFundingId: 펀딩 존재시 정상적인 Funding return")
-    void testFindByFundingId_펀딩존재() {
+    @DisplayName("findMemberById(): 펀딩 존재시 정상적인 Funding return")
+    void testFindMemberById_펀딩존재() {
         //given
 
         //when
-        Funding foundFunding1 = fundingRepository.findByFundingId(funding1.getFundingId());
+        Funding result1 = fundingRepository.findMemberById(funding1.getFundingId());
         //then
-        assertThat(foundFunding1).isNotNull();
-        assertThat(foundFunding1.getTag()).isEqualTo(BIRTHDAY);
-        assertThat(foundFunding1.getMember().getNickName()).isEqualTo("임창희");
+        assertThat(result1).isNotNull();
+        assertThat(result1.getTag()).isEqualTo(BIRTHDAY);
+        assertThat(result1.getMember().getNickName()).isEqualTo("임창희");
     }
 
     @Test
-    @DisplayName("findByFundingId: 펀딩 존재 하지 않을시 null값 return")
-    void testFindByFundingId_펀딩이존재하지않음() {
+    @DisplayName("findMemberById(): 펀딩 존재 하지 않을시 null값 return")
+    void testFindMemberById_펀딩이존재하지않음() {
         //when
-        Funding foundFunding1 = fundingRepository.findByFundingId(3718476283764L);
+        Funding result1 = fundingRepository.findMemberById(3718476283764L);
         //then
-        assertThat(foundFunding1).isNull();
+        assertThat(result1).isNull();
     }
 
     @Test
@@ -141,12 +141,12 @@ class FundingRepositoryTest {
         em.persist(item);
         em.persist(fundingItem);
         //when
-        Funding foundFunding = fundingRepository.findFundingInfo(member1.getMemberId()).orElse(null);
+        Funding result = fundingRepository.findFundingInfo(member1.getMemberId()).orElse(null);
         //then
-        assertThat(foundFunding).isNotNull();
-        assertThat(foundFunding.getTag()).isEqualTo(BIRTHDAY);
-        assertThat(foundFunding.getMember().getNickName()).isEqualTo("임창희");
-        assertThat(foundFunding.getFundingItems().get(0).getItem().getItemName()).isEqualTo(
+        assertThat(result).isNotNull();
+        assertThat(result.getTag()).isEqualTo(BIRTHDAY);
+        assertThat(result.getMember().getNickName()).isEqualTo("임창희");
+        assertThat(result.getFundingItems().get(0).getItem().getItemName()).isEqualTo(
                 "NEW 루쥬 알뤼르 벨벳 뉘 블랑쉬 리미티드 에디션");
     }
 
@@ -154,18 +154,18 @@ class FundingRepositoryTest {
     @DisplayName("findFundingInfo : 해당 맴버가 갖고있는 펀딩이 존재하지 않을 때 null 반환")
     void testFindFundingInfo_맴버가펀딩이없는경우() {
         //when
-        Funding foundFunding = fundingRepository.findFundingInfo(member3.getMemberId()).orElse(null);
+        Funding result = fundingRepository.findFundingInfo(member3.getMemberId()).orElse(null);
         //then
-        assertThat(foundFunding).isNull();
+        assertThat(result).isNull();
     }
 
     @Test
     @DisplayName("findFundingInfo: 맴버가 진행중인 펀딩이 존재하지않을 때 null 반환")
     void testFindFundingInfo_진행중인펀딩이없는경우() {
         //when
-        Funding foundFunding = fundingRepository.findFundingInfo(member2.getMemberId()).orElse(null);
+        Funding result = fundingRepository.findFundingInfo(member2.getMemberId()).orElse(null);
         //then
-        assertThat(foundFunding).isNull();
+        assertThat(result).isNull();
     }
 
     @Test
@@ -180,12 +180,12 @@ class FundingRepositoryTest {
         em.persist(item);
         em.persist(fundingItem);
         //when
-        List<Funding> foundFundings = fundingRepository.findFundingByMemberId(member2.getMemberId());
+        List<Funding> results = fundingRepository.findFundingByMemberId(member2.getMemberId());
         //then
-        assertThat(foundFundings).isNotNull();
-        assertThat(foundFundings.get(0).getTag()).isEqualTo(GRADUATE);
-        assertThat(foundFundings.get(0).getMember().getNickName()).isEqualTo("구태형");
-        assertThat(foundFundings.get(0).getFundingItems().get(0).getItem().getItemName()).isEqualTo(
+        assertThat(results).isNotNull();
+        assertThat(results.get(0).getTag()).isEqualTo(GRADUATE);
+        assertThat(results.get(0).getMember().getNickName()).isEqualTo("구태형");
+        assertThat(results.get(0).getFundingItems().get(0).getItem().getItemName()).isEqualTo(
                 "NEW 루쥬 알뤼르 벨벳 뉘 블랑쉬 리미티드 에디션");
     }
 
@@ -201,18 +201,18 @@ class FundingRepositoryTest {
         em.persist(item);
         em.persist(fundingItem);
         //when
-        List<Funding> foundFundings = fundingRepository.findFundingByMemberId(member1.getMemberId());
+        List<Funding> results = fundingRepository.findFundingByMemberId(member1.getMemberId());
         //then
-        assertThat(foundFundings).isEmpty();
+        assertThat(results).isEmpty();
     }
 
     @Test
     @DisplayName("findFundingByMemberId: 펀딩내역이 아예 존재하지 않을 시 null값 반환")
     void testFindFundingByMemberId_펀딩이아예없는경우() {
         //when
-        List<Funding> foundFundings = fundingRepository.findFundingByMemberId(member3.getMemberId());
+        List<Funding> results = fundingRepository.findFundingByMemberId(member3.getMemberId());
         //then
-        assertThat(foundFundings).isEmpty();
+        assertThat(results).isEmpty();
     }
 
 
