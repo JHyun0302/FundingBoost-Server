@@ -52,6 +52,7 @@ import kcs.funding.fundingboost.domain.model.ItemFixture;
 import kcs.funding.fundingboost.domain.model.MemberFixture;
 import kcs.funding.fundingboost.domain.model.SecurityContextHolderFixture;
 import kcs.funding.fundingboost.domain.service.FundingService;
+import kcs.funding.fundingboost.domain.service.utils.FundingUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -355,7 +356,7 @@ public class FundingControllerTest {
     @Test
     void viewMyFundingHistory() throws Exception {
         List<MyPageFundingDetailHistoryDto> myPageFundingDetailHistoryDtoList = List.of(
-                MyPageFundingDetailHistoryDto.fromEntity(funding1, 2));
+                MyPageFundingDetailHistoryDto.fromEntity(funding1, 2, FundingUtils.calculateFundingPercent(funding1)));
 
         MyFundingHistoryDto myFundingHistoryDto = MyFundingHistoryDto.fromEntity(MyPageMemberDto.fromEntity(member1),
                 myPageFundingDetailHistoryDtoList);
@@ -414,7 +415,7 @@ public class FundingControllerTest {
                 MyPageMemberDto.fromEntity(member1), myPageFundingItemDtoList, participateFriendDtoList,
                 90, "2024-05-02", "2024-05-16");
 
-        Mockito.when(fundingService.getMyFundingHistoryDetails(member1.getMemberId(), funding1.getFundingId()))
+        Mockito.when(fundingService.getMyFundingHistoryDetails(funding1.getFundingId()))
                 .thenReturn(myFundingHistoryDetailDto);
 
         // then

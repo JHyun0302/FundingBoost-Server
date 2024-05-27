@@ -42,6 +42,7 @@ import kcs.funding.fundingboost.domain.repository.contributor.ContributorReposit
 import kcs.funding.fundingboost.domain.repository.funding.FundingRepository;
 import kcs.funding.fundingboost.domain.repository.fundingItem.FundingItemRepository;
 import kcs.funding.fundingboost.domain.repository.relationship.RelationshipRepository;
+import kcs.funding.fundingboost.domain.service.utils.FundingUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -267,7 +268,7 @@ class FundingServiceTestCH {
         MyFundingHistoryDto myFundingHistoryDto = fundingService.getMyFundingHistory(member.getMemberId());
         MyPageMemberDto myPageMemberDto = MyPageMemberDto.fromEntity(member);
         MyPageFundingDetailHistoryDto myPageFundingDetailHistoryDto = MyPageFundingDetailHistoryDto.fromEntity(funding1,
-                1);
+                1, FundingUtils.calculateFundingPercent(funding1));
         //then
         assertEquals(myPageMemberDto, myFundingHistoryDto.myPageMemberDto());
         assertEquals(myPageFundingDetailHistoryDto, myFundingHistoryDto.myPageFundingDetailHistoryDtos().get(0));
@@ -303,7 +304,7 @@ class FundingServiceTestCH {
         MyFundingHistoryDto myFundingHistoryDto = fundingService.getMyFundingHistory(member.getMemberId());
         MyPageMemberDto myPageMemberDto = MyPageMemberDto.fromEntity(member);
         MyPageFundingDetailHistoryDto myPageFundingDetailHistoryDto = MyPageFundingDetailHistoryDto.fromEntity(funding,
-                0);
+                0, FundingUtils.calculateFundingPercent(funding));
         //then
         assertEquals(myPageMemberDto, myFundingHistoryDto.myPageMemberDto());
         assertEquals(myPageFundingDetailHistoryDto, myFundingHistoryDto.myPageFundingDetailHistoryDtos().get(0));
