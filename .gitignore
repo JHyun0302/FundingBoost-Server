@@ -38,3 +38,4 @@ out/
 
 ### oauth config ###
 src/main/resources/application-oauth.yml
+src/test/resources/application-oauth.yml
