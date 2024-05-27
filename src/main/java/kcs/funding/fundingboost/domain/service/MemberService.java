@@ -25,7 +25,7 @@ public class MemberService {
 
     @Transactional
     public CommonSuccessDto exchangePoint(TransformPointDto transformPointDto) {
-        Funding funding = fundingRepository.findMemberByFundingId(transformPointDto.fundingId());
+        Funding funding = fundingRepository.findMemberById(transformPointDto.fundingId());
         if (funding == null) {
             throw new CommonException(ErrorCode.NOT_FOUND_FUNDING);
         }
