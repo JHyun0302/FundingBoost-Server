@@ -355,7 +355,8 @@ public class InitH2DB {
 
         public List<Member> initMember() {
             List<Member> memberInfos = Arrays.asList(
-                    Member.createMemberWithPoint("임창희", "dlackdgml3710@gmail.com", "",
+                    Member.createMemberWithPoint("임창희", "dlackdgml3710@gmail.com",
+                            "{bcrypt}$2a$10$bIBTxCY.RFIcDncT8spdEOPImxovk626iI6FzCzduXGIpxvwAen0i",
                             "https://p.kakaocdn.net/th/talkp/wnbbRhlyRW/XaGAXxS1OkUtXnomt6S4IK/ky0f9a_110x110_c.jpg",
                             46000, "aFxoWGFUZlV5SH9MfE9-TH1PY1JiV2JRaF83"),
                     Member.createMemberWithPoint("구태형", "rnxogud136@gmail.com", "",
