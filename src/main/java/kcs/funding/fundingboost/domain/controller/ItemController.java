@@ -30,8 +30,9 @@ public class ItemController {
     @GetMapping("")
     public ResponseDto<Slice<ShopDto>> ShoppingList(
             @RequestParam(name = "category", required = false) String category
+            , @RequestParam(name = "lastItemId", required = false) Long lastItemId
             , Pageable pageable) {
-        return ResponseDto.ok(itemService.getItems(category, pageable));
+        return ResponseDto.ok(itemService.getItems(lastItemId, category, pageable));
     }
 
     /**

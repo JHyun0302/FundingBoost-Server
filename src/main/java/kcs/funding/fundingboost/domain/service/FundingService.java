@@ -182,10 +182,10 @@ public class FundingService {
         return CommonSuccessDto.fromEntity(true);
     }
 
-    public HomeViewDto getMainView(Long memberId, Pageable pageable) {
+    public HomeViewDto getMainView(Long memberId, Pageable pageable, Long lastItemId) {
 
         // 상품 목록: 상품Id, 이름, 가격, 이미지, 브랜드명
-        List<HomeItemDto> itemList = itemRepository.findItemsBySlice(pageable).stream()
+        List<HomeItemDto> itemList = itemRepository.findItemsBySlice(lastItemId, pageable).stream()
                 .map(HomeItemDto::fromEntity)
                 .toList();
         // 로그인하지 않은 사용자가 home 조회시 ItemList만 출력

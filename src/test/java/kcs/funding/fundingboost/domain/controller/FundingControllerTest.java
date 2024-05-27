@@ -107,7 +107,8 @@ public class FundingControllerTest {
     @Test
     void home() throws Exception {
         HomeMemberInfoDto homeMemberInfoDto = HomeMemberInfoDto.fromEntity(member1);
-        Pageable pageable = Pageable.ofSize(30);
+        Pageable pageable = Pageable.ofSize(10);
+
         // 내 펀딩 아이템
         List<HomeMyFundingItemDto> homeMyFundingItemDtoList = List.of(
                 HomeMyFundingItemDto.fromEntity(fundingItem1, 100), HomeMyFundingItemDto.fromEntity(fundingItem2, 50));
@@ -128,9 +129,12 @@ public class FundingControllerTest {
         HomeViewDto homeViewDto = HomeViewDto.fromEntity(homeMemberInfoDto, homeMyFundingStatusDto,
                 homeFriendFundingDtoList, itemDtoList);
 
-        given(fundingService.getMainView(member1.getMemberId(), pageable)).willReturn(homeViewDto);
+//        given(fundingService.getMainView(member1.getMemberId(), pageable, anyLong())).willReturn(homeViewDto);
+        given(fundingService.getMainView(member1.getMemberId(), pageable, 11L)).willReturn(homeViewDto);
 
         mockMvc.perform(get("/api/v1/home")
+                        .param("memberId", "1")
+                        .param("lastItemId", "11")// Adjust parameters as needed
                         .contentType(APPLICATION_JSON)
                         .with(csrf()))
                 .andExpect(status().isOk())

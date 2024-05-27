@@ -27,10 +27,9 @@ public class ItemService {
     private final ItemRepository itemRepository;
     private final BookmarkRepository bookmarkRepository;
 
-    public Slice<ShopDto> getItems(String category, Pageable pageable) {
-        Slice<Item> items = itemRepository.findItemsByCategory(category, pageable);
+    public Slice<ShopDto> getItems(Long lastItemId, String category, Pageable pageable) {
+        Slice<Item> items = itemRepository.findItemsByCategory(lastItemId, category, pageable);
         List<ShopDto> shopDtoList = items.stream().map(ShopDto::createGiftHubDto).toList();
-
         return new SliceImpl<>(shopDtoList, pageable, items.hasNext());
     }
 

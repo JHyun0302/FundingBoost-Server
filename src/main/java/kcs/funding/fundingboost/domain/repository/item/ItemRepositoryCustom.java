@@ -7,7 +7,7 @@ import org.springframework.data.repository.query.Param;
 
 public interface ItemRepositoryCustom {
 
-    Slice<Item> findItemsByCategory(@Param("category") String category, Pageable pageable);
+    Slice<Item> findItemsByCategory(Long lastItemId, @Param("category") String category, Pageable pageable);
 
-    Slice<Item> findItemsBySlice(Pageable pageable);
+    Slice<Item> findItemsBySlice(Long lastItemId, Pageable pageable);
 }

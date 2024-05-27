@@ -1,11 +1,8 @@
 package kcs.funding.fundingboost.domain.controller;
 
 import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -56,24 +53,29 @@ class ItemControllerTest {
         //given
         List<ShopDto> shopDtoList = Collections.singletonList(ShopDto.createGiftHubDto(item));
         String category = "뷰티";
-        Pageable pageable = mock(Pageable.class);
-        when(pageable.getPageNumber()).thenReturn(0);
-        when(pageable.getPageSize()).thenReturn(10);
+//        Pageable pageable = mock(Pageable.class);
+        Pageable pageable = Pageable.ofSize(10);
+//        when(pageable.getPageNumber()).thenReturn(0);
+//        when(pageable.getPageNumber()).thenReturn
+//        (0);
+//        when(pageable.getPageSize()).thenReturn(10);
 
-        Slice<ShopDto> shopDtoSlice = new SliceImpl<>(shopDtoList, pageable, true);
-        System.out.println(shopDtoSlice.stream().toList());
-        given(itemService.getItems(category, pageable)).willReturn(shopDtoSlice);
+        Slice<ShopDto> shopDtoSlice = new SliceImpl<>(shopDtoList, pageable, false);
+        System.out.println("---------------" + shopDtoSlice.stream().toList());
+        given(itemService.getItems(10L, category, pageable)).willReturn(shopDtoSlice);
         // when & then
         mockMvc.perform(get("/api/v1/items")
+                        .param("category", "뷰티")
+                        .param("lastItemId", "10")
                         .contentType(APPLICATION_JSON))
                 .andExpect(status().isOk())
-                .andDo(print())
+//                .andDo(print())
                 .andExpect(jsonPath("$.success").value(true))
-                .andExpect(jsonPath("$.data[0].itemId").value(item.getItemId()))
-                .andExpect(jsonPath("$.data[0].itemName").value(item.getItemName()))
-                .andExpect(jsonPath("$.data[0].price").value(item.getItemPrice()))
-                .andExpect(jsonPath("$.data[0].itemImageUrl").value(item.getItemImageUrl()))
-                .andExpect(jsonPath("$.data[0].brandName").value(item.getBrandName()));
+                .andExpect(jsonPath("$.data.content[0].itemId").value(item.getItemId()))
+                .andExpect(jsonPath("$.data.content[0].itemName").value(item.getItemName()))
+                .andExpect(jsonPath("$.data.content[0].price").value(item.getItemPrice()))
+                .andExpect(jsonPath("$.data.content[0].itemImageUrl").value(item.getItemImageUrl()))
+                .andExpect(jsonPath("$.data.content[0].brandName").value(item.getBrandName()));
     }
 
 

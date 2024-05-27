@@ -19,44 +19,55 @@ public class ItemRepositoryImpl implements ItemRepositoryCustom {
     private final JPAQueryFactory queryFactory;
 
     @Override
-    public Slice<Item> findItemsByCategory(String category, Pageable pageable) {
+    public Slice<Item> findItemsByCategory(Long lastItemId, String category, Pageable pageable) {
         List<Item> items = queryFactory
                 .selectFrom(item)
-                .where(isCategory(category))
-                .orderBy(item.itemId.asc())
-                .offset(pageable.getOffset())
+                .where(isCategory(category),
+                        ltItemId(lastItemId))
+                .orderBy(item.itemId.desc())
                 .limit(pageable.getPageSize() + 1)
                 .fetch();
 
-        boolean hasNext = items.size() > pageable.getPageSize();
-
-        if (hasNext) {
-            items.remove(items.size() - 1);
-        }
-
-        return new SliceImpl<>(items, pageable, hasNext);
+        return checkLastPage(pageable, items);
     }
 
     @Override
-    public Slice<Item> findItemsBySlice(Pageable pageable) {
+    public Slice<Item> findItemsBySlice(Long lastItemId, Pageable pageable) {
         List<Item> items = queryFactory
                 .selectFrom(item)
+                .where(ltItemId(lastItemId))
                 .orderBy(item.itemId.desc())
-                .offset(pageable.getOffset())
                 .limit(pageable.getPageSize() + 1)
                 .fetch();
 
-        boolean hasNext = items.size() > pageable.getPageSize();
+        return checkLastPage(pageable, items);
+    }
 
-        if (hasNext) {
-            items.remove(items.size() - 1);
+    // no-offset 방식 처리하는 메서드
+    private BooleanExpression ltItemId(Long itemId) {
+        if (itemId == null) {
+            return null;
         }
 
-        return new SliceImpl<>(items, pageable, hasNext);
+        return item.itemId.lt(itemId);
+    }
+
+    // 무한 스크롤 방식 처리하는 메서드
+    private Slice<Item> checkLastPage(Pageable pageable, List<Item> results) {
+
+        boolean hasNext = false;
+
+        // 조회한 결과 개수가 요청한 페이지 사이즈보다 크면 뒤에 더 있음, next = true
+        if (results.size() > pageable.getPageSize()) {
+            hasNext = true;
+            results.remove(pageable.getPageSize());
+        }
+
+        return new SliceImpl<>(results, pageable, hasNext);
     }
 
     private BooleanExpression isCategory(String category) {
-        if (category == null) {
+        if (category == null || category.isEmpty()) {
             return null;
         }
         return item.category.eq(category);

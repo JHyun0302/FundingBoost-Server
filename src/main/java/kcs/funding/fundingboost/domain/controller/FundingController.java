@@ -21,6 +21,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
@@ -34,8 +35,9 @@ public class FundingController {
      * 메인페이지 조회
      */
     @GetMapping("/home")
-    public ResponseDto<HomeViewDto> home(@Login Long memberId, Pageable pageable) {
-        return ResponseDto.ok(fundingService.getMainView(memberId, pageable));
+    public ResponseDto<HomeViewDto> home(@Login Long memberId, Pageable pageable,
+                                         @RequestParam(name = "lastItemId", required = false) Long lastItemId) {
+        return ResponseDto.ok(fundingService.getMainView(memberId, pageable, lastItemId));
     }
 
     /**
