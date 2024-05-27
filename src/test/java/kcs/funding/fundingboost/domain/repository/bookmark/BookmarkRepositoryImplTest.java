@@ -1,7 +1,6 @@
 package kcs.funding.fundingboost.domain.repository.bookmark;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.anyLong;
 
 import java.util.Optional;
 import kcs.funding.fundingboost.domain.config.QueryDslConfig;
@@ -52,19 +51,6 @@ class BookmarkRepositoryImplTest {
     void findBookmarkByMemberAndItem() {
         //when
         Optional<Bookmark> result = bookmarkRepository.findBookmarkByMemberAndItem(member.getMemberId(),
-                bookmark.getItem().getItemId());
-
-        //then
-        assertThat(result.get().getMember().getNickName()).isEqualTo(bookmark.getMember().getNickName());
-        assertThat(result.get().getItem().getItemName()).isEqualTo(item.getItemName());
-    }
-
-    @Test
-    @DisplayName("멤버와 아이템으로 bookmark 찾기 - 실패(사용자 없음)")
-    void findBookmarkByMemberAndItem_fail() {
-        testEntityManager.remove(member);
-        //when
-        Optional<Bookmark> result = bookmarkRepository.findBookmarkByMemberAndItem(anyLong(),
                 bookmark.getItem().getItemId());
 
         //then

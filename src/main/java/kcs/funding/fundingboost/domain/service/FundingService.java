@@ -340,7 +340,7 @@ public class FundingService {
     }
 
     public MyFundingHistoryDetailDto getMyFundingHistoryDetails(Long fundingId) {
-        Funding funding = fundingRepository.findByFundingId(fundingId);
+        Funding funding = fundingRepository.findMemberById(fundingId);
         MyPageMemberDto myPageMemberDto = MyPageMemberDto.fromEntity(funding.getMember());
         if (funding.isFundingStatus()) {
             // 펀딩이 진행중인 상황
