@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 import kcs.funding.fundingboost.domain.config.QueryDslConfig;
 import kcs.funding.fundingboost.domain.entity.Item;
+import kcs.funding.fundingboost.domain.repository.item.ItemRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;

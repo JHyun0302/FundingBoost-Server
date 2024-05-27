@@ -60,6 +60,7 @@ import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.data.domain.Pageable;
 import org.springframework.test.web.servlet.MockMvc;
 
 @WebMvcTest(FundingController.class)
@@ -107,6 +108,7 @@ public class FundingControllerTest {
     @Test
     void home() throws Exception {
         HomeMemberInfoDto homeMemberInfoDto = HomeMemberInfoDto.fromEntity(member1);
+        Pageable pageable = Pageable.ofSize(10);
 
         // 내 펀딩 아이템
         List<HomeMyFundingItemDto> homeMyFundingItemDtoList = List.of(
@@ -128,9 +130,12 @@ public class FundingControllerTest {
         HomeViewDto homeViewDto = HomeViewDto.fromEntity(homeMemberInfoDto, homeMyFundingStatusDto,
                 homeFriendFundingDtoList, itemDtoList);
 
-        given(fundingService.getMainView(member1.getMemberId())).willReturn(homeViewDto);
+//        given(fundingService.getMainView(member1.getMemberId(), pageable, anyLong())).willReturn(homeViewDto);
+        given(fundingService.getMainView(member1.getMemberId(), pageable, 11L)).willReturn(homeViewDto);
 
         mockMvc.perform(get("/api/v1/home")
+                        .param("memberId", "1")
+                        .param("lastItemId", "11")// Adjust parameters as needed
                         .contentType(APPLICATION_JSON)
                         .with(csrf()))
                 .andExpect(status().isOk())

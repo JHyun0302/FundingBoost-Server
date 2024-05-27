@@ -41,17 +41,18 @@ import kcs.funding.fundingboost.domain.entity.Relationship;
 import kcs.funding.fundingboost.domain.entity.Tag;
 import kcs.funding.fundingboost.domain.entity.member.Member;
 import kcs.funding.fundingboost.domain.exception.CommonException;
-import kcs.funding.fundingboost.domain.repository.ItemRepository;
 import kcs.funding.fundingboost.domain.repository.MemberRepository;
 import kcs.funding.fundingboost.domain.repository.contributor.ContributorRepository;
 import kcs.funding.fundingboost.domain.repository.funding.FundingRepository;
 import kcs.funding.fundingboost.domain.repository.fundingItem.FundingItemRepository;
+import kcs.funding.fundingboost.domain.repository.item.ItemRepository;
 import kcs.funding.fundingboost.domain.repository.relationship.RelationshipRepository;
 import kcs.funding.fundingboost.domain.service.utils.DateUtils;
 import kcs.funding.fundingboost.domain.service.utils.FundingConst;
 import kcs.funding.fundingboost.domain.service.utils.FundingUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -178,10 +179,10 @@ public class FundingService {
         return CommonSuccessDto.fromEntity(true);
     }
 
-    public HomeViewDto getMainView(Long memberId) {
+    public HomeViewDto getMainView(Long memberId, Pageable pageable, Long lastItemId) {
 
         // 상품 목록: 상품Id, 이름, 가격, 이미지, 브랜드명
-        List<HomeItemDto> itemList = itemRepository.findAll().stream()
+        List<HomeItemDto> itemList = itemRepository.findItemsBySlice(lastItemId, pageable).stream()
                 .map(HomeItemDto::fromEntity)
                 .toList();
         // 로그인하지 않은 사용자가 home 조회시 ItemList만 출력

@@ -22,6 +22,9 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
+import org.springframework.data.domain.SliceImpl;
 import org.springframework.test.web.servlet.MockMvc;
 
 @WebMvcTest(ItemController.class)
@@ -41,6 +44,7 @@ class ItemControllerTest {
         member = MemberFixture.member1();
         SecurityContextHolderFixture.setContext(member);
         item = ItemFixture.item1();
+
     }
 
     @DisplayName("쇼핑 페이지 조회")
@@ -48,19 +52,30 @@ class ItemControllerTest {
     void viewShoppingList() throws Exception {
         //given
         List<ShopDto> shopDtoList = Collections.singletonList(ShopDto.createGiftHubDto(item));
+        String category = "뷰티";
+//        Pageable pageable = mock(Pageable.class);
+        Pageable pageable = Pageable.ofSize(10);
+//        when(pageable.getPageNumber()).thenReturn(0);
+//        when(pageable.getPageNumber()).thenReturn
+//        (0);
+//        when(pageable.getPageSize()).thenReturn(10);
 
-        given(itemService.getItems()).willReturn(shopDtoList);
-
+        Slice<ShopDto> shopDtoSlice = new SliceImpl<>(shopDtoList, pageable, false);
+        System.out.println("---------------" + shopDtoSlice.stream().toList());
+        given(itemService.getItems(10L, category, pageable)).willReturn(shopDtoSlice);
         // when & then
         mockMvc.perform(get("/api/v1/items")
+                        .param("category", "뷰티")
+                        .param("lastItemId", "10")
                         .contentType(APPLICATION_JSON))
                 .andExpect(status().isOk())
+//                .andDo(print())
                 .andExpect(jsonPath("$.success").value(true))
-                .andExpect(jsonPath("$.data[0].itemId").value(item.getItemId()))
-                .andExpect(jsonPath("$.data[0].itemName").value(item.getItemName()))
-                .andExpect(jsonPath("$.data[0].price").value(item.getItemPrice()))
-                .andExpect(jsonPath("$.data[0].itemImageUrl").value(item.getItemImageUrl()))
-                .andExpect(jsonPath("$.data[0].brandName").value(item.getBrandName()));
+                .andExpect(jsonPath("$.data.content[0].itemId").value(item.getItemId()))
+                .andExpect(jsonPath("$.data.content[0].itemName").value(item.getItemName()))
+                .andExpect(jsonPath("$.data.content[0].price").value(item.getItemPrice()))
+                .andExpect(jsonPath("$.data.content[0].itemImageUrl").value(item.getItemImageUrl()))
+                .andExpect(jsonPath("$.data.content[0].brandName").value(item.getBrandName()));
     }
 
 

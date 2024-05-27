@@ -15,11 +15,13 @@ import kcs.funding.fundingboost.domain.dto.response.myPage.myFundingStatus.MyFun
 import kcs.funding.fundingboost.domain.security.resolver.Login;
 import kcs.funding.fundingboost.domain.service.FundingService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
@@ -33,8 +35,9 @@ public class FundingController {
      * 메인페이지 조회
      */
     @GetMapping("/home")
-    public ResponseDto<HomeViewDto> home(@Login Long memberId) {
-        return ResponseDto.ok(fundingService.getMainView(memberId));
+    public ResponseDto<HomeViewDto> home(@Login Long memberId, Pageable pageable,
+                                         @RequestParam(name = "lastItemId", required = false) Long lastItemId) {
+        return ResponseDto.ok(fundingService.getMainView(memberId, pageable, lastItemId));
     }
 
     /**

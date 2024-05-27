@@ -18,10 +18,10 @@ import kcs.funding.fundingboost.domain.model.FundingItemFixture;
 import kcs.funding.fundingboost.domain.model.ItemFixture;
 import kcs.funding.fundingboost.domain.model.MemberFixture;
 import kcs.funding.fundingboost.domain.model.RelationShipFixture;
-import kcs.funding.fundingboost.domain.repository.ItemRepository;
 import kcs.funding.fundingboost.domain.repository.MemberRepository;
 import kcs.funding.fundingboost.domain.repository.funding.FundingRepository;
 import kcs.funding.fundingboost.domain.repository.fundingItem.FundingItemRepository;
+import kcs.funding.fundingboost.domain.repository.item.ItemRepository;
 import kcs.funding.fundingboost.domain.repository.relationship.RelationshipRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.assertj.core.api.Assertions;
@@ -32,6 +32,9 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
+import org.springframework.data.domain.SliceImpl;
 
 @Slf4j
 @ExtendWith(MockitoExtension.class)
@@ -57,24 +60,31 @@ class FundingServiceTest_InHo_v2 {
 
 
     private Member member;
-
+    private Item item1;
+    private Item item2;
     private Funding funding;
-
+    private Pageable pageable;
 
     @BeforeEach
     void setUp() throws NoSuchFieldException, IllegalAccessException {
         member = MemberFixture.member2();
         funding = FundingFixture.Birthday(member);
+        item1 = ItemFixture.item1();
+        item2 = ItemFixture.item2();
+
+        pageable = Pageable.ofSize(10);
     }
 
     @DisplayName("getMainView: 로그인이 되지 않았을 시 예외처리가 되어야한다.")
     @Test
     void getMainView_잘못된사용자() {
+        Slice<Item> itemSlice = new SliceImpl<>(List.of(item1, item2), pageable, false);
         //given
+        when(itemRepository.findItemsBySlice(11L, pageable)).thenReturn(itemSlice);
         when(memberRepository.findById(member.getMemberId())).thenReturn(Optional.empty());
 
         //when & then
-        Assertions.assertThatThrownBy(() -> fundingService.getMainView(member.getMemberId()))
+        Assertions.assertThatThrownBy(() -> fundingService.getMainView(member.getMemberId(), pageable, 11L))
                 .isInstanceOf(CommonException.class)
                 .hasMessageContaining("해당 사용자가 존재하지 않습니다.");
     }
@@ -84,14 +94,14 @@ class FundingServiceTest_InHo_v2 {
     void getMainView_내펀딩목록조회() throws NoSuchFieldException, IllegalAccessException {
 
         //given
-        List<Item> itemList = ItemFixture.items5();
-        List<FundingItem> fundigItems = FundingItemFixture.fundingItems(itemList, funding);
-
+        Slice<Item> itemSlice = new SliceImpl<>(List.of(item1, item2), pageable, false);
+        List<FundingItem> fundigItems = FundingItemFixture.fundingItems(List.of(item1, item2), funding);
+        when(itemRepository.findItemsBySlice(11L, pageable)).thenReturn(itemSlice);
         when(memberRepository.findById(member.getMemberId())).thenReturn(Optional.of(member));
         when(fundingRepository.findFundingInfo(member.getMemberId())).thenReturn(Optional.of(funding));
 
         //when
-        HomeViewDto result = fundingService.getMainView(member.getMemberId());
+        HomeViewDto result = fundingService.getMainView(member.getMemberId(), pageable, 11L);
 
         //then
         assertThat(result.homeMemberInfoDto().nickName()).isEqualTo(member.getNickName());
@@ -106,12 +116,13 @@ class FundingServiceTest_InHo_v2 {
     @DisplayName("getMainView: 사용자의 펀딩이 존재하지 않을 때 빈 리스트가 와야한다.")
     void getMainView_내펀딩이존재하지않음() {
         //given
-
+        Slice<Item> itemSlice = new SliceImpl<>(List.of(item1, item2), pageable, false);
+        when(itemRepository.findItemsBySlice(11L, pageable)).thenReturn(itemSlice);
         when(memberRepository.findById(member.getMemberId())).thenReturn(Optional.of(member));
         when(fundingRepository.findFundingInfo(member.getMemberId())).thenReturn(Optional.empty());
 
         //when
-        HomeViewDto result = fundingService.getMainView(member.getMemberId());
+        HomeViewDto result = fundingService.getMainView(member.getMemberId(), pageable, 11L);
         //then
         assertThat(result.homeMemberInfoDto().nickName()).isEqualTo(member.getNickName());
         assertThat(result.homeMyFundingStatusDto()).isNull();
@@ -145,7 +156,8 @@ class FundingServiceTest_InHo_v2 {
          * 친구 관계 생성
          */
         List<Relationship> relationships = RelationShipFixture.myRelationships(member, friendList);
-
+        Slice<Item> itemSlice = new SliceImpl<>(List.of(item1, item2), pageable, false);
+        when(itemRepository.findItemsBySlice(11L, pageable)).thenReturn(itemSlice);
         when(memberRepository.findById(member.getMemberId())).thenReturn(Optional.of(member));
         when(relationshipRepository.findFriendByMemberId(member.getMemberId())).thenReturn(relationships);
         when(fundingRepository.findByMemberIdAndStatus(relationships.get(0).getFriend().getMemberId(), true))
@@ -156,7 +168,7 @@ class FundingServiceTest_InHo_v2 {
         when(fundingItemRepository.findFundingItemIdListByFundingId(friendFunding.getFundingId()))
                 .thenReturn(friendFundingItems);
         //when
-        HomeViewDto result = fundingService.getMainView(member.getMemberId());
+        HomeViewDto result = fundingService.getMainView(member.getMemberId(), pageable, 11L);
         //then
         assertThat(result.homeFriendFundingDtoList()).hasSize(1);
         assertThat(result.homeFriendFundingDtoList().get(0).commonFriendFundingDto()
@@ -178,11 +190,12 @@ class FundingServiceTest_InHo_v2 {
     void getMainView_친구가존재하지않음() {
         //given
         List<Relationship> relationships = new ArrayList<>();
-
+        Slice<Item> itemSlice = new SliceImpl<>(List.of(item1, item2), pageable, false);
+        when(itemRepository.findItemsBySlice(11L, pageable)).thenReturn(itemSlice);
         when(memberRepository.findById(member.getMemberId())).thenReturn(Optional.of(member));
         when(relationshipRepository.findFriendByMemberId(member.getMemberId())).thenReturn(relationships);
         //when
-        HomeViewDto result = fundingService.getMainView(member.getMemberId());
+        HomeViewDto result = fundingService.getMainView(member.getMemberId(), pageable, 11L);
         //then
         assertThat(result.homeFriendFundingDtoList()).isEmpty();
     }
@@ -191,31 +204,32 @@ class FundingServiceTest_InHo_v2 {
     @Test
     void getMainView_상품조회() throws NoSuchFieldException, IllegalAccessException {
         //given
+        Slice<Item> itemSlice = new SliceImpl<>(List.of(item1, item2), pageable, false);
 
+        when(itemRepository.findItemsBySlice(11L, pageable)).thenReturn(itemSlice);
         when(memberRepository.findById(member.getMemberId())).thenReturn(Optional.of(member));
-        when(itemRepository.findAll()).thenReturn(ItemFixture.items5());
 
         //when
 
-        HomeViewDto result = fundingService.getMainView(member.getMemberId());
+        HomeViewDto result = fundingService.getMainView(member.getMemberId(), pageable, 11L);
 
         //then
 
-        assertThat(result.itemDtoList()).hasSize(5);
-        assertThat(result.itemDtoList()).extracting("itemId").contains(1L, 2L, 3L, 4L, 5L);
+        assertThat(result.itemDtoList()).hasSize(2);
+        assertThat(result.itemDtoList()).extracting("itemId").contains(1L, 2L);
     }
 
     @DisplayName("getMainView: 상품이 없는 경우 빈 리스트를 반환해야한다.")
     @Test
     void getMainView_상품이없는경우() {
         //given
-        List<Item> itemList = new ArrayList<>();
+        Slice<Item> itemList = new SliceImpl<>(List.of(), pageable, false);
 
         when(memberRepository.findById(member.getMemberId())).thenReturn(Optional.of(member));
-        when(itemRepository.findAll()).thenReturn(itemList);
+        when(itemRepository.findItemsBySlice(11L, pageable)).thenReturn(itemList);
 
         //when
-        HomeViewDto result = fundingService.getMainView(member.getMemberId());
+        HomeViewDto result = fundingService.getMainView(member.getMemberId(), pageable, 11L);
 
         //then
         assertThat(result.itemDtoList()).isEmpty();
@@ -225,10 +239,12 @@ class FundingServiceTest_InHo_v2 {
     @Test
     void getMainView() throws NoSuchFieldException, IllegalAccessException {
         //given
+
         /**
          * 사용자 펀딩 생성
          */
         List<Item> itemList = ItemFixture.items5();
+        Slice<Item> itemSlice = new SliceImpl<>(itemList, pageable, false);
         List<FundingItem> fundigItems = FundingItemFixture.fundingItems(itemList, funding);
 
         /**
@@ -282,10 +298,10 @@ class FundingServiceTest_InHo_v2 {
         /**
          * 상품 관련 repository 접근
          */
-        when(itemRepository.findAll()).thenReturn(ItemFixture.items5());
+        when(itemRepository.findItemsBySlice(11L, pageable)).thenReturn(itemSlice);
 
         //when
-        HomeViewDto result = fundingService.getMainView(member.getMemberId());
+        HomeViewDto result = fundingService.getMainView(member.getMemberId(), pageable, 11L);
 
         //then
         /**
