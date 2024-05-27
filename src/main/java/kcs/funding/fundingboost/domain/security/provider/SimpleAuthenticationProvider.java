@@ -31,7 +31,7 @@ public class SimpleAuthenticationProvider implements AuthenticationProvider {
         String password = (String) authentication.getCredentials();
 
         // nickname 검증은 userDetailsService에서 진행
-        CustomUserDetails userDetails = customUserDetailsService.loadUserByUsername(nickname);
+        CustomUserDetails userDetails = customUserDetailsService.loadUserByEmail(nickname);
 
         // password 검증은 passwordEncoder가 진행
         if (!passwordEncoder.matches(password, userDetails.getPassword())) {

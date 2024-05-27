@@ -1,5 +1,6 @@
 package kcs.funding.fundingboost.domain.config;
 
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -12,24 +13,27 @@ import org.springframework.data.redis.serializer.StringRedisSerializer;
 
 @Configuration
 @EnableRedisRepositories(enableKeyspaceEvents = EnableKeyspaceEvents.ON_STARTUP)
-public class RedisConfig {
-    @Value("${spring.data.redis.host}")
+public class LockConfig {
+    @Value("${spring.data.redis.lock.host}")
     private String host;
 
-    @Value("${spring.data.redis.port}")
+    @Value("${spring.data.redis.lock.port}")
     private int port;
 
     @Bean
-    public RedisConnectionFactory redisConnectionFactory() {
+    @Qualifier("lockRedisConnectionFactory")
+    public RedisConnectionFactory lockRedisConnectionFactory() {
         return new LettuceConnectionFactory(host, port);
     }
 
     @Bean
-    public RedisTemplate<String, Object> redisTemplate() {
-        RedisTemplate<String, Object> redisTemplate = new RedisTemplate<>();
+    @Qualifier("lockTemplate")
+    public RedisTemplate<String, String> lockTemplate(
+            @Qualifier("lockRedisConnectionFactory") RedisConnectionFactory lockRedisConnectionFactory) {
+        RedisTemplate<String, String> redisTemplate = new RedisTemplate<>();
         redisTemplate.setKeySerializer(new StringRedisSerializer());
         redisTemplate.setValueSerializer(new StringRedisSerializer());
-        redisTemplate.setConnectionFactory(redisConnectionFactory());
+        redisTemplate.setConnectionFactory(lockRedisConnectionFactory());
         return redisTemplate;
     }
 }

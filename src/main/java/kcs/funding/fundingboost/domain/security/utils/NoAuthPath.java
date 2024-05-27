@@ -10,5 +10,10 @@ public final class NoAuthPath {
             "/v3/api-docs/**",
             "/api/v1",
             "/api/v1/home",
-            "/api/v1/items/**");
+            "/api/v1/items/**",
+            "/api/v1/loginForm",//테스트용 로그인 폼
+            //oauth provider uri 설정
+            "/oauth2/authorization",
+            "/login/oauth2/code",
+            "/api/v1/access-reissue");
 }

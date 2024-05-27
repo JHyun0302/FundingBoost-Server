@@ -355,13 +355,14 @@ public class InitH2DB {
 
         public List<Member> initMember() {
             List<Member> memberInfos = Arrays.asList(
-                    Member.createMemberWithPoint("임창희", "dlackdgml3710@gmail.com", "",
+                    Member.createMemberWithPoint("임창희", "dlackdgml3710@gmail.com",
+                            "{bcrypt}$2a$10$bIBTxCY.RFIcDncT8spdEOPImxovk626iI6FzCzduXGIpxvwAen0i",
                             "https://p.kakaocdn.net/th/talkp/wnbbRhlyRW/XaGAXxS1OkUtXnomt6S4IK/ky0f9a_110x110_c.jpg",
                             46000, "aFxoWGFUZlV5SH9MfE9-TH1PY1JiV2JRaF83"),
                     Member.createMemberWithPoint("구태형", "rnxogud136@gmail.com", "",
                             "https://p.kakaocdn.net/th/talkp/wowkAlwbLn/Ko25X6eV5bs1OycAz7n9Q1/lq4mv6_110x110_c.jpg",
                             999999999, "aFtpX2lZaFhvQ3JLe0J2QnFDcFxtXWhdbldgDA"),
-                    Member.createMemberWithPoint("맹인호", "aoddlsgh98@gmail.com", "",
+                    Member.createMemberWithPoint("맹인호", "aoddlsgh99@gmail.com", "",
                             "https://p.kakaocdn.net/th/talkp/woBG0lIJfU/M6aVERkQ2Lv2sNfQaLMYrK/pzfmfl_110x110_c.jpg",
                             200000, "aFluW29Ya1hpRXdBdEdyQHBGdlprW25baFFmDQ"),
                     Member.createMemberWithPoint("양혜인", "helen66626662@gmail.com", "",

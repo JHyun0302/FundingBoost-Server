@@ -17,11 +17,13 @@ import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.UnsupportedJwtException;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import kcs.funding.fundingboost.domain.exception.CommonException;
 import kcs.funding.fundingboost.domain.security.CustomUserDetails;
 import kcs.funding.fundingboost.domain.security.CustomUserDetailsService;
+import kcs.funding.fundingboost.domain.security.entity.BlackList;
+import kcs.funding.fundingboost.domain.security.repository.BlackListRepository;
 import kcs.funding.fundingboost.domain.security.service.JwtAuthenticationService;
-import kcs.funding.fundingboost.domain.security.service.RedisTemplateService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.AuthenticationProvider;
@@ -37,7 +39,7 @@ import org.springframework.stereotype.Component;
 public class JwtAuthenticationProvider implements AuthenticationProvider {
 
     private final CustomUserDetailsService customUserDetailsService;
-    private final RedisTemplateService redisTemplateService;
+    private final BlackListRepository blackListRepository;
 
     @Override
     public Authentication authenticate(Authentication authentication) throws AuthenticationException {
@@ -47,7 +49,8 @@ public class JwtAuthenticationProvider implements AuthenticationProvider {
             String token = (String) authentication.getPrincipal();
 
             // access token이 blackList에 등록되어 있는지 확인
-            if (redisTemplateService.isBlackList(token)) {
+            Optional<BlackList> findAccessToken = blackListRepository.findById(token);
+            if (findAccessToken.isPresent()) {
                 throw new CommonException(EXPIRED_TOKEN_ERROR);
             }
 

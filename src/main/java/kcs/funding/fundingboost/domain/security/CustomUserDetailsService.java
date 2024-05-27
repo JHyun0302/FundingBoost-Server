@@ -33,4 +33,12 @@ public class CustomUserDetailsService implements UserDetailsService {
 
         return new CustomUserDetails(member);
     }
+
+    public CustomUserDetails loadUserByEmail(String email) {
+        Member member = memberRepository.findByEmail(email).orElseThrow(
+                () -> new CommonException(NOT_FOUND_MEMBER)
+        );
+
+        return new CustomUserDetails(member);
+    }
 }

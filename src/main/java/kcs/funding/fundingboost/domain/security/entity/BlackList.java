@@ -7,13 +7,15 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.redis.core.RedisHash;
 
 @Getter
-@RedisHash(value = "refreshToken", timeToLive = ACCESS_TOKEN_VALIDITY_IN_SECONDS)
+@RedisHash(value = "accessToken", timeToLive = ACCESS_TOKEN_VALIDITY_IN_SECONDS)
 public class BlackList {
 
     @Id
     private String token;
 
-    public BlackList(String token) {
-        this.token = token;
+    public static BlackList createBlackList(String accessToken) {
+        BlackList blackList = new BlackList();
+        blackList.token = accessToken;
+        return blackList;
     }
 }

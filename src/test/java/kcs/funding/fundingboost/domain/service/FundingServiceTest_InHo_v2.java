@@ -165,7 +165,7 @@ class FundingServiceTest_InHo_v2 {
         when(fundingRepository.findByMemberIdAndStatus(relationships.get(1).getFriend().getMemberId(), true))
                 .thenReturn(Optional.empty());
 
-        when(fundingItemRepository.findFundingItemIdListByFunding(friendFunding.getFundingId()))
+        when(fundingItemRepository.findFundingItemIdListByFundingId(friendFunding.getFundingId()))
                 .thenReturn(friendFundingItems);
         //when
         HomeViewDto result = fundingService.getMainView(member.getMemberId(), pageable, 11L);
@@ -290,9 +290,9 @@ class FundingServiceTest_InHo_v2 {
                 .thenReturn(Optional.of(friendFunding1));
         when(fundingRepository.findByMemberIdAndStatus(relationships.get(1).getFriend().getMemberId(), true))
                 .thenReturn(Optional.of(friendFunding2));
-        when(fundingItemRepository.findFundingItemIdListByFunding(friendFunding1.getFundingId()))
+        when(fundingItemRepository.findFundingItemIdListByFundingId(friendFunding1.getFundingId()))
                 .thenReturn(friend1FundingItems);
-        when(fundingItemRepository.findFundingItemIdListByFunding(friendFunding2.getFundingId()))
+        when(fundingItemRepository.findFundingItemIdListByFundingId(friendFunding2.getFundingId()))
                 .thenReturn(friend2FundingItems);
 
         /**
