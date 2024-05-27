@@ -203,7 +203,7 @@ class FundingServiceTestCH {
         when(relationshipRepository.findFriendByMemberId(member.getMemberId())).thenReturn(myRelationships);
         when(fundingRepository.findByMemberIdAndStatus(friend.getMemberId(), true)).thenReturn(
                 Optional.of(friendFunding));
-        when(fundingItemRepository.findFundingItemIdListByFunding(friendFunding.getFundingId())).thenReturn(
+        when(fundingItemRepository.findFundingItemIdListByFundingId(friendFunding.getFundingId())).thenReturn(
                 fundingItems);
         //when
         List<CommonFriendFundingDto> friendFundingDtoList = fundingService.getFriendFundingList(member.getMemberId());
