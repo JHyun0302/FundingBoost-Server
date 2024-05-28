@@ -199,10 +199,10 @@ class MyPayServiceTest {
         //then
         assertNotNull(result);
         assertEquals(member1.getPoint(), result.point());
-        assertEquals(1, result.deliveryListDto().size());
-        assertEquals("경기도 성남시 분당구 판교역로 166", result.deliveryListDto().get(0).address());
-        assertEquals("장이수", result.deliveryListDto().get(0).customerName());
-        assertEquals("010-1234-5678", result.deliveryListDto().get(0).phoneNumber());
+        assertEquals(1, result.deliveryDtoList().size());
+        assertEquals("경기도 성남시 분당구 판교역로 166", result.deliveryDtoList().get(0).address());
+        assertEquals("장이수", result.deliveryDtoList().get(0).customerName());
+        assertEquals("010-1234-5678", result.deliveryDtoList().get(0).phoneNumber());
         assertEquals(member1.getPoint(), result.point());
 
         verify(memberRepository, times(1)).findById(member1.getMemberId());

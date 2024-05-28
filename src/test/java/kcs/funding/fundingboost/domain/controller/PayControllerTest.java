@@ -95,10 +95,10 @@ class PayControllerTest {
                         .contentType(APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andDo(print())
-                .andExpect(jsonPath("$.data.deliveryListDto[0].deliveryId").value(delivery.getDeliveryId()))
-                .andExpect(jsonPath("$.data.deliveryListDto[0].customerName").value(delivery.getCustomerName()))
-                .andExpect(jsonPath("$.data.deliveryListDto[0].address").value(delivery.getAddress()))
-                .andExpect(jsonPath("$.data.deliveryListDto[0].phoneNumber").value(delivery.getPhoneNumber()))
+                .andExpect(jsonPath("$.data.deliveryDtoList[0].deliveryId").value(delivery.getDeliveryId()))
+                .andExpect(jsonPath("$.data.deliveryDtoList[0].customerName").value(delivery.getCustomerName()))
+                .andExpect(jsonPath("$.data.deliveryDtoList[0].address").value(delivery.getAddress()))
+                .andExpect(jsonPath("$.data.deliveryDtoList[0].phoneNumber").value(delivery.getPhoneNumber()))
                 .andExpect(jsonPath("$.data.point").value(member.getPoint()));
     }
 
