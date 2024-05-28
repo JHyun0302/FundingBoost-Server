@@ -314,8 +314,9 @@ public class FundingService {
             } else {
                 itemPercent = 0;
             }
-            myPageFundingItemList.add(MyPageFundingItemDto.fromEntity(funding, fundingItem.getItem(), itemPercent,
-                    fundingItem.isFinishedStatus()));
+
+            myPageFundingItemList.add(
+                    MyPageFundingItemDto.fromEntity(funding, fundingItem, itemPercent));
         }
 
         return myPageFundingItemList;

@@ -311,7 +311,7 @@ public class FundingControllerTest {
     @Test
     void viewMyPage() throws Exception {
         List<MyPageFundingItemDto> myPageFundingItemList = List.of(
-                MyPageFundingItemDto.fromEntity(funding1, item1, 80, true));
+                MyPageFundingItemDto.fromEntity(funding1, fundingItem1, 80));
         List<ParticipateFriendDto> participateFriendDtoList = List.of(
                 ParticipateFriendDto.fromEntity(Contributor.createContributor(20000, member2, funding1)));
 
@@ -407,8 +407,8 @@ public class FundingControllerTest {
     void viewMyFundingHistoryDetail() throws Exception {
         // given
         List<MyPageFundingItemDto> myPageFundingItemDtoList = List.of(
-                MyPageFundingItemDto.fromEntity(funding1, item1, 80, true),
-                MyPageFundingItemDto.fromEntity(funding1, item2, 0, true));
+                MyPageFundingItemDto.fromEntity(funding1, fundingItem1, 80),
+                MyPageFundingItemDto.fromEntity(funding1, fundingItem2, 0));
         List<ParticipateFriendDto> participateFriendDtoList = List.of(
                 ParticipateFriendDto.fromEntity(Contributor.createContributor(20000, member2, funding1)));
 
