@@ -64,6 +64,27 @@ springdoc:
   swagger-ui:
     path: /swagger-ui.html
 
+management:
+  info:
+    java:
+      enabled: true
+    os:
+      enabled: true
+    env:
+      enabled: true
+  endpoint:
+    health:
+      show-details: always
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+      base-path: "/api/v1/fundingboost"
+  server:
+    port: 8080
+  tomcat:
+    mbeanregistry:
+      enabled: true
 #jwt:
 #  secret: c2lsdmVybmluZS10ZWNoLXNwcmluZy1ib290LWp3dC10dXRvcmlhbC1zZWNyZXQtc2lsdmVybmluZS10ZWNoLXNwcmluZy1ib290LWp3dC10dXRvcmlhbC1zZWNyZXQK
 #  token-validity-in-seconds: 864000
