@@ -3,6 +3,8 @@ package kcs.funding.fundingboost.domain.service;
 import static kcs.funding.fundingboost.domain.exception.ErrorCode.NOT_FOUND_ITEM;
 import static kcs.funding.fundingboost.domain.exception.ErrorCode.NOT_FOUND_MEMBER;
 
+import io.micrometer.core.annotation.Counted;
+import io.micrometer.core.annotation.Timed;
 import java.util.List;
 import java.util.Optional;
 import kcs.funding.fundingboost.domain.dto.common.CommonSuccessDto;
@@ -20,6 +22,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+@Timed("BookmarkService")
 @Service
 @Transactional(readOnly = true)
 @RequiredArgsConstructor
@@ -29,6 +32,7 @@ public class BookmarkService {
     private final MemberRepository memberRepository;
     private final ItemRepository itemRepository;
 
+    @Counted("BookmarkService.getMyBookmark")
     public MyBookmarkListDto getMyBookmark(Long memberId) {
 
         List<BookmarkItemDto> bookmarkItemDtos = bookmarkRepository.findAllByMemberId(memberId).stream()
@@ -40,6 +44,7 @@ public class BookmarkService {
         return MyBookmarkListDto.fromEntity(myPageMemberDto, bookmarkItemDtos);
     }
 
+    @Counted("BookmarkService.toggleItemLike")
     @Transactional
     public CommonSuccessDto toggleItemLike(Long memberId, Long itemId) {
         Optional<Bookmark> optionalBookmark = bookmarkRepository.findBookmarkByMemberAndItem(memberId, itemId);

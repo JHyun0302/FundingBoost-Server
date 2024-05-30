@@ -15,5 +15,7 @@ public final class NoAuthPath {
             //oauth provider uri 설정
             "/oauth2/authorization",
             "/login/oauth2/code",
-            "/api/v1/access-reissue");
+            "/api/v1/access-reissue",
+            "/api/v1/fundingboost/**" //actuator
+    );
 }

@@ -6,6 +6,8 @@ import static kcs.funding.fundingboost.domain.exception.ErrorCode.NOT_FOUND_FUND
 import static kcs.funding.fundingboost.domain.exception.ErrorCode.NOT_FOUND_ITEM;
 import static kcs.funding.fundingboost.domain.exception.ErrorCode.NOT_FOUND_MEMBER;
 
+import io.micrometer.core.annotation.Counted;
+import io.micrometer.core.annotation.Timed;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
@@ -56,6 +58,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+@Timed("FundingService")
 @Slf4j
 @Service
 @Transactional(readOnly = true)
@@ -69,6 +72,7 @@ public class FundingService {
     private final ContributorRepository contributorRepository;
     private final RelationshipRepository relationshipRepository;
 
+    @Counted("FundingService.putFundingAndFundingItem")
     @Transactional
     public CommonSuccessDto putFundingAndFundingItem(Long memberId, RegisterFundingDto registerFundingDto) {
 
@@ -101,6 +105,7 @@ public class FundingService {
         return CommonSuccessDto.fromEntity(true);
     }
 
+    @Counted("FundingService.terminateFunding")
     @Transactional
     public CommonSuccessDto terminateFunding(Long fundingId) {
         Funding funding = fundingRepository.findById(fundingId)
@@ -171,6 +176,7 @@ public class FundingService {
         return getCommonFriendFundingList(memberId);
     }
 
+    @Counted("FundingService.extendFunding")
     @Transactional
     public CommonSuccessDto extendFunding(Long fundingId) {
         Funding funding = fundingRepository.findById(fundingId)
@@ -179,6 +185,7 @@ public class FundingService {
         return CommonSuccessDto.fromEntity(true);
     }
 
+    @Counted("FundingService.getMainView")
     public HomeViewDto getMainView(Long memberId, Pageable pageable, Long lastItemId) {
 
         // 상품 목록: 상품Id, 이름, 가격, 이미지, 브랜드명
