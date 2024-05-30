@@ -4,6 +4,8 @@ import static kcs.funding.fundingboost.domain.exception.ErrorCode.INVALID_FUNDIN
 import static kcs.funding.fundingboost.domain.exception.ErrorCode.NOT_FOUND_FUNDING;
 import static kcs.funding.fundingboost.domain.exception.ErrorCode.NOT_FOUND_MEMBER;
 
+import io.micrometer.core.annotation.Counted;
+import io.micrometer.core.annotation.Timed;
 import kcs.funding.fundingboost.domain.aop.lock.RedisLock;
 import kcs.funding.fundingboost.domain.dto.common.CommonSuccessDto;
 import kcs.funding.fundingboost.domain.dto.request.pay.friendFundingPay.FriendPayProcessDto;
@@ -20,6 +22,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+@Timed("FriendPayService")
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
@@ -37,6 +40,7 @@ public class FriendPayService {
         return FriendFundingPayingDto.fromEntity(friendFunding, member.getPoint());
     }
 
+    @Counted("FriendPayService.fund")
     @RedisLock(key = "lock")
     @Transactional
     public CommonSuccessDto fund(Long memberId, Long fundingId,

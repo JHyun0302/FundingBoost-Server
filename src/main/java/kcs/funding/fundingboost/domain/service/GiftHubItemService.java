@@ -5,6 +5,8 @@ import static kcs.funding.fundingboost.domain.exception.ErrorCode.NOT_FOUND_GIFT
 import static kcs.funding.fundingboost.domain.exception.ErrorCode.NOT_FOUND_ITEM;
 import static kcs.funding.fundingboost.domain.exception.ErrorCode.NOT_FOUND_MEMBER;
 
+import io.micrometer.core.annotation.Counted;
+import io.micrometer.core.annotation.Timed;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -24,6 +26,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+@Timed("GiftHubItemService")
 @Service
 @Transactional(readOnly = true)
 @Slf4j
@@ -35,7 +38,7 @@ public class GiftHubItemService {
 
     private final MemberRepository memberRepository;
 
-
+    @Counted("GiftHubItemService.getGiftHub")
     public List<GiftHubDto> getGiftHub(Long memberId) {
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new CommonException(NOT_FOUND_MEMBER));
@@ -47,6 +50,7 @@ public class GiftHubItemService {
                 .collect(Collectors.toList());
     }
 
+    @Counted("GiftHubItemService.addGiftHub")
     @Transactional
     public CommonSuccessDto addGiftHub(Long itemId, AddGiftHubDto addGiftHubDto, Long memberId) {
         Item item = itemRepository.findById(itemId)
@@ -61,6 +65,7 @@ public class GiftHubItemService {
         return CommonSuccessDto.fromEntity(true);
     }
 
+    @Counted("GiftHubItemService.updateItem")
     @Transactional
     public CommonSuccessDto updateItem(Long gifthubItemId, ItemQuantityDto itemQuantity) {
         GiftHubItem giftHubItem = giftHubItemRepository.findById(gifthubItemId)
@@ -69,6 +74,7 @@ public class GiftHubItemService {
         return CommonSuccessDto.fromEntity(true);
     }
 
+    @Counted("GiftHubItemService.deleteGiftHubItem")
     @Transactional
     public CommonSuccessDto deleteGiftHubItem(Long memberId, Long giftHubItemId) {
         Optional<GiftHubItem> giftHubItem = giftHubItemRepository.findGiftHubItemByGiftHubItemIdAndMemberId(

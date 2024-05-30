@@ -2,6 +2,8 @@ package kcs.funding.fundingboost.domain.service;
 
 import static kcs.funding.fundingboost.domain.exception.ErrorCode.NOT_FOUND_MEMBER;
 
+import io.micrometer.core.annotation.Counted;
+import io.micrometer.core.annotation.Timed;
 import java.util.List;
 import kcs.funding.fundingboost.domain.dto.response.myPage.MyPageMemberDto;
 import kcs.funding.fundingboost.domain.dto.response.myPage.deliveryManage.MyPageDeliveryDto;
@@ -16,16 +18,18 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+@Timed("DeliveryService")
 @Slf4j
 @Service
 @Transactional(readOnly = true)
 @RequiredArgsConstructor
 public class DeliveryService {
-
     private final DeliveryRepository deliveryRepository;
 
     private final MemberRepository memberRepository;
 
+
+    @Counted("DeliveryService.getMyDeliveryManageList")
     public MyPageDeliveryManageDto getMyDeliveryManageList(Long memberId) {
         List<Delivery> deliveryList = deliveryRepository.findAllByMemberId(memberId);
 

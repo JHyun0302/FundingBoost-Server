@@ -8,6 +8,8 @@ import static kcs.funding.fundingboost.domain.exception.ErrorCode.NOT_FOUND_ITEM
 import static kcs.funding.fundingboost.domain.exception.ErrorCode.NOT_FOUND_MEMBER;
 import static kcs.funding.fundingboost.domain.exception.ErrorCode.ONGOING_FUNDING_ERROR;
 
+import io.micrometer.core.annotation.Counted;
+import io.micrometer.core.annotation.Timed;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
@@ -41,6 +43,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+@Timed("MyPayService")
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -55,6 +58,7 @@ public class MyPayService {
     private final OrderItemRepository orderItemRepository;
     private final GiftHubItemRepository giftHubItemRepository;
 
+    @Counted("MyPayService.myFundingPayView")
     public MyFundingPayViewDto myFundingPayView(Long fundingItemId, Long memberId) {
         Optional<FundingItem> fundingItem = fundingItemRepository.findFundingItemByFundingItemId(fundingItemId);
 
@@ -90,6 +94,7 @@ public class MyPayService {
         return MyOrderPayViewDto.fromEntity(deliveryDtoList, point);
     }
 
+    @Counted("MyPayService.payMyItem")
     @Transactional
     public CommonSuccessDto payMyItem(MyPayDto myPayDto, Long memberId) {
         Member member = memberRepository.findById(memberId)
@@ -139,6 +144,7 @@ public class MyPayService {
         return CommonSuccessDto.fromEntity(true);
     }
 
+    @Counted("MyPayService.payMyItemNow")
     @Transactional
     public CommonSuccessDto payMyItemNow(ItemPayNowDto itemPayNowDto, Long memberId) {
         Member member = memberRepository.findById(memberId)
@@ -165,6 +171,7 @@ public class MyPayService {
         return CommonSuccessDto.fromEntity(true);
     }
 
+    @Counted("MyPayService.payMyFunding")
     @Transactional
     public CommonSuccessDto payMyFunding(Long fundingItemId, PayRemainDto payRemainDto, Long memberId) {
         FundingItem fundingItem = fundingItemRepository.findFundingItemAndItemByFundingItemId(fundingItemId);
