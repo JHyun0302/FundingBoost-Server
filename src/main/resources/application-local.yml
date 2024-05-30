@@ -3,8 +3,13 @@ server:
     encoding:
       charset: utf-8
       force: true
+  
   port: 8080
+
 spring:
+  profiles:
+    include: oauth
+        
   h2:
     console:
       enabled: true
@@ -14,6 +19,7 @@ spring:
     username: sa
     password:
     driver-class-name: org.h2.Driver
+  
   jpa:
     hibernate:
       ddl-auto: create
@@ -23,6 +29,7 @@ spring:
         format_sql: true
       default_batch_fetch_size: 100
     open-in-view: false
+  
   output:
     ansi:
       enabled: always
@@ -34,7 +41,3 @@ logging:
 
 file:
   path: ./images/
-
-springdoc:
-  swagger-ui:
-    path: /swagger-ui.html

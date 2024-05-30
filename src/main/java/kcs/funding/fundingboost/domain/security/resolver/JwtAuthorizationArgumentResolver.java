@@ -29,6 +29,9 @@ public class JwtAuthorizationArgumentResolver implements HandlerMethodArgumentRe
         log.info("JwtAuthorizationArgumentResolver called");
         Authentication authentication = SecurityContextHolder.getContextHolderStrategy().getContext()
                 .getAuthentication();
+        if (authentication == null) {
+            return null;
+        }
         CustomUserDetails principal = (CustomUserDetails) authentication.getPrincipal();
         return principal.getMemberId();
     }

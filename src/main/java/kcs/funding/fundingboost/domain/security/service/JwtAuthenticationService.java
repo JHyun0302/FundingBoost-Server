@@ -14,7 +14,9 @@ import kcs.funding.fundingboost.domain.dto.common.CommonSuccessDto;
 import kcs.funding.fundingboost.domain.dto.response.login.JwtAccessTokenDto;
 import kcs.funding.fundingboost.domain.exception.CommonException;
 import kcs.funding.fundingboost.domain.security.CustomUserDetails;
+import kcs.funding.fundingboost.domain.security.entity.BlackList;
 import kcs.funding.fundingboost.domain.security.entity.RefreshToken;
+import kcs.funding.fundingboost.domain.security.repository.BlackListRepository;
 import kcs.funding.fundingboost.domain.security.repository.RefreshTokenRepository;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -27,7 +29,7 @@ import org.springframework.stereotype.Service;
 public class JwtAuthenticationService implements InitializingBean {
 
     private final RefreshTokenRepository refreshTokenRepository;
-    private final RedisTemplateService redisTemplateService;
+    private final BlackListRepository blackListRepository;
 
     @Getter
     private static Key key;
@@ -91,7 +93,8 @@ public class JwtAuthenticationService implements InitializingBean {
         refreshTokenRepository.deleteById(refreshToken);
 
         // accessToken 블랙 처리
-        redisTemplateService.addBlackList(accessToken);
+        BlackList blackListToken = BlackList.createBlackList(accessToken);
+        blackListRepository.save(blackListToken);
 
         return CommonSuccessDto.fromEntity(true);
     }

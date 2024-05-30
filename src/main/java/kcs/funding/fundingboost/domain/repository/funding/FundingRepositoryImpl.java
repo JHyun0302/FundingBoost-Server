@@ -32,14 +32,6 @@ public class FundingRepositoryImpl implements FundingRepositoryCustom {
                 .fetchOne());
     }
 
-    @Override
-    public Funding findMemberByFundingId(Long fundingId) {
-        return queryFactory
-                .selectFrom(funding)
-                .join(funding.member, member).fetchJoin()
-                .where(funding.fundingId.eq(fundingId))
-                .fetchOne();
-    }
 
     @Override
     public List<Funding> findFundingByMemberId(Long memberId) {
