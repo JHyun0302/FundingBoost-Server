@@ -2,12 +2,14 @@ package kcs.funding.fundingboost.domain.service;
 
 import static kcs.funding.fundingboost.domain.exception.ErrorCode.NOT_FOUND_MEMBER;
 
+import io.micrometer.core.annotation.Counted;
+import io.micrometer.core.annotation.Timed;
 import java.util.List;
 import kcs.funding.fundingboost.domain.dto.response.myPage.MyPageMemberDto;
 import kcs.funding.fundingboost.domain.dto.response.myPage.orderHistory.OrderHistoryDto;
 import kcs.funding.fundingboost.domain.dto.response.myPage.orderHistory.OrderHistoryItemDto;
-import kcs.funding.fundingboost.domain.entity.member.Member;
 import kcs.funding.fundingboost.domain.entity.OrderItem;
+import kcs.funding.fundingboost.domain.entity.member.Member;
 import kcs.funding.fundingboost.domain.exception.CommonException;
 import kcs.funding.fundingboost.domain.repository.MemberRepository;
 import kcs.funding.fundingboost.domain.repository.orderItem.OrderItemRepository;
@@ -16,6 +18,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+@Timed("OrderService")
 @Slf4j
 @Service
 @Transactional(readOnly = true)
@@ -25,6 +28,7 @@ public class OrderService {
     private final MemberRepository memberRepository;
     private final OrderItemRepository orderItemRepository;
 
+    @Counted("OrderService.getOrderHistory")
     public OrderHistoryDto getOrderHistory(Long memberId) {
         List<OrderItem> orderItemList = orderItemRepository.findLastOrderByMemberId(memberId);
 

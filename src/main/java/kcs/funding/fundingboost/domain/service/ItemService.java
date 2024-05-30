@@ -2,6 +2,8 @@ package kcs.funding.fundingboost.domain.service;
 
 import static kcs.funding.fundingboost.domain.exception.ErrorCode.NOT_FOUND_ITEM;
 
+import io.micrometer.core.annotation.Counted;
+import io.micrometer.core.annotation.Timed;
 import java.util.List;
 import java.util.Optional;
 import kcs.funding.fundingboost.domain.dto.response.shopping.ShopDto;
@@ -19,6 +21,7 @@ import org.springframework.data.domain.SliceImpl;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+@Timed("ItemService")
 @Service
 @Transactional(readOnly = true)
 @Slf4j
@@ -27,12 +30,14 @@ public class ItemService {
     private final ItemRepository itemRepository;
     private final BookmarkRepository bookmarkRepository;
 
+    @Counted("ItemService.getItems")
     public Slice<ShopDto> getItems(Long lastItemId, String category, Pageable pageable) {
         Slice<Item> items = itemRepository.findItemsByCategory(lastItemId, category, pageable);
         List<ShopDto> shopDtoList = items.stream().map(ShopDto::createGiftHubDto).toList();
         return new SliceImpl<>(shopDtoList, pageable, items.hasNext());
     }
 
+    @Counted("ItemService.getItemDetail")
     public ItemDetailDto getItemDetail(Long memberId, Long itemId) {
         if (memberId != null) {
             Optional<Bookmark> bookmark = bookmarkRepository.findBookmarkByMemberAndItem(memberId, itemId);
