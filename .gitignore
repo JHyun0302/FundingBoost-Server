@@ -40,5 +40,5 @@ out/
 src/main/resources/application-oauth.yml
 src/test/resources/application-oauth.yml
 
-### .environment ###
-*.env
+### environment ###
+applicaiton.properties
