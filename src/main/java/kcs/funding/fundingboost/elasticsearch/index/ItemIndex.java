@@ -11,13 +11,13 @@ import org.springframework.data.elasticsearch.annotations.FieldType;
 public class ItemIndex {
 
     @Id
-    private Long item_id;
+    private Long itemId;
 
     @Field(name = "item_name", type = FieldType.Text)
     private String itemName;
 
     @Field(name = "item_price", type = FieldType.Integer)
-    private String itemPrice;
+    private int itemPrice;
 
     @Field(name = "item_image_url", type = FieldType.Text)
     private String itemImageUrl;
