@@ -34,7 +34,6 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
     private final MemberRepository memberRepository;
     private final PasswordEncoder passwordEncoder;
     private final RelationshipRepository relationshipRepository;
-    private final RestClient restClient;
 
     @Override
     public CustomUserDetails loadUser(OAuth2UserRequest userRequest) throws OAuth2AuthenticationException {

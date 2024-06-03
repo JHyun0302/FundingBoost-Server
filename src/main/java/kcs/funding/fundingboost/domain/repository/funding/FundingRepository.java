@@ -17,4 +17,10 @@ public interface FundingRepository extends JpaRepository<Funding, Long>, Funding
             " join fetch f.member m" +
             " where f.fundingId = :fundingId")
     Funding findMemberById(@Param("fundingId") Long fundingId);
+
+    @Query("select f from Funding f" +
+            " join fetch f.fundingItems fi" +
+            " join fetch fi.item i" +
+            " where f.fundingId = :fundingId")
+    Funding findFundingById(@Param("fundingId") Long fundingId);
 }
