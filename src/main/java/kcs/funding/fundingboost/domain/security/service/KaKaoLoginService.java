@@ -1,7 +1,6 @@
 package kcs.funding.fundingboost.domain.security.service;
 
 
-import static kcs.funding.fundingboost.domain.exception.ErrorCode.NOT_FOUND_MEMBER;
 import static org.springframework.http.MediaType.APPLICATION_FORM_URLENCODED;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -9,12 +8,10 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
-import java.util.List;
 import java.util.Map;
 import kcs.funding.fundingboost.domain.dto.response.login.JwtDto;
 import kcs.funding.fundingboost.domain.entity.Relationship;
 import kcs.funding.fundingboost.domain.entity.member.Member;
-import kcs.funding.fundingboost.domain.exception.CommonException;
 import kcs.funding.fundingboost.domain.repository.MemberRepository;
 import kcs.funding.fundingboost.domain.repository.relationship.RelationshipRepository;
 import kcs.funding.fundingboost.domain.security.CustomUserDetails;
@@ -142,18 +139,18 @@ public class KaKaoLoginService {
         String uuid = kakaoOAuth2User.getAttribute("id").toString();
 
         Member findMember = memberRepository.findByEmail(email).orElse(null);
-        String json = getFriendsListByKakao(accessToken);
-        log.info("json : " + json);
+        String friendsList = getFriendsListByKakao(accessToken);
+        log.info("friendsList : " + friendsList);
 
         CustomUserDetails customUserDetails = null;
         if (findMember == null) {
             Member createMember = Member.createMember(username, email, password, profileImgUrl, uuid);
             customUserDetails = new CustomUserDetails(kakaoOAuth2User.getAttributes(), createMember);
             memberRepository.save(createMember);
-            processRelationships(json, createMember);
+            processRelationships(friendsList, createMember);
         } else {
             customUserDetails = new CustomUserDetails(kakaoOAuth2User.getAttributes(), findMember);
-            processRelationships(json, findMember);
+            processRelationships(friendsList, findMember);
         }
 
         return customUserDetails;
@@ -162,24 +159,19 @@ public class KaKaoLoginService {
     /**
      * 친구 목록 업데이트 및 신규유저 관계 생성
      */
-    private void processRelationships(String json, Member member) {
-        List<Relationship> userRelationships = relationshipRepository.findFriendByMemberId(member.getMemberId());
-        ObjectMapper mapper = new ObjectMapper();
+    private void processRelationships(String friendsList, Member member) {
         try {
-            JsonNode rootNode = mapper.readTree(json);
-            JsonNode elementsNode = rootNode.get("elements");
+            JsonNode rootNode = objectMapper.readTree(friendsList);
+            JsonNode elementsNode = rootNode.path("elements");
             if (elementsNode.isArray()) {
                 for (JsonNode element : elementsNode) {
-                    String id = element.get("id").asText();
-                    try {
-                        Member friend = memberRepository.findByKakaoUuid(id)
-                                .orElseThrow(() -> new CommonException(NOT_FOUND_MEMBER));
-                        if (!userRelationships.contains(friend)) {
+                    String id = element.path("id").asText();
+                    memberRepository.findByKakaoUuid(id).ifPresent(friend -> {
+                        if (relationshipRepository.findByMemberIdAndFriendId(member.getMemberId(), friend.getMemberId())
+                                == null) {
                             relationshipRepository.saveAll(Relationship.createRelationships(member, friend));
                         }
-                    } catch (CommonException e) {
-                        throw new CommonException(NOT_FOUND_MEMBER);
-                    }
+                    });
                 }
             }
         } catch (JsonProcessingException e) {
