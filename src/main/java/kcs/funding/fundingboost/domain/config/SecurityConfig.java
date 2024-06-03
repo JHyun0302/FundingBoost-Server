@@ -4,6 +4,7 @@ import kcs.funding.fundingboost.domain.security.entrypoint.JwtAuthenticationEntr
 import kcs.funding.fundingboost.domain.security.handler.JwtAccessDeniedHandler;
 import kcs.funding.fundingboost.domain.security.provider.JwtAuthenticationProvider;
 import kcs.funding.fundingboost.domain.security.utils.NoAuthPath;
+import kcs.funding.fundingboost.domain.service.CustomOAuth2UserService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.autoconfigure.security.servlet.PathRequest;

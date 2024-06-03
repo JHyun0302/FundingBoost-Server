@@ -3,16 +3,17 @@ server:
     encoding:
       charset: utf-8
       force: true
-  
+
   port: 8080
   forward-headers-strategy: framework
 
+spring:
   datasource:
-    url: ${DATABASE_URL}
-    username: ${DATABASE_USERNAME}
-    password: ${DATABASE_PASSWORD}
+    url: jdbc:mariadb://localhost:3306/fundingboost?allowPublicKeyRetrieval=true&useSSL=false&serverTimezone=Asia/Seoul&characterEncoding=UTF-8
+    username: root
+    password: root
     driver-class-name: org.mariadb.jdbc.Driver
-  
+
   jpa:
     hibernate:
       database-platform: org.hibernate.dialect.MariaDB103Dialect

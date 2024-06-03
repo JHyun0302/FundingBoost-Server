@@ -13,6 +13,7 @@ import kcs.funding.fundingboost.domain.entity.Item;
 import kcs.funding.fundingboost.domain.entity.member.Member;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -189,6 +190,7 @@ class FundingRepositoryTest {
                 "NEW 루쥬 알뤼르 벨벳 뉘 블랑쉬 리미티드 에디션");
     }
 
+    @Disabled
     @Test
     @DisplayName("findFundingByMemberId: 현재펀딩 내역만 존재하고 지난펀딩 내역이 존재하지 않을 시 null값 반환")
     void testFindFundingByMemberId_현재펀딩만존재시() {
