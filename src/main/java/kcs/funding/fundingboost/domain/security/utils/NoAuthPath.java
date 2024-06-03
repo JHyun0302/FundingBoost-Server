@@ -13,8 +13,11 @@ public final class NoAuthPath {
             "/api/v1/items/**",
             "/api/v1/loginForm",//테스트용 로그인 폼
             //oauth provider uri 설정
-            "/oauth2/authorization",
+            "/login/oauth2/authorization/kakao",
             "/login/oauth2/code",
+            "/api/v1/login/oauth",
+            "/api/v1/login/oauth2/code/kakao/**",
+            "/login/oauth2/code/kakao/**",
             "/api/v1/access-reissue",
             "/api/v1/fundingboost/**" //actuator
     );

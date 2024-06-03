@@ -98,4 +98,23 @@ public class JwtAuthenticationService implements InitializingBean {
 
         return CommonSuccessDto.fromEntity(true);
     }
+
+    /**
+     * oauth jwt token 생성
+     */
+    public String createAccessTokenForOAuth(Long memberId) {
+        return getAccessToken(memberId);
+    }
+
+    public RefreshToken createRefreshTokenForOAuth(Long memberId) {
+        String token = Jwts.builder()
+                .signWith(key, SignatureAlgorithm.HS512)
+                .setSubject(String.valueOf(memberId))
+                .compact();
+        RefreshToken refreshToken = RefreshToken.createRefreshToken(token, memberId);
+
+        refreshTokenRepository.save(refreshToken);
+
+        return refreshToken;
+    }
 }

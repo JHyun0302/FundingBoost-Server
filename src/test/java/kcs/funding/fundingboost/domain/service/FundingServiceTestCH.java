@@ -164,14 +164,14 @@ class FundingServiceTestCH {
         String expectDeadline = LocalDate.now().toString();
 
         // member에 대한 funding 생성
-        when(fundingRepository.findById(funding.getFundingId())).thenReturn(Optional.of(funding));
+        when(fundingRepository.findFundingById(funding.getFundingId())).thenReturn(funding);
 
         //when
         CommonSuccessDto commonSuccessDto = fundingService.terminateFunding(funding.getFundingId());
         //then
         assertNotNull(commonSuccessDto);
         assertTrue(commonSuccessDto.isSuccess());
-        verify(fundingRepository, times(1)).findById(any());
+        verify(fundingRepository, times(1)).findFundingById(any());
         assertEquals(expectDeadline, funding.getDeadline()
                 .format(DateTimeFormatter.ofPattern("yyyy-MM-dd")));
     }
@@ -182,13 +182,14 @@ class FundingServiceTestCH {
     void terminateFunding_NotFoundFunding() throws NoSuchFieldException, IllegalAccessException {
         //given
         Funding funding = FundingFixture.Graduate(member);
-        when(fundingRepository.findById(funding.getFundingId())).thenReturn(Optional.empty());
+        when(fundingRepository.findFundingById(funding.getFundingId())).thenReturn(null);
         //when
         CommonException exception = assertThrows(CommonException.class, () ->
                 fundingService.terminateFunding(funding.getFundingId()));
         //then
         assertEquals(NOT_FOUND_FUNDING.getMessage(), exception.getMessage());
     }
+
 
     @DisplayName("친구 펀딩 목록 조회-성공")
     @Test

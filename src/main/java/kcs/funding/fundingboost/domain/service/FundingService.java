@@ -108,9 +108,26 @@ public class FundingService {
     @Counted("FundingService.terminateFunding")
     @Transactional
     public CommonSuccessDto terminateFunding(Long fundingId) {
-        Funding funding = fundingRepository.findById(fundingId)
-                .orElseThrow(() -> new CommonException(NOT_FOUND_FUNDING));
+        Funding funding = fundingRepository.findFundingById(fundingId);
+        if (funding == null) {
+            throw new CommonException(NOT_FOUND_FUNDING);
+        }
+        if (!funding.isFundingStatus()) {
+            throw new CommonException(INVALID_FUNDING_STATUS);
+        }
+        List<FundingItem> fundingItemList = funding.getFundingItems();
+        int collectPrice = funding.getCollectPrice();
+        for (FundingItem fundingItem : fundingItemList) {
+            if (collectPrice >= fundingItem.getItem().getItemPrice()) {
+                collectPrice -= fundingItem.getItem().getItemPrice();
+            } else if (collectPrice > 0) {
+                collectPrice = 0;
+            } else {
+                fundingItem.terminateFundingItemByZero();
+            }
+        }
         funding.terminate();
+        FundingUtils.checkFundingFinished(funding);
         return CommonSuccessDto.fromEntity(true);
     }
 

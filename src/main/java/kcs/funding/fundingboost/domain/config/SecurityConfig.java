@@ -2,8 +2,6 @@ package kcs.funding.fundingboost.domain.config;
 
 import kcs.funding.fundingboost.domain.security.entrypoint.JwtAuthenticationEntryPoint;
 import kcs.funding.fundingboost.domain.security.handler.JwtAccessDeniedHandler;
-import kcs.funding.fundingboost.domain.security.handler.OAuth2AuthenticationFailureHandler;
-import kcs.funding.fundingboost.domain.security.handler.OAuth2AuthenticationSuccessHandler;
 import kcs.funding.fundingboost.domain.security.provider.JwtAuthenticationProvider;
 import kcs.funding.fundingboost.domain.security.utils.NoAuthPath;
 import kcs.funding.fundingboost.domain.service.CustomOAuth2UserService;
@@ -30,9 +28,6 @@ public class SecurityConfig {
     private final JwtAuthenticationProvider jwtAuthenticationProvider;
     private final JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint;
     private final JwtAccessDeniedHandler jwtAccessDeniedHandler;
-    private final CustomOAuth2UserService customOAuth2UserService;
-    private final OAuth2AuthenticationSuccessHandler oAuth2AuthenticationSuccessHandler;
-    private final OAuth2AuthenticationFailureHandler oAuth2AuthenticationFailureHandler;
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
@@ -53,11 +48,6 @@ public class SecurityConfig {
                         .requestMatchers(NoAuthPath.paths.toArray(String[]::new)).permitAll()
                         .requestMatchers(PathRequest.toH2Console()).permitAll()
                         .anyRequest().authenticated())
-                .oauth2Login(oauth -> oauth
-                        .userInfoEndpoint(userInfoEndpointConfig -> userInfoEndpointConfig
-                                .userService(customOAuth2UserService))
-                        .successHandler(oAuth2AuthenticationSuccessHandler)
-                        .failureHandler(oAuth2AuthenticationFailureHandler))
                 .with(new JwtSecurityConfig(jwtAuthenticationProvider), customizer -> {
                 });
         return http.build();
