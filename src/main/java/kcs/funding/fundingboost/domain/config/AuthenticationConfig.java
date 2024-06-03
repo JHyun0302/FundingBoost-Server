@@ -1,8 +1,6 @@
 package kcs.funding.fundingboost.domain.config;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import kcs.funding.fundingboost.domain.security.handler.OAuth2AuthenticationFailureHandler;
-import kcs.funding.fundingboost.domain.security.handler.OAuth2AuthenticationSuccessHandler;
 import kcs.funding.fundingboost.domain.security.service.JwtAuthenticationService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
