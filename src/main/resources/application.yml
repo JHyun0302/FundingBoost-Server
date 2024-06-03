@@ -1,4 +1,3 @@
 spring:
   profiles:
-    active: prod
-    include: swagger, redis, actuator
+    include: local, oauth, swagger, redis, actuator
