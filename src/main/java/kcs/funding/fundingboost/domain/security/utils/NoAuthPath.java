@@ -20,6 +20,7 @@ public final class NoAuthPath {
             "/login/oauth2/code/kakao/**",
             "/api/v1/access-reissue",
             "/api/v1/fundingboost/**", //actuator
-            "/api/v3/search"
+            "/api/v3/search",
+            "/api/v3/items"
     );
 }
