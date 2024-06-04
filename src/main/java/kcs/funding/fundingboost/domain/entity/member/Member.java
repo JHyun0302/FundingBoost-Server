@@ -50,7 +50,7 @@ public class Member extends BaseTimeEntity {
     private int point;
 
     @Column(length = 100)
-    private String kakaoUuid;
+    private String kakaoId;
 
     public static Member createSignUpMember(String nickName, String password, String email) {
         Member member = new Member();
@@ -64,20 +64,20 @@ public class Member extends BaseTimeEntity {
     }
 
     public static Member createMember(String nickName, String email, String password, String profileImgUrl,
-                                      String kakaoUuid) {
+                                      String kakaoId) {
         Member member = new Member();
         member.nickName = nickName;
         member.memberRole = MemberRole.ROLE_USER;
         member.email = email;
         member.password = password;
         member.profileImgUrl = profileImgUrl;
-        member.kakaoUuid = kakaoUuid;
+        member.kakaoId = kakaoId;
         return member;
     }
 
     //init(포인트 포함)
     public static Member createMemberWithPoint(String nickName, String email, String password, String profileImgUrl,
-                                               int point, String kakaoUuid) {
+                                               int point, String kakaoId) {
         Member member = new Member();
         member.nickName = nickName;
         member.memberRole = MemberRole.ROLE_USER;
@@ -85,7 +85,7 @@ public class Member extends BaseTimeEntity {
         member.password = password;
         member.profileImgUrl = profileImgUrl;
         member.point = point;
-        member.kakaoUuid = kakaoUuid;
+        member.kakaoId = kakaoId;
         return member;
     }
 
