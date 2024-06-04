@@ -1,6 +1,7 @@
 package kcs.funding.fundingboost.domain.security.service;
 
 
+import static kcs.funding.fundingboost.domain.exception.ErrorCode.NOT_FOUND_MEMBER;
 import static org.springframework.http.MediaType.APPLICATION_FORM_URLENCODED;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -8,10 +9,13 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import kcs.funding.fundingboost.domain.dto.response.login.JwtDto;
 import kcs.funding.fundingboost.domain.entity.Relationship;
 import kcs.funding.fundingboost.domain.entity.member.Member;
+import kcs.funding.fundingboost.domain.exception.CommonException;
 import kcs.funding.fundingboost.domain.repository.MemberRepository;
 import kcs.funding.fundingboost.domain.repository.relationship.RelationshipRepository;
 import kcs.funding.fundingboost.domain.security.CustomUserDetails;
@@ -76,13 +80,9 @@ public class KaKaoLoginService {
         if (response.getBody() == null) {
             throw new OAuth2AuthenticationException("Invalid authorization code");
         }
-
         //토큰 발췌
         String accessToken = response.getBody().access_token();
         String refreshToken = response.getBody().refresh_token();
-
-        log.info("Access Token : " + accessToken);
-        log.info("Refresh Token : " + refreshToken);
 
         return accessToken;
 
@@ -111,7 +111,6 @@ public class KaKaoLoginService {
         Map<String, Object> attributes = objectMapper.readValue(response.getBody(),
                 new TypeReference<Map<String, Object>>() {
                 });
-        log.info("usetInfo : " + attributes.toString());
         KakaoOAuth2User kakaoOAuth2User = new KakaoOAuth2User(attributes);
 
         if (!kakaoOAuth2User.validateNecessaryFields()) {
@@ -120,10 +119,7 @@ public class KaKaoLoginService {
 
         CustomUserDetails customUserDetails = processLoginAndRelationships(kakaoOAuth2User, accessToken);
 
-        JwtDto jwtDto = createJwtDto(customUserDetails);
-
-        return jwtDto;
-
+        return createJwtDto(customUserDetails);
     }
 
     /**
@@ -140,14 +136,13 @@ public class KaKaoLoginService {
 
         Member findMember = memberRepository.findByEmail(email).orElse(null);
         String friendsList = getFriendsListByKakao(accessToken);
-        log.info("friendsList : " + friendsList);
 
-        CustomUserDetails customUserDetails = null;
+        CustomUserDetails customUserDetails;
         if (findMember == null) {
             Member createMember = Member.createMember(username, email, password, profileImgUrl, uuid);
             customUserDetails = new CustomUserDetails(kakaoOAuth2User.getAttributes(), createMember);
             memberRepository.save(createMember);
-            processRelationships(friendsList, createMember);
+            processFirstRelationships(friendsList, createMember);
         } else {
             customUserDetails = new CustomUserDetails(kakaoOAuth2User.getAttributes(), findMember);
             processRelationships(friendsList, findMember);
@@ -161,22 +156,64 @@ public class KaKaoLoginService {
      */
     private void processRelationships(String friendsList, Member member) {
         try {
+            List<Relationship> userRelationshipList = relationshipRepository.findFriendByMemberId(member.getMemberId());
             JsonNode rootNode = objectMapper.readTree(friendsList);
             JsonNode elementsNode = rootNode.path("elements");
+
+            List<String> kakaoFriendsIds = new ArrayList<>();
+            List<Member> kakaoFriends = new ArrayList<>();
+
             if (elementsNode.isArray()) {
                 for (JsonNode element : elementsNode) {
-                    String id = element.path("id").asText();
-                    memberRepository.findByKakaoUuid(id).ifPresent(friend -> {
-                        if (relationshipRepository.findByMemberIdAndFriendId(member.getMemberId(), friend.getMemberId())
-                                == null) {
-                            relationshipRepository.saveAll(Relationship.createRelationships(member, friend));
-                        }
-                    });
+                    String friendKakaoId = "kakao_" + element.path("id").asText();
+                    kakaoFriendsIds.add(friendKakaoId);
+                }
+                kakaoFriends = memberRepository.findAllByKakaoId(kakaoFriendsIds)
+                        .orElseThrow(() -> new CommonException(NOT_FOUND_MEMBER));
+            }
+
+            List<Long> existedFriendsMemberIds = new ArrayList<>();
+            for (Relationship relationship : userRelationshipList) {
+                existedFriendsMemberIds.add(relationship.getFriend().getMemberId());
+            }
+
+            for (Member kakaoFriend : kakaoFriends) {
+                if (!existedFriendsMemberIds.contains(kakaoFriend.getMemberId())) {
+                    relationshipRepository.saveAll(Relationship.createRelationships(member, kakaoFriend));
                 }
             }
+
         } catch (JsonProcessingException e) {
             log.error("JSON 처리 중 오류 발생", e);
         }
+    }
+
+
+    private void processFirstRelationships(String friendsList, Member member) {
+        try {
+            JsonNode rootNode = objectMapper.readTree(friendsList);
+            JsonNode elementsNode = rootNode.path("elements");
+
+            List<String> kakaoFriendsIds = new ArrayList<>();
+            List<Member> kakaoFriends = new ArrayList<>();
+
+            if (elementsNode.isArray()) {
+                for (JsonNode element : elementsNode) {
+                    String friendKakaoId = "kakao_" + element.path("id").asText();
+                    kakaoFriendsIds.add(friendKakaoId);
+                }
+                kakaoFriends = memberRepository.findAllByKakaoId(kakaoFriendsIds)
+                        .orElseThrow(() -> new CommonException(NOT_FOUND_MEMBER));
+            }
+
+            for (Member kakaoFriend : kakaoFriends) {
+                relationshipRepository.saveAll(Relationship.createRelationships(member, kakaoFriend));
+            }
+
+        } catch (JsonProcessingException e) {
+            log.error("JSON 처리 중 오류 발생", e);
+        }
+
     }
 
     /**
@@ -202,9 +239,6 @@ public class KaKaoLoginService {
         Long memberId = customUserDetails.getMemberId();
         String accessToken = jwtAuthenticationService.createAccessTokenForOAuth(memberId);
         String refreshToken = jwtAuthenticationService.createRefreshTokenForOAuth(memberId).getToken();
-
-        log.info("jwt accessToken : " + accessToken);
-        log.info("jwt refreshToken : " + refreshToken);
 
         return JwtDto.fromEntity(accessToken, refreshToken);
     }
