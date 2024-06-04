@@ -33,7 +33,7 @@ public class ItemService {
     @Counted("ItemService.getItems")
     public Slice<ShopDto> getItems(Long lastItemId, String category, Pageable pageable) {
         Slice<Item> items = itemRepository.findItemsByCategory(lastItemId, category, pageable);
-        List<ShopDto> shopDtoList = items.stream().map(ShopDto::createGiftHubDto).toList();
+        List<ShopDto> shopDtoList = items.stream().map(ShopDto::fromEntity).toList();
         return new SliceImpl<>(shopDtoList, pageable, items.hasNext());
     }
 
