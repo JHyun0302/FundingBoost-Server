@@ -51,7 +51,7 @@ class ItemControllerTest {
     @Test
     void viewShoppingList() throws Exception {
         //given
-        List<ShopDto> shopDtoList = Collections.singletonList(ShopDto.createGiftHubDto(item));
+        List<ShopDto> shopDtoList = Collections.singletonList(ShopDto.fromEntity(item));
         String category = "뷰티";
 //        Pageable pageable = mock(Pageable.class);
         Pageable pageable = Pageable.ofSize(10);
