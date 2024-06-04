@@ -13,10 +13,4 @@ public interface RelationshipRepository extends JpaRepository<Relationship, Long
             + " join fetch r.member m"
             + " where m.memberId=:memberId")
     List<Relationship> findFriendByMemberId(@Param("memberId") Long memberId);
-
-
-    @Query("select r from Relationship r" +
-            " where r.member.memberId =:memberId" +
-            " and r.friend.memberId =:friendId")
-    Relationship findByMemberIdAndFriendId(@Param("memberId") Long memberId, @Param("friendId") Long friendId);
 }
