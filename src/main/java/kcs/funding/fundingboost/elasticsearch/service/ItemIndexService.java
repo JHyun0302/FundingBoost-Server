@@ -1,5 +1,6 @@
 package kcs.funding.fundingboost.elasticsearch.service;
 
+import io.micrometer.core.annotation.Counted;
 import kcs.funding.fundingboost.domain.dto.response.shopping.ShopDto;
 import kcs.funding.fundingboost.elasticsearch.index.ItemIndex;
 import kcs.funding.fundingboost.elasticsearch.repository.ItemIndexRepository;
@@ -14,8 +15,14 @@ public class ItemIndexService {
 
     private final ItemIndexRepository itemIndexRepository;
 
-    public Slice<ShopDto> searchByKeyword(String keyword, Pageable pageable) {
+    public Slice<ShopDto> searchWithCategoryAndName(String keyword, Pageable pageable) {
         Slice<ItemIndex> items = itemIndexRepository.findByCategoryOrItemName(keyword, pageable);
+        return items.map(ShopDto::fromIndex);
+    }
+
+    @Counted("ItemIndexService.getItemsUsingElasticsearch")
+    public Slice<ShopDto> searchWithCategory(String keyword, Pageable pageable) {
+        Slice<ItemIndex> items = itemIndexRepository.findByCategory(keyword, pageable);
         return items.map(ShopDto::fromIndex);
     }
 }

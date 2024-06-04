@@ -36,4 +36,21 @@ public class ItemIndexRepositoryImpl implements ItemIndexRepositoryCustom {
 
         return new SliceImpl<>(items, pageable, hasNext);
     }
+
+    @Override
+    public Slice<ItemIndex> findByCategory(String keyword, Pageable pageable) {
+        Criteria criteria = new Criteria("category").contains(keyword);
+        CriteriaQuery query = new CriteriaQuery(criteria)
+                .addSort(Sort.by(Sort.Order.asc("item_id")))
+                .setPageable(pageable);
+
+        SearchHits<ItemIndex> searchHits = elasticSearchOperations.search(query, ItemIndex.class);
+        List<ItemIndex> items = searchHits.getSearchHits().stream()
+                .map(SearchHit::getContent)
+                .toList();
+
+        boolean hasNext = items.size() == pageable.getPageSize();
+
+        return new SliceImpl<>(items, pageable, hasNext);
+    }
 }

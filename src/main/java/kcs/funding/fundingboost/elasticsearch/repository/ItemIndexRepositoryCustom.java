@@ -6,4 +6,6 @@ import org.springframework.data.domain.Slice;
 
 public interface ItemIndexRepositoryCustom {
     Slice<ItemIndex> findByCategoryOrItemName(String keyword, Pageable pageable);
+
+    Slice<ItemIndex> findByCategory(String keyword, Pageable pageable);
 }
