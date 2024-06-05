@@ -77,4 +77,11 @@ public class FundingItem extends BaseTimeEntity {
         this.finishedStatus = false;
         FundingUtils.checkFundingFinished(funding); // funding이 종료되었는지 확인
     }
+
+    /**
+     * 펀딩이 종료되었을 때 펀딩 아이템 모인 돈 0원일 때
+     */
+    public void terminateFundingItemByZero() {
+        this.finishedStatus = false;
+    }
 }
