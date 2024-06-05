@@ -24,4 +24,4 @@ RUN chmod +x gradlew
 RUN ./gradlew clean build
 
 # 빌드 결과 jar 파일을 실행
-CMD ["java", "-jar", "-Dspring.profiles.active=prod", "--env-file", ".env", "/home/gradle/project/build/libs/FundingBoost-0.0.1-SNAPSHOT.jar"]
+CMD ["java", "-jar", "-Dspring.profiles.active=prod", "/home/gradle/project/build/libs/FundingBoost-0.0.1-SNAPSHOT.jar"]
