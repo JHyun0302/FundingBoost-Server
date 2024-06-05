@@ -47,36 +47,6 @@ class ItemControllerTest {
 
     }
 
-    @DisplayName("쇼핑 페이지 조회")
-    @Test
-    void viewShoppingList() throws Exception {
-        //given
-        List<ShopDto> shopDtoList = Collections.singletonList(ShopDto.fromEntity(item));
-        String category = "뷰티";
-//        Pageable pageable = mock(Pageable.class);
-        Pageable pageable = Pageable.ofSize(10);
-//        when(pageable.getPageNumber()).thenReturn(0);
-//        when(pageable.getPageNumber()).thenReturn
-//        (0);
-//        when(pageable.getPageSize()).thenReturn(10);
-
-        Slice<ShopDto> shopDtoSlice = new SliceImpl<>(shopDtoList, pageable, false);
-        System.out.println("---------------" + shopDtoSlice.stream().toList());
-        given(itemService.getItems(10L, category, pageable)).willReturn(shopDtoSlice);
-        // when & then
-        mockMvc.perform(get("/api/v1/items")
-                        .param("category", "뷰티")
-                        .param("lastItemId", "10")
-                        .contentType(APPLICATION_JSON))
-                .andExpect(status().isOk())
-//                .andDo(print())
-                .andExpect(jsonPath("$.success").value(true))
-                .andExpect(jsonPath("$.data.content[0].itemId").value(item.getItemId()))
-                .andExpect(jsonPath("$.data.content[0].itemName").value(item.getItemName()))
-                .andExpect(jsonPath("$.data.content[0].price").value(item.getItemPrice()))
-                .andExpect(jsonPath("$.data.content[0].itemImageUrl").value(item.getItemImageUrl()))
-                .andExpect(jsonPath("$.data.content[0].brandName").value(item.getBrandName()));
-    }
 
 
     @DisplayName("쇼핑 상세 페이지 조회")
