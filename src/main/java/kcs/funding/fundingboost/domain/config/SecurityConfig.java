@@ -45,7 +45,6 @@ public class SecurityConfig {
                 .headers(headers -> headers.frameOptions(FrameOptionsConfig::sameOrigin))
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(NoAuthPath.paths.toArray(String[]::new)).permitAll()
-                        .requestMatchers(PathRequest.toH2Console()).permitAll()
                         .anyRequest().authenticated())
                 .with(new JwtSecurityConfig(jwtAuthenticationProvider), customizer -> {
                 });
