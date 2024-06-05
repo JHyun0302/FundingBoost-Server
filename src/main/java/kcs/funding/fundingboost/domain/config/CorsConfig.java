@@ -15,7 +15,7 @@ public class CorsConfig {
 
         corsConfig.setAllowCredentials(true);
         corsConfig.setAllowedOrigins(
-                List.of("http://localhost:3000", "http://localhost:8080/*", "http://localhost:8000"));
+                List.of("https://k14f4ad097352a.user-app.krampoline.com/", "https://k14f4ad097352a.user-app.krampoline.com/api/v1/*", "http://localhost:8000"));
         corsConfig.setAllowedMethods(List.of("GET", "POST", "PATCH", "DELETE", "OPTIONS"));
         corsConfig.setAllowedHeaders(List.of("*"));
         corsConfig.setAllowCredentials(true);
