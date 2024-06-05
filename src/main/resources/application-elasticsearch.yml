@@ -3,5 +3,5 @@ spring:
     elasticsearch:
       repositories:
         enabled: true
-      host: localhost
+      host: elasticsearch
       port: 9200
