@@ -6,7 +6,7 @@ spring:
           kakao:
             client-id: 680eae168fb2afa7d052c5018b53943a
             client-secret: NOFbjOS9d5RSK3gGEL9HhOJyAE6u5xy0
-            redirect-uri: https://k14f4ad097352a.user-app.krampoline.com/api/v1/login/oauth2/code/kakao
+            redirect-uri: https://k14f4ad097352a.user-app.krampoline.com/login/oauth2/code/kakao
             authorization-grant-type: authorization_code
             client-authentication-method: client_secret_post
             client-name: Kakao
