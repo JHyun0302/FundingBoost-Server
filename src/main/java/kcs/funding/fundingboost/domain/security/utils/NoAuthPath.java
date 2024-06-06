@@ -12,8 +12,8 @@ public final class NoAuthPath {
             "/api/v1/home",
             "/api/v1/items/**",
             //oauth provider uri 설정
-            "/api/v1/login/oauth",
-            "/api/v1/login/oauth2/code/kakao/**",
+            "/login/oauth",
+            "/login/oauth2/code/kakao/**",
             "/api/v1/access-reissue",
             "/api/v1/fundingboost/**", //actuator
             "/api/v3/search",

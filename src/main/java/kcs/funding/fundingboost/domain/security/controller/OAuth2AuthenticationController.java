@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RequiredArgsConstructor
 @RestController
-@RequestMapping("/api/v1")
+// @RequestMapping("/api/v1")
 public class OAuth2AuthenticationController {
     @Value("${spring.security.oauth2.client.registration.kakao.client-id}")
     private String clientId;
