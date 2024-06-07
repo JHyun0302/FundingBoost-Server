@@ -56,7 +56,6 @@ public class KaKaoLoginService {
      */
     public String getAccessTokenFromKakao(String clientId, String code) throws IOException {
         // KAKAO 서버에 인증 토큰 발급 요청
-		log.info("getAccessTokenFromKakao: {}", code);
         RestClient restClient = RestClient.builder()
                 .requestFactory(new JdkClientHttpRequestFactory())
                 .messageConverters(convert -> convert.add(new AllEncompassingFormHttpMessageConverter()))
