@@ -178,17 +178,17 @@ public class KaKaoLoginService {
         String provider = "kakao";
         String providerId = kakaoOAuth2User.getId();
         String username = kakaoOAuth2User.getName();
-        String password = passwordEncoder.encode(provider + "_" + providerId);
+        String password = passwordEncoder.encode("string");
         String email = kakaoOAuth2User.getEmail();
         String profileImgUrl = kakaoOAuth2User.getImageUrl();
-        String uuid = kakaoOAuth2User.getAttribute("id").toString();
+        String kakaoId = "kakao_" + kakaoOAuth2User.getAttribute("id").toString();
 
         Member findMember = memberRepository.findByEmail(email).orElse(null);
         String friendsList = getFriendsListByKakao(accessToken);
 
         CustomUserDetails customUserDetails;
         if (findMember == null) {
-            Member createMember = Member.createMember(username, email, password, profileImgUrl, uuid);
+            Member createMember = Member.createMember(username, email, password, profileImgUrl, kakaoId);
             customUserDetails = new CustomUserDetails(kakaoOAuth2User.getAttributes(), createMember);
             memberRepository.save(createMember);
             processFirstRelationships(friendsList, createMember);
