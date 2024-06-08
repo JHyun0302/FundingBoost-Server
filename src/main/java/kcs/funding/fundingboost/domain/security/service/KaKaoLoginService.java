@@ -34,6 +34,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestClient;
+import org.springframework.web.client.RestTemplate;
 
 @Service
 @Slf4j
@@ -44,7 +45,7 @@ public class KaKaoLoginService {
     private final RelationshipRepository relationshipRepository;
     private final JwtAuthenticationService jwtAuthenticationService;
     private final ObjectMapper objectMapper;
-
+    private final RestTemplate kakaoRestTemplate;
 
     @Value("${spring.security.oauth2.client.registration.kakao.client-secret}")
     private String clientSecret;
@@ -57,19 +58,19 @@ public class KaKaoLoginService {
      */
     public String getAccessTokenFromKakao(String clientId, String code) throws IOException {
         // 프록시 설정
-        org.apache.hc.core5.http.HttpHost proxy = new org.apache.hc.core5.http.HttpHost(
-                "http", "krmp-proxy.9rum.cc", 3128);
-        org.apache.hc.client5.http.impl.classic.HttpClientBuilder clientBuilder = org.apache.hc.client5.http.impl.classic.HttpClientBuilder.create();
-        clientBuilder.setProxy(proxy);
-        org.apache.hc.client5.http.classic.HttpClient httpClient = clientBuilder.build();
-        ClientHttpRequestFactory requestFactory = new HttpComponentsClientHttpRequestFactory(httpClient);
+//        org.apache.hc.core5.http.HttpHost proxy = new org.apache.hc.core5.http.HttpHost(
+//                "http", "krmp-proxy.9rum.cc", 3128);
+//        org.apache.hc.client5.http.impl.classic.HttpClientBuilder clientBuilder = org.apache.hc.client5.http.impl.classic.HttpClientBuilder.create();
+//        clientBuilder.setProxy(proxy);
+//        org.apache.hc.client5.http.classic.HttpClient httpClient = clientBuilder.build();
+//        ClientHttpRequestFactory requestFactory = new HttpComponentsClientHttpRequestFactory(httpClient);
 
         // KAKAO 서버에 인증 토큰 발급 요청
-        RestClient restClient = RestClient.builder()
-                .requestFactory(requestFactory)
-                .messageConverters(convert -> convert.add(new AllEncompassingFormHttpMessageConverter()))
-                .baseUrl("https://kauth.kakao.com/oauth/token")
-                .build();
+//        RestClient restClient = RestClient.builder()
+//                .requestFactory(requestFactory)
+//                .messageConverters(convert -> convert.add(new AllEncompassingFormHttpMessageConverter()))
+//                .baseUrl("https://kauth.kakao.com/oauth/token")
+//                .build();
 
         // 토큰 요청에 들어갈 body
         MultiValueMap<String, String> objectMaping = new LinkedMultiValueMap<>();
@@ -80,11 +81,17 @@ public class KaKaoLoginService {
         objectMaping.add("client_secret", clientSecret);
 
         // 카카오 서버로 post 토큰요청
-        ResponseEntity<KakaoOAuthToken> response = restClient.post()
-                .body(objectMaping)
-                .contentType(APPLICATION_FORM_URLENCODED)
-                .retrieve()
-                .toEntity(KakaoOAuthToken.class);
+        ResponseEntity<KakaoOAuthToken> response = kakaoRestTemplate.postForEntity(
+                "https://kauth.kakao.com/oauth/token",
+                objectMaping,
+                KakaoOAuthToken.class
+        );
+        
+//        ResponseEntity<KakaoOAuthToken> response = restClient.post()
+//                .body(objectMaping)
+//                .contentType(APPLICATION_FORM_URLENCODED)
+//                .retrieve()
+//                .toEntity(KakaoOAuthToken.class);
 
         if (response.getBody() == null) {
             throw new OAuth2AuthenticationException("Invalid authorization code");
