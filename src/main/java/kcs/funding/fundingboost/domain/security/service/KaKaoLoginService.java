@@ -23,6 +23,11 @@ import kcs.funding.fundingboost.domain.security.KakaoOAuth2User;
 import kcs.funding.fundingboost.domain.security.entity.KakaoOAuthToken;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.hc.client5.http.classic.HttpClient;
+import org.apache.http.HttpHost;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClients;
+import org.apache.http.impl.conn.DefaultProxyRoutePlanner;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.client.ClientHttpRequestFactory;
@@ -55,47 +60,19 @@ public class KaKaoLoginService {
     /**
      * 카카오 서버에서 인증 토큰을 받아오는 메소드
      */
-//    public String getAccessTokenFromKakao(String clientId, String code) throws IOException {
-//        // KAKAO 서버에 인증 토큰 발급 요청
-//        RestClient restClient = RestClient.builder()
-//                .requestFactory(new JdkClientHttpRequestFactory())
-//                .messageConverters(convert -> convert.add(new AllEncompassingFormHttpMessageConverter()))
-//                .baseUrl("https://kauth.kakao.com/oauth/token")
-//                .build();
-//
-//        //토큰 요청에 들어갈 body
-//        MultiValueMap<String, String> objectMaping = new LinkedMultiValueMap<>();
-//        objectMaping.add("grant_type", "authorization_code");
-//        objectMaping.add("client_id", clientId);
-//        objectMaping.add("redirect_uri", redirectUri);
-//        objectMaping.add("code", code);
-//        objectMaping.add("client_secret", clientSecret);
-//
-//        //카카오 서버로 post 토큰요청
-//        ResponseEntity<KakaoOAuthToken> response = restClient.post()
-//                .body(objectMaping)
-//                .contentType(APPLICATION_FORM_URLENCODED)
-//                .retrieve()
-//                .toEntity(KakaoOAuthToken.class);
-//
-//        if (response.getBody() == null) {
-//            throw new OAuth2AuthenticationException("Invalid authorization code");
-//        }
-//        //토큰 발췌
-//        String accessToken = response.getBody().access_token();
-//        String refreshToken = response.getBody().refresh_token();
-//
-//        return accessToken;
-//
-//    }
     public String getAccessTokenFromKakao(String clientId, String code) throws IOException {
+        HttpHost proxy = new HttpHost("krmp-proxy.9rum.cc", 3128, "http");
+        DefaultProxyRoutePlanner routePlanner = new DefaultProxyRoutePlanner(proxy);
+
+        CloseableHttpClient client = HttpClients.custom().setRoutePlanner(routePlanner).build();
+        ClientHttpRequestFactory requestFactory = new HttpComponentsClientHttpRequestFactory((HttpClient) client);
         // 프록시 설정
-        org.apache.hc.core5.http.HttpHost proxy = new org.apache.hc.core5.http.HttpHost(
-                "http", "krmp-proxy.9rum.cc", 3128);
-        org.apache.hc.client5.http.impl.classic.HttpClientBuilder clientBuilder = org.apache.hc.client5.http.impl.classic.HttpClientBuilder.create();
-        clientBuilder.setProxy(proxy);
-        org.apache.hc.client5.http.classic.HttpClient httpClient = clientBuilder.build();
-        ClientHttpRequestFactory requestFactory = new HttpComponentsClientHttpRequestFactory(httpClient);
+//        org.apache.hc.core5.http.HttpHost proxy = new org.apache.hc.core5.http.HttpHost(
+//                "http", "krmp-proxy.9rum.cc", 3128);
+//        org.apache.hc.client5.http.impl.classic.HttpClientBuilder clientBuilder = org.apache.hc.client5.http.impl.classic.HttpClientBuilder.create();
+//        clientBuilder.setProxy(proxy);
+//        org.apache.hc.client5.http.classic.HttpClient httpClient = clientBuilder.build();
+//        ClientHttpRequestFactory requestFactory = new HttpComponentsClientHttpRequestFactory(httpClient);
 
         // KAKAO 서버에 인증 토큰 발급 요청
         RestClient restClient = RestClient.builder()
@@ -133,13 +110,18 @@ public class KaKaoLoginService {
      * 토큰으로 사용자 정보 요청 후 인증, access token 및 refresh token 발행
      */
     public JwtDto getJwtDto(String accessToken) throws IOException {
+        HttpHost proxy = new HttpHost("krmp-proxy.9rum.cc", 3128, "http");
+        DefaultProxyRoutePlanner routePlanner = new DefaultProxyRoutePlanner(proxy);
+
+        CloseableHttpClient client = HttpClients.custom().setRoutePlanner(routePlanner).build();
+        ClientHttpRequestFactory requestFactory = new HttpComponentsClientHttpRequestFactory((HttpClient) client);
         // 프록시 설정
-        org.apache.hc.core5.http.HttpHost proxy = new org.apache.hc.core5.http.HttpHost(
-                "http", "krmp-proxy.9rum.cc", 3128);
-        org.apache.hc.client5.http.impl.classic.HttpClientBuilder clientBuilder = org.apache.hc.client5.http.impl.classic.HttpClientBuilder.create();
-        clientBuilder.setProxy(proxy);
-        org.apache.hc.client5.http.classic.HttpClient httpClient = clientBuilder.build();
-        ClientHttpRequestFactory requestFactory = new HttpComponentsClientHttpRequestFactory(httpClient);
+//        org.apache.hc.core5.http.HttpHost proxy = new org.apache.hc.core5.http.HttpHost(
+//                "http", "krmp-proxy.9rum.cc", 3128);
+//        org.apache.hc.client5.http.impl.classic.HttpClientBuilder clientBuilder = org.apache.hc.client5.http.impl.classic.HttpClientBuilder.create();
+//        clientBuilder.setProxy(proxy);
+//        org.apache.hc.client5.http.classic.HttpClient httpClient = clientBuilder.build();
+//        ClientHttpRequestFactory requestFactory = new HttpComponentsClientHttpRequestFactory(httpClient);
 
         // kakao 서버에 access token으로 사용자 정보 요청
         RestClient restClient = RestClient.builder()
@@ -175,20 +157,21 @@ public class KaKaoLoginService {
      * 개인정보 저장 및 친구목록 업데이트
      */
     private CustomUserDetails processLoginAndRelationships(KakaoOAuth2User kakaoOAuth2User, String accessToken) {
-        String provider = "kakao";
-        String providerId = kakaoOAuth2User.getId();
+//        String provider = "kakao";
+//        String providerId = kakaoOAuth2User.getId();
+//        String password = passwordEncoder.encode(providerId + "_" + providerId);
         String username = kakaoOAuth2User.getName();
         String password = passwordEncoder.encode("string");
         String email = kakaoOAuth2User.getEmail();
         String profileImgUrl = kakaoOAuth2User.getImageUrl();
-        String kakaoId = "kakao_" + kakaoOAuth2User.getAttribute("id").toString();
+        String kakao_id = "kakao_" + kakaoOAuth2User.getAttribute("id").toString();
 
         Member findMember = memberRepository.findByEmail(email).orElse(null);
         String friendsList = getFriendsListByKakao(accessToken);
 
         CustomUserDetails customUserDetails;
         if (findMember == null) {
-            Member createMember = Member.createMember(username, email, password, profileImgUrl, kakaoId);
+            Member createMember = Member.createMember(username, email, password, profileImgUrl, kakao_id);
             customUserDetails = new CustomUserDetails(kakaoOAuth2User.getAttributes(), createMember);
             memberRepository.save(createMember);
             processFirstRelationships(friendsList, createMember);
@@ -269,14 +252,19 @@ public class KaKaoLoginService {
      * 카카오로부터 친구목록 가져오기
      */
     private static String getFriendsListByKakao(String accessToken) {
+        HttpHost proxy = new HttpHost("krmp-proxy.9rum.cc", 3128, "http");
+        DefaultProxyRoutePlanner routePlanner = new DefaultProxyRoutePlanner(proxy);
+
+        CloseableHttpClient client = HttpClients.custom().setRoutePlanner(routePlanner).build();
+        ClientHttpRequestFactory requestFactory = new HttpComponentsClientHttpRequestFactory((HttpClient) client);
         // 프록시 설정
-        org.apache.hc.core5.http.HttpHost proxy = new org.apache.hc.core5.http.HttpHost(
-                "http", "krmp-proxy.9rum.cc", 3128);
-        org.apache.hc.client5.http.impl.classic.HttpClientBuilder clientBuilder = org.apache.hc.client5.http.impl.classic.HttpClientBuilder.create();
-        clientBuilder.setProxy(proxy);
-        org.apache.hc.client5.http.classic.HttpClient httpClient = clientBuilder.build();
-        ClientHttpRequestFactory requestFactory = new HttpComponentsClientHttpRequestFactory(httpClient);
-        
+//        org.apache.hc.core5.http.HttpHost proxy = new org.apache.hc.core5.http.HttpHost(
+//                "http", "krmp-proxy.9rum.cc", 3128);
+//        org.apache.hc.client5.http.impl.classic.HttpClientBuilder clientBuilder = org.apache.hc.client5.http.impl.classic.HttpClientBuilder.create();
+//        clientBuilder.setProxy(proxy);
+//        org.apache.hc.client5.http.classic.HttpClient httpClient = clientBuilder.build();
+//        ClientHttpRequestFactory requestFactory = new HttpComponentsClientHttpRequestFactory(httpClient);
+
         RestClient restClient = RestClient.builder()
                 .requestFactory(requestFactory)
                 .messageConverters(converter -> converter.add(new AllEncompassingFormHttpMessageConverter()))
