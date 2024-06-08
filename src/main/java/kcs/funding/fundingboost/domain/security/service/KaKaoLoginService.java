@@ -55,14 +55,20 @@ public class KaKaoLoginService {
      * 카카오 서버에서 인증 토큰을 받아오는 메소드
      */
     public String getAccessTokenFromKakao(String clientId, String code) throws IOException {
+        // 프록시 설정
+        HttpHost proxy = new HttpHost("krmp-proxy.9rum.cc", 3128, "http");
+        HttpClient closeableHttpClient = HttpClientBuilder.create().setProxy(proxy).build();
+        ClientHttpRequestFactory requestFactory = new HttpComponentsClientHttpRequestFactory(
+                (org.apache.hc.client5.http.classic.HttpClient) closeableHttpClient);
+
         // KAKAO 서버에 인증 토큰 발급 요청
         RestClient restClient = RestClient.builder()
-                .requestFactory(new JdkClientHttpRequestFactory())
+                .requestFactory(requestFactory)
                 .messageConverters(convert -> convert.add(new AllEncompassingFormHttpMessageConverter()))
                 .baseUrl("https://kauth.kakao.com/oauth/token")
                 .build();
 
-        //토큰 요청에 들어갈 body
+        // 토큰 요청에 들어갈 body
         MultiValueMap<String, String> objectMaping = new LinkedMultiValueMap<>();
         objectMaping.add("grant_type", "authorization_code");
         objectMaping.add("client_id", clientId);
@@ -70,7 +76,7 @@ public class KaKaoLoginService {
         objectMaping.add("code", code);
         objectMaping.add("client_secret", clientSecret);
 
-        //카카오 서버로 post 토큰요청
+        // 카카오 서버로 post 토큰요청
         ResponseEntity<KakaoOAuthToken> response = restClient.post()
                 .body(objectMaping)
                 .contentType(APPLICATION_FORM_URLENCODED)
@@ -80,12 +86,11 @@ public class KaKaoLoginService {
         if (response.getBody() == null) {
             throw new OAuth2AuthenticationException("Invalid authorization code");
         }
-        //토큰 발췌
+        // 토큰 발췌
         String accessToken = response.getBody().access_token();
         String refreshToken = response.getBody().refresh_token();
-
+		log.info("accessToken = {}", accessToken);
         return accessToken;
-
     }
 
     /**
