@@ -61,9 +61,9 @@ public class KaKaoLoginService {
     public String getAccessTokenFromKakao(String clientId, String code) throws IOException {
         // 프록시 설정
         HttpHost proxy = new HttpHost("krmp-proxy.9rum.cc", 3128, "http");
-        HttpClient closeableHttpClient = HttpClientBuilder.create().setProxy(proxy).build();
-        ClientHttpRequestFactory requestFactory = new HttpComponentsClientHttpRequestFactory(
-                (org.apache.hc.client5.http.classic.HttpClient) closeableHttpClient);
+        HttpClientBuilder clientBuilder = HttpClientBuilder.create().setProxy(proxy);
+        HttpClient httpClient = (HttpClient) clientBuilder.build();
+        ClientHttpRequestFactory requestFactory = new HttpComponentsClientHttpRequestFactory(httpClient);
 
         // KAKAO 서버에 인증 토큰 발급 요청
         RestClient restClient = RestClient.builder()
