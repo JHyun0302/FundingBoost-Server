@@ -7,6 +7,7 @@ import kcs.funding.fundingboost.domain.exception.CommonException;
 import kcs.funding.fundingboost.domain.exception.ErrorCode;
 import kcs.funding.fundingboost.domain.security.service.KaKaoLoginService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -14,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+@Slf4j
 @RequiredArgsConstructor
 @RestController
 @RequestMapping("/api/v1")
@@ -47,6 +49,7 @@ public class OAuth2AuthenticationController {
         JwtDto jwtDto = null;
         try {
             String accessToken = kaKaoLoginService.getAccessTokenFromKakao(clientId, code);
+            log.info("Access token: {}", accessToken);
             jwtDto = kaKaoLoginService.getJwtDto(accessToken);
         } catch (IOException e) {
             throw new CommonException(ErrorCode.INVALID_ACCESS_URL);
