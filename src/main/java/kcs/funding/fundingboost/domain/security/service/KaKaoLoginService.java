@@ -100,6 +100,8 @@ public class KaKaoLoginService {
         String accessToken = response.getBody().access_token();
         String refreshToken = response.getBody().refresh_token();
 
+		log.info("accessToken = {}", accessToken);
+		
         return accessToken;
     }
 
