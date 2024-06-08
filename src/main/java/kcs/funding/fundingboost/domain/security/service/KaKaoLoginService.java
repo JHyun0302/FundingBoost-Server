@@ -62,8 +62,9 @@ public class KaKaoLoginService {
         // 프록시 설정
         HttpHost proxy = new HttpHost("krmp-proxy.9rum.cc", 3128, "http");
         HttpClientBuilder clientBuilder = HttpClientBuilder.create().setProxy(proxy);
-        HttpClient httpClient = (HttpClient) clientBuilder.build();
-        ClientHttpRequestFactory requestFactory = new HttpComponentsClientHttpRequestFactory(httpClient);
+        CloseableHttpClient httpClient = clientBuilder.build();
+        ClientHttpRequestFactory requestFactory = new HttpComponentsClientHttpRequestFactory((HttpClient) httpClient);
+
 
         // KAKAO 서버에 인증 토큰 발급 요청
         RestClient restClient = RestClient.builder()
