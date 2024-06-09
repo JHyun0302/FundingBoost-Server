@@ -86,7 +86,7 @@ public class KaKaoLoginService {
                 objectMaping,
                 KakaoOAuthToken.class
         );
-        
+
 //        ResponseEntity<KakaoOAuthToken> response = restClient.post()
 //                .body(objectMaping)
 //                .contentType(APPLICATION_FORM_URLENCODED)
@@ -100,8 +100,7 @@ public class KaKaoLoginService {
         String accessToken = response.getBody().access_token();
         String refreshToken = response.getBody().refresh_token();
 
-		log.info("accessToken = {}", accessToken);
-		
+        log.info("accessToken = {}", accessToken);
         return accessToken;
     }
 
