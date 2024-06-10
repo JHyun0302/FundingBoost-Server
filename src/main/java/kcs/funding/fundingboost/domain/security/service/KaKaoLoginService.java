@@ -59,7 +59,7 @@ public class KaKaoLoginService {
      */
     public String getAccessTokenFromKakao(String clientId, String code) throws IOException {
         // 프록시 설정
-        HttpHost proxy = new HttpHost("krmp-proxy.9rum.cc", "http", 3128);
+        HttpHost proxy = new HttpHost("http", "krmp-proxy.9rum.cc", 3128);
         HttpComponentsClientHttpRequestFactory requestFactory = new HttpComponentsClientHttpRequestFactory();
         HttpClient httpClient = HttpClients.custom().setProxy(proxy).build();
         requestFactory.setHttpClient(httpClient);
@@ -101,7 +101,7 @@ public class KaKaoLoginService {
      */
     public JwtDto getJwtDto(String accessToken) throws IOException {
         // 프록시 설정
-        HttpHost proxy = new HttpHost("krmp-proxy.9rum.cc", "http", 3128);
+        HttpHost proxy = new HttpHost("http", "krmp-proxy.9rum.cc", 3128);
         HttpComponentsClientHttpRequestFactory requestFactory = new HttpComponentsClientHttpRequestFactory();
         HttpClient httpClient = HttpClients.custom().setProxy(proxy).build();
         requestFactory.setHttpClient(httpClient);
@@ -235,7 +235,7 @@ public class KaKaoLoginService {
      */
     private static String getFriendsListByKakao(String accessToken) {
         // 프록시 설정
-        HttpHost proxy = new HttpHost("krmp-proxy.9rum.cc", "http", 3128);
+        HttpHost proxy = new HttpHost("http", "krmp-proxy.9rum.cc", 3128);
         HttpComponentsClientHttpRequestFactory requestFactory = new HttpComponentsClientHttpRequestFactory();
         HttpClient httpClient = HttpClients.custom().setProxy(proxy).build();
         requestFactory.setHttpClient(httpClient);
