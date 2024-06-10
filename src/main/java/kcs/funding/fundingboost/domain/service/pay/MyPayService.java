@@ -138,8 +138,8 @@ public class MyPayService {
                 .map(ItemPayDto::giftHubId).toList();
 
         giftHubItemRepository.deleteAllById(giftHubIdList);
+		orderRepository.save(order);
         orderItemRepository.saveAll(orderItems);
-        orderRepository.save(order);
 
         return CommonSuccessDto.fromEntity(true);
     }
