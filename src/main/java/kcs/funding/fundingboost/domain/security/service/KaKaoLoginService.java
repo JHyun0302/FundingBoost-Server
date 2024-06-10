@@ -9,8 +9,6 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
-import java.net.InetSocketAddress;
-import java.net.Proxy;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -25,9 +23,12 @@ import kcs.funding.fundingboost.domain.security.KakaoOAuth2User;
 import kcs.funding.fundingboost.domain.security.entity.KakaoOAuthToken;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.hc.client5.http.classic.HttpClient;
+import org.apache.hc.client5.http.impl.classic.HttpClients;
+import org.apache.hc.core5.http.HttpHost;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
-import org.springframework.http.client.SimpleClientHttpRequestFactory;
+import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.http.converter.support.AllEncompassingFormHttpMessageConverter;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
@@ -58,9 +59,10 @@ public class KaKaoLoginService {
      */
     public String getAccessTokenFromKakao(String clientId, String code) throws IOException {
         // 프록시 설정
-        Proxy proxy = new Proxy(Proxy.Type.HTTP, new InetSocketAddress("krmp-proxy.9rum.cc", 3128));
-        SimpleClientHttpRequestFactory requestFactory = new SimpleClientHttpRequestFactory();
-        requestFactory.setProxy(proxy);
+        HttpHost proxy = new HttpHost("krmp-proxy.9rum.cc", "http", 3128);
+        HttpComponentsClientHttpRequestFactory requestFactory = new HttpComponentsClientHttpRequestFactory();
+        HttpClient httpClient = HttpClients.custom().setProxy(proxy).build();
+        requestFactory.setHttpClient(httpClient);
         // KAKAO 서버에 인증 토큰 발급 요청
         RestClient restClient = RestClient.builder()
                 .requestFactory(requestFactory)
@@ -93,14 +95,16 @@ public class KaKaoLoginService {
         return accessToken;
     }
 
+
     /**
      * 토큰으로 사용자 정보 요청 후 인증, access token 및 refresh token 발행
      */
     public JwtDto getJwtDto(String accessToken) throws IOException {
         // 프록시 설정
-        Proxy proxy = new Proxy(Proxy.Type.HTTP, new InetSocketAddress("krmp-proxy.9rum.cc", 3128));
-        SimpleClientHttpRequestFactory requestFactory = new SimpleClientHttpRequestFactory();
-        requestFactory.setProxy(proxy);
+        HttpHost proxy = new HttpHost("krmp-proxy.9rum.cc", "http", 3128);
+        HttpComponentsClientHttpRequestFactory requestFactory = new HttpComponentsClientHttpRequestFactory();
+        HttpClient httpClient = HttpClients.custom().setProxy(proxy).build();
+        requestFactory.setHttpClient(httpClient);
         // kakao 서버에 access token으로 사용자 정보 요청
         RestClient restClient = RestClient.builder()
                 .requestFactory(requestFactory)
@@ -135,9 +139,6 @@ public class KaKaoLoginService {
      * 개인정보 저장 및 친구목록 업데이트
      */
     private CustomUserDetails processLoginAndRelationships(KakaoOAuth2User kakaoOAuth2User, String accessToken) {
-//        String provider = "kakao";
-//        String providerId = kakaoOAuth2User.getId();
-//        String password = passwordEncoder.encode(providerId + "_" + providerId);
         String username = kakaoOAuth2User.getName();
         String password = passwordEncoder.encode("string");
         String email = kakaoOAuth2User.getEmail();
@@ -154,6 +155,9 @@ public class KaKaoLoginService {
             memberRepository.save(createMember);
             processFirstRelationships(friendsList, createMember);
         } else {
+            if (findMember.getProfileImgUrl() != profileImgUrl) {
+                findMember.changeProfileImgUrl(profileImgUrl);
+            }
             customUserDetails = new CustomUserDetails(kakaoOAuth2User.getAttributes(), findMember);
             processRelationships(friendsList, findMember);
         }
@@ -231,9 +235,10 @@ public class KaKaoLoginService {
      */
     private static String getFriendsListByKakao(String accessToken) {
         // 프록시 설정
-        Proxy proxy = new Proxy(Proxy.Type.HTTP, new InetSocketAddress("krmp-proxy.9rum.cc", 3128));
-        SimpleClientHttpRequestFactory requestFactory = new SimpleClientHttpRequestFactory();
-        requestFactory.setProxy(proxy);
+        HttpHost proxy = new HttpHost("krmp-proxy.9rum.cc", "http", 3128);
+        HttpComponentsClientHttpRequestFactory requestFactory = new HttpComponentsClientHttpRequestFactory();
+        HttpClient httpClient = HttpClients.custom().setProxy(proxy).build();
+        requestFactory.setHttpClient(httpClient);
 
         RestClient restClient = RestClient.builder()
                 .requestFactory(requestFactory)

@@ -75,7 +75,7 @@ public class Member extends BaseTimeEntity {
         return member;
     }
 
-    //init(포인트 포함)
+    //init(ν¬μΈνΈ ν¬ν¨)
     public static Member createMemberWithPoint(String nickName, String email, String password, String profileImgUrl,
                                                int point, String kakaoId) {
         Member member = new Member();
@@ -95,5 +95,9 @@ public class Member extends BaseTimeEntity {
 
     public void plusPoint(int exchangePoint) {
         point += exchangePoint;
+    }
+	
+	public void changeProfileImgUrl(String newProfileImgUrl) {
+        this.profileImgUrl = newProfileImgUrl;
     }
 }
