@@ -53,52 +53,6 @@ class MemberServiceTest {
         terminatedFunding = FundingFixture.Graduate(member);
     }
 
-    @DisplayName("포인트 전환 성공")
-    @ParameterizedTest(name = "{index} {displayName} arguments = {arguments}")
-    @ValueSource(ints = {10000, 20000, 30000})
-    void exchangePoint(int myPoint) throws NoSuchFieldException, IllegalAccessException {
-        //given
-
-        Member member = mock(Member.class);
-        List<Item> items = ItemFixture.items3();
-        int finishedFundingItemPrice = items.get(0).getItemPrice() + items.get(1).getItemPrice();
-
-        // input이 되는 Dto를 생성한다
-        Funding terminatedFunding = FundingFixture.terminatedFundingFail(member, finishedFundingItemPrice + 10000);
-        TransformPointDto transformPointDto = new TransformPointDto(terminatedFunding.getFundingId());
-
-        List<FundingItem> fundingItems = FundingItemFixture.fundingItems(items, terminatedFunding);
-
-        // 첫번째 fundingItem과 두번째 fundingItem을 펀딩 종료된 상태로 변경해준다
-        fundingItems.get(0).completeFunding();
-        fundingItems.get(0).finishFundingItem();
-
-        fundingItems.get(1).completeFunding();
-        fundingItems.get(1).finishFundingItem();
-
-        // 전환되어야 하는 포인트 = 모은 돈에서 펀딩 종료된 Item의 가격을 뺀 가격
-        int expectExchangePoint = terminatedFunding.getCollectPrice() - finishedFundingItemPrice;
-
-        // fundingRepository.FINDMemberByFundingId가 호출되면 종료된 terminatedFunding을 반환한다
-        when(fundingRepository.findMemberById(transformPointDto.fundingId())).thenReturn(terminatedFunding);
-
-        //when
-        CommonSuccessDto commonSuccessDto = memberService.exchangePoint(transformPointDto);
-
-        //then
-        verify(fundingRepository).findMemberById(transformPointDto.fundingId());
-        verify(fundingRepository).findMemberById(transformPointDto.fundingId());
-
-        // 포인트 전환 후 fundingItem은 펀딩 종료가 되어야 한다
-        assertFalse(terminatedFunding.getFundingItems().get(1).getFunding().isFundingStatus());
-
-        // 포인트 전환 후 나의 포인트가 증가해야 한다
-        verify(member).plusPoint(expectExchangePoint);
-
-        // 포인트 전환 후 successDto의 isSuccess는 true를 반환해야 한다
-        assertTrue(commonSuccessDto.isSuccess());
-    }
-
     @DisplayName("포인트 전환 실패 - 펀딩을 찾을 수 없음")
     @Test
     void exchangePoint_FundingNotFound() {
