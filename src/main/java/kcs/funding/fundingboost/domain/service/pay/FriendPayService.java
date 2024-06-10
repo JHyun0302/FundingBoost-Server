@@ -40,7 +40,8 @@ public class FriendPayService {
         return FriendFundingPayingDto.fromEntity(friendFunding, member.getPoint());
     }
 
-    @Counted("FriendPayService.fund")
+    
+	@Counted("FriendPayService.fund")
     @RedisLock(key = "lock")
     @Transactional
     public CommonSuccessDto fund(Long memberId, Long fundingId,
@@ -58,6 +59,16 @@ public class FriendPayService {
         if (friendFunding.getCollectPrice() + contributePrice <= friendFunding.getTotalPrice()) {
             Contributor contributor = Contributor.createContributor(contributePrice, findMember, friendFunding);
             contributorRepository.save(contributor);
+            List<FundingItem> fundingItemList = friendFunding.getFundingItems();
+            int collect = friendFunding.getCollectPrice();
+            for (FundingItem fundingItem : fundingItemList) {
+                if (fundingItem.getItem().getItemPrice() <= collect) {
+                    fundingItem.completeFunding();
+                    collect -= fundingItem.getItem().getItemPrice();
+                } else {
+                    break;
+                }
+            }
         } else {
             throw new CommonException(INVALID_FUNDING_MONEY);
         }
