@@ -7,6 +7,9 @@ public final class NoAuthPath {
             "/api/v1/login",
             "/api/v1/signup",
             "/api/v1/swagger-ui/**",
+            "/api/v1/index.html",
+            "/swagger-ui.html",
+            "/swagger-ui/**",
             "/v3/api-docs/**",
             "/api/v1",
             "/api/v1/home",
@@ -19,6 +22,7 @@ public final class NoAuthPath {
             "/api/v1/access-reissue",
             "/api/v1/fundingboost/**", //actuator
             "/api/v3/search",
-            "/api/v3/items"
+            "/api/v3/items",
+            "/h2-console/**"
     );
 }
