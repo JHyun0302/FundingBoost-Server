@@ -1,5 +1,6 @@
 package kcs.funding.fundingboost.domain.config;
 
+import java.util.Arrays;
 import java.util.List;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -13,9 +14,12 @@ public class CorsConfig {
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration corsConfig = new CorsConfiguration();
 
-        corsConfig.setAllowCredentials(true);
-        corsConfig.setAllowedOrigins(
-                List.of("https://k14f4ad097352a.user-app.krampoline.com/", "https://k14f4ad097352a.user-app.krampoline.com/api/v1/*", "http://localhost:8000"));
+        String allowedOrigins =
+                System.getenv().getOrDefault("FUNDINGBOOST_CORS_ORIGINS", "http://localhost:3000,http://localhost:80,http://localhost");
+        corsConfig.setAllowedOriginPatterns(Arrays.stream(allowedOrigins.split(","))
+                .map(String::trim)
+                .filter(origin -> !origin.isBlank())
+                .toList());
         corsConfig.setAllowedMethods(List.of("GET", "POST", "PATCH", "DELETE", "OPTIONS"));
         corsConfig.setAllowedHeaders(List.of("*"));
         corsConfig.setAllowCredentials(true);

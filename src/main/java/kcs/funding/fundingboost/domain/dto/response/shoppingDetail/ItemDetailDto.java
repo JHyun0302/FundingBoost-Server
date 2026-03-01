@@ -1,6 +1,7 @@
 package kcs.funding.fundingboost.domain.dto.response.shoppingDetail;
 
 import kcs.funding.fundingboost.domain.entity.Item;
+import kcs.funding.fundingboost.elasticsearch.index.ItemIndex;
 import lombok.Builder;
 
 @Builder
@@ -18,6 +19,16 @@ public record ItemDetailDto(
                 .itemPrice(item.getItemPrice())
                 .bookmark(bookmark)
                 .option(item.getOptionName())
+                .build();
+    }
+
+    public static ItemDetailDto fromIndex(ItemIndex itemIndex, boolean bookmark) {
+        return ItemDetailDto.builder()
+                .itemThumbnailImageUrl(itemIndex.getItemImageUrl())
+                .itemName(itemIndex.getItemName())
+                .itemPrice(itemIndex.getItemPrice())
+                .bookmark(bookmark)
+                .option(itemIndex.getOptionName())
                 .build();
     }
 }

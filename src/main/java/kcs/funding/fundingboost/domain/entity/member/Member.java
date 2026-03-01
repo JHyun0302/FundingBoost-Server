@@ -42,7 +42,11 @@ public class Member extends BaseTimeEntity {
     @Column(length = 50)
     private String email;
 
-    @Column(name = "profile_img_url", length = 100)
+    @Enumerated(EnumType.STRING)
+    @Column(length = 10)
+    private MemberGender gender;
+
+    @Column(name = "profile_img_url", length = 1000)
     private String profileImgUrl;
 
     @ColumnDefault("0")
@@ -52,11 +56,12 @@ public class Member extends BaseTimeEntity {
     @Column(length = 100)
     private String kakaoId;
 
-    public static Member createSignUpMember(String nickName, String password, String email) {
+    public static Member createSignUpMember(String nickName, String password, String email, MemberGender gender) {
         Member member = new Member();
         member.nickName = nickName;
         member.password = password;
         member.email = email;
+        member.gender = gender == null ? MemberGender.UNKNOWN : gender;
         member.point = 0;
         member.memberRole = MemberRole.ROLE_USER;
 
@@ -69,6 +74,7 @@ public class Member extends BaseTimeEntity {
         member.nickName = nickName;
         member.memberRole = MemberRole.ROLE_USER;
         member.email = email;
+        member.gender = MemberGender.UNKNOWN;
         member.password = password;
         member.profileImgUrl = profileImgUrl;
         member.kakaoId = kakaoId;
@@ -77,11 +83,12 @@ public class Member extends BaseTimeEntity {
 
     //init(ν¬μΈνΈ ν¬ν¨)
     public static Member createMemberWithPoint(String nickName, String email, String password, String profileImgUrl,
-                                               int point, String kakaoId) {
+                                               int point, String kakaoId, MemberGender gender) {
         Member member = new Member();
         member.nickName = nickName;
         member.memberRole = MemberRole.ROLE_USER;
         member.email = email;
+        member.gender = gender == null ? MemberGender.UNKNOWN : gender;
         member.password = password;
         member.profileImgUrl = profileImgUrl;
         member.point = point;
@@ -97,7 +104,11 @@ public class Member extends BaseTimeEntity {
         point += exchangePoint;
     }
 	
-	public void changeProfileImgUrl(String newProfileImgUrl) {
+    public void changeProfileImgUrl(String newProfileImgUrl) {
         this.profileImgUrl = newProfileImgUrl;
+    }
+
+    public void changeGender(MemberGender newGender) {
+        this.gender = newGender;
     }
 }

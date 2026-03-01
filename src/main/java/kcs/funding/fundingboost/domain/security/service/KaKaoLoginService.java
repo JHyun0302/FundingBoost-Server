@@ -58,17 +58,8 @@ public class KaKaoLoginService {
      * 카카오 서버에서 인증 토큰을 받아오는 메소드
      */
     public String getAccessTokenFromKakao(String clientId, String code) throws IOException {
-        // 프록시 설정
-        HttpHost proxy = new HttpHost("http", "krmp-proxy.9rum.cc", 3128);
-        HttpComponentsClientHttpRequestFactory requestFactory = new HttpComponentsClientHttpRequestFactory();
-        HttpClient httpClient = HttpClients.custom().setProxy(proxy).build();
-        requestFactory.setHttpClient(httpClient);
         // KAKAO 서버에 인증 토큰 발급 요청
-        RestClient restClient = RestClient.builder()
-                .requestFactory(requestFactory)
-                .messageConverters(convert -> convert.add(new AllEncompassingFormHttpMessageConverter()))
-                .baseUrl("https://kauth.kakao.com/oauth/token")
-                .build();
+        RestClient restClient = buildRestClient("https://kauth.kakao.com/oauth/token");
 
         // 토큰 요청에 들어갈 body
         MultiValueMap<String, String> objectMaping = new LinkedMultiValueMap<>();
@@ -100,17 +91,8 @@ public class KaKaoLoginService {
      * 토큰으로 사용자 정보 요청 후 인증, access token 및 refresh token 발행
      */
     public JwtDto getJwtDto(String accessToken) throws IOException {
-        // 프록시 설정
-        HttpHost proxy = new HttpHost("http", "krmp-proxy.9rum.cc", 3128);
-        HttpComponentsClientHttpRequestFactory requestFactory = new HttpComponentsClientHttpRequestFactory();
-        HttpClient httpClient = HttpClients.custom().setProxy(proxy).build();
-        requestFactory.setHttpClient(httpClient);
         // kakao 서버에 access token으로 사용자 정보 요청
-        RestClient restClient = RestClient.builder()
-                .requestFactory(requestFactory)
-                .messageConverters(convert -> convert.add(new AllEncompassingFormHttpMessageConverter()))
-                .baseUrl("https://kapi.kakao.com/v2/user/me")
-                .build();
+        RestClient restClient = buildRestClient("https://kapi.kakao.com/v2/user/me");
 
         // 인증된 사용자로부터 유저정보 가져오기
         ResponseEntity<String> response = restClient.get()
@@ -234,17 +216,7 @@ public class KaKaoLoginService {
      * 카카오로부터 친구목록 가져오기
      */
     private static String getFriendsListByKakao(String accessToken) {
-        // 프록시 설정
-        HttpHost proxy = new HttpHost("http", "krmp-proxy.9rum.cc", 3128);
-        HttpComponentsClientHttpRequestFactory requestFactory = new HttpComponentsClientHttpRequestFactory();
-        HttpClient httpClient = HttpClients.custom().setProxy(proxy).build();
-        requestFactory.setHttpClient(httpClient);
-
-        RestClient restClient = RestClient.builder()
-                .requestFactory(requestFactory)
-                .messageConverters(converter -> converter.add(new AllEncompassingFormHttpMessageConverter()))
-                .baseUrl("https://kapi.kakao.com/v1/api/talk/friends")
-                .build();
+        RestClient restClient = buildRestClient("https://kapi.kakao.com/v1/api/talk/friends");
 
         ResponseEntity<String> response = restClient.get()
                 .headers(header -> header.setBearerAuth(accessToken))
@@ -261,5 +233,29 @@ public class KaKaoLoginService {
         String refreshToken = jwtAuthenticationService.createRefreshTokenForOAuth(memberId).getToken();
 
         return JwtDto.fromEntity(accessToken, refreshToken);
+    }
+
+    private static RestClient buildRestClient(String baseUrl) {
+        HttpComponentsClientHttpRequestFactory requestFactory = new HttpComponentsClientHttpRequestFactory();
+        String proxyHost = System.getenv("OUTBOUND_PROXY_HOST");
+        String proxyPortValue = System.getenv().getOrDefault("OUTBOUND_PROXY_PORT", "3128");
+
+        if (proxyHost != null && !proxyHost.isBlank()) {
+            int proxyPort;
+            try {
+                proxyPort = Integer.parseInt(proxyPortValue);
+            } catch (NumberFormatException ex) {
+                proxyPort = 3128;
+            }
+            HttpHost proxy = new HttpHost("http", proxyHost, proxyPort);
+            HttpClient httpClient = HttpClients.custom().setProxy(proxy).build();
+            requestFactory.setHttpClient(httpClient);
+        }
+
+        return RestClient.builder()
+                .requestFactory(requestFactory)
+                .messageConverters(converter -> converter.add(new AllEncompassingFormHttpMessageConverter()))
+                .baseUrl(baseUrl)
+                .build();
     }
 }

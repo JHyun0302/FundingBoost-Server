@@ -4,6 +4,7 @@ import kcs.funding.fundingboost.domain.dto.common.CommonSuccessDto;
 import kcs.funding.fundingboost.domain.dto.request.login.LoginDto;
 import kcs.funding.fundingboost.domain.dto.request.login.SignupDto;
 import kcs.funding.fundingboost.domain.dto.response.login.JwtDto;
+import kcs.funding.fundingboost.domain.entity.member.MemberGender;
 import kcs.funding.fundingboost.domain.entity.member.Member;
 import kcs.funding.fundingboost.domain.repository.MemberRepository;
 import kcs.funding.fundingboost.domain.security.entity.RefreshToken;
@@ -48,8 +49,9 @@ public class SimpleAuthenticationService {
     @Transactional
     public CommonSuccessDto signup(SignupDto signupDto) {
         String encodedPassword = passwordEncoder.encode(signupDto.password());
+        MemberGender gender = signupDto.gender() == null ? MemberGender.UNKNOWN : signupDto.gender();
 
-        Member member = Member.createSignUpMember(signupDto.nickName(), encodedPassword, signupDto.email());
+        Member member = Member.createSignUpMember(signupDto.nickName(), encodedPassword, signupDto.email(), gender);
         memberRepository.save(member);
 
         return CommonSuccessDto.fromEntity(true);

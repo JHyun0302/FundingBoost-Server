@@ -9,16 +9,16 @@ server:
 
 spring:
   datasource:
-    url: jdbc:mariadb://mariadb:3306/fundingboost?allowPublicKeyRetrieval=true&useSSL=false&serverTimezone=Asia/Seoul&characterEncoding=UTF-8
-    username: root
-    password: root
-    driver-class-name: org.mariadb.jdbc.Driver
+    url: ${FUNDINGBOOST_DB_URL:jdbc:mysql://mysql:3306/fundingboost?allowPublicKeyRetrieval=true&useSSL=false&serverTimezone=Asia/Seoul&characterEncoding=UTF-8}
+    username: ${FUNDINGBOOST_DB_USERNAME:mysql}
+    password: ${FUNDINGBOOST_DB_PASSWORD:1q2w3e4r!}
+    driver-class-name: com.mysql.cj.jdbc.Driver
 
   jpa:
     hibernate:
-      database-platform: org.hibernate.dialect.MariaDB103Dialect
-      ddl-auto: validate
-    show-sql: true
+      database-platform: org.hibernate.dialect.MySQLDialect
+      ddl-auto: update
+    show-sql: false
     properties:
       hibernate:
         format_sql: true

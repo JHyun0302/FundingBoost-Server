@@ -9,6 +9,7 @@ import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import kcs.funding.fundingboost.domain.entity.common.BaseTimeEntity;
+import kcs.funding.fundingboost.domain.utils.ImageUrlNormalizer;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -16,8 +17,8 @@ import lombok.NoArgsConstructor;
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@Table(name = "item")
-public class Item {
+@Table(name = "item", catalog = "item")
+public class Item extends BaseTimeEntity {
     @Id
     @Column(name = "item_id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -45,6 +46,10 @@ public class Item {
 
     @Column(name = "option_name", length = 100)
     private String optionName;
+
+    public String getItemImageUrl() {
+        return ImageUrlNormalizer.normalize(itemImageUrl);
+    }
 
     public static Item createItem(String itemName, int itemPrice, String itemImageUrl,
                                   String brandName, String category, String optionName) {

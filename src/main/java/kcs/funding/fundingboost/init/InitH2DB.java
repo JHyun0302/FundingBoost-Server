@@ -16,14 +16,17 @@ import kcs.funding.fundingboost.domain.entity.Order;
 import kcs.funding.fundingboost.domain.entity.OrderItem;
 import kcs.funding.fundingboost.domain.entity.Relationship;
 import kcs.funding.fundingboost.domain.entity.Tag;
+import kcs.funding.fundingboost.domain.entity.member.MemberGender;
 import kcs.funding.fundingboost.domain.entity.member.Member;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 
 @Component
+@Profile("local")
 @RequiredArgsConstructor
 @Slf4j
 public class InitH2DB {
@@ -61,6 +64,7 @@ public class InitH2DB {
     }
 
     @Component
+    @Profile("local")
     @Transactional
     @RequiredArgsConstructor
     @Slf4j
@@ -358,27 +362,29 @@ public class InitH2DB {
                     Member.createMemberWithPoint("멤버1", "a1@gmail.com",
                             "{bcrypt}$2a$10$bIBTxCY.RFIcDncT8spdEOPImxovk626iI6FzCzduXGIpxvwAen0i",
                             "http://img1.kakaocdn.net/thumb/R640x640.q70/?fname=http://t1.kakaocdn.net/account_images/default_profile.jpeg",
-                            10000, "kakao_3413581747"),
+                            10000, "kakao_3413581747", MemberGender.MAN),
                     Member.createMemberWithPoint("멤버2", "a2@gmail.com", "",
                             "http://img1.kakaocdn.net/thumb/R640x640.q70/?fname=http://t1.kakaocdn.net/account_images/default_profile.jpeg",
-                            20000, "kakao_3419554058"),
+                            20000, "kakao_3419554058", MemberGender.WOMAN),
                     Member.createMemberWithPoint("멤버3", "a3@gmail.com", "",
                             "http://img1.kakaocdn.net/thumb/R640x640.q70/?fname=http://t1.kakaocdn.net/account_images/default_profile.jpeg",
-                            30000, "kakao_3413749497"),
+                            30000, "kakao_3413749497", MemberGender.MAN),
                     Member.createMemberWithPoint("멤버4", "a4@gmail.com", "",
                             "http://img1.kakaocdn.net/thumb/R640x640.q70/?fname=http://t1.kakaocdn.net/account_images/default_profile.jpeg",
-                            40000, "kakao_3413376899"),
+                            40000, "kakao_3413376899", MemberGender.WOMAN),
                     Member.createMemberWithPoint("멤버5", "a5@gmail.com", "",
                             "https://k.kakaocdn.net/dn/jrT50/btsF9BGMPni/7oxQfq58KmKxIl8UX01mn0/img_110x110.jpg",
-                            500000, "kakao_3412436209"),
+                            500000, "kakao_3412436209", MemberGender.MAN),
                     Member.createMemberWithPoint("멤버6", "a6@gmail.com", "", "",
-                            0, "kakao_3413698737"),
+                            0, "kakao_3413698737", MemberGender.WOMAN),
                     Member.createMemberWithPoint("멤버7", "a7@gmail.com", "", "",
-                            0, "..."),
+                            0, "...", MemberGender.MAN),
                     Member.createMemberWithPoint("멤버8", "a8@gmail.com", "", "",
-                            0, "..."),
+                            0, "...", MemberGender.WOMAN),
                     Member.createMemberWithPoint("멤버9", "a9@gmail.com", "", "",
-                            0, "...")
+                            0, "...", MemberGender.MAN),
+                    Member.createMemberWithPoint("멤버10", "a10@gmail.com", "", "",
+                            0, "...", MemberGender.WOMAN)
             );
 
             for (Member member : memberInfos) {

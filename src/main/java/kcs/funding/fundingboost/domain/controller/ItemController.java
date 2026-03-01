@@ -30,9 +30,15 @@ public class ItemController {
     @GetMapping("")
     public ResponseDto<Slice<ShopDto>> ShoppingList(
             @RequestParam(name = "category", required = false) String category
+            , @RequestParam(name = "keyword", required = false) String keyword
             , @RequestParam(name = "lastItemId", required = false) Long lastItemId
             , Pageable pageable) {
-        return ResponseDto.ok(itemService.getItems(lastItemId, category, pageable));
+        return ResponseDto.ok(itemService.getItems(lastItemId, category, keyword, pageable));
+    }
+
+    @GetMapping("/categories")
+    public ResponseDto<java.util.List<String>> itemCategories() {
+        return ResponseDto.ok(itemService.getItemCategories());
     }
 
     /**

@@ -43,6 +43,33 @@ public class ItemRepositoryImpl implements ItemRepositoryCustom {
         return checkLastPage(pageable, items);
     }
 
+    @Override
+    public Slice<Item> findItems(Long lastItemId, String category, String keyword, Pageable pageable) {
+        List<Item> items = queryFactory
+                .selectFrom(item)
+                .where(
+                        ltItemId(lastItemId),
+                        isCategory(category),
+                        containsKeyword(keyword)
+                )
+                .orderBy(item.itemId.desc())
+                .limit(pageable.getPageSize() + 1)
+                .fetch();
+
+        return checkLastPage(pageable, items);
+    }
+
+    @Override
+    public List<String> findDistinctCategories() {
+        return queryFactory
+                .select(item.category)
+                .from(item)
+                .where(item.category.isNotNull(), item.category.isNotEmpty())
+                .distinct()
+                .orderBy(item.category.asc())
+                .fetch();
+    }
+
     // no-offset 방식 처리하는 메서드
     private BooleanExpression ltItemId(Long itemId) {
         if (itemId == null) {
@@ -71,5 +98,15 @@ public class ItemRepositoryImpl implements ItemRepositoryCustom {
             return null;
         }
         return item.category.eq(category);
+    }
+
+    private BooleanExpression containsKeyword(String keyword) {
+        if (keyword == null || keyword.isBlank()) {
+            return null;
+        }
+
+        return item.itemName.containsIgnoreCase(keyword)
+                .or(item.brandName.containsIgnoreCase(keyword))
+                .or(item.category.containsIgnoreCase(keyword));
     }
 }

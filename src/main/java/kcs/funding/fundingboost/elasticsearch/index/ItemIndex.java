@@ -1,5 +1,7 @@
 package kcs.funding.fundingboost.elasticsearch.index;
 
+import kcs.funding.fundingboost.domain.entity.Item;
+import kcs.funding.fundingboost.domain.utils.ImageUrlNormalizer;
 import lombok.Getter;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.elasticsearch.annotations.Document;
@@ -30,4 +32,20 @@ public class ItemIndex {
 
     @Field(name = "option_name", type = FieldType.Text)
     private String optionName;
+
+    public String getItemImageUrl() {
+        return ImageUrlNormalizer.normalize(itemImageUrl);
+    }
+
+    public static ItemIndex fromEntity(Item item) {
+        ItemIndex itemIndex = new ItemIndex();
+        itemIndex.itemId = item.getItemId();
+        itemIndex.itemName = item.getItemName();
+        itemIndex.itemPrice = item.getItemPrice();
+        itemIndex.itemImageUrl = item.getItemImageUrl();
+        itemIndex.brandName = item.getBrandName();
+        itemIndex.category = item.getCategory();
+        itemIndex.optionName = item.getOptionName();
+        return itemIndex;
+    }
 }

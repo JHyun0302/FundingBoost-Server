@@ -31,10 +31,15 @@ public class ItemService {
     private final BookmarkRepository bookmarkRepository;
 
     @Counted("ItemService.getItems")
-    public Slice<ShopDto> getItems(Long lastItemId, String category, Pageable pageable) {
-        Slice<Item> items = itemRepository.findItemsByCategory(lastItemId, category, pageable);
+    public Slice<ShopDto> getItems(Long lastItemId, String category, String keyword, Pageable pageable) {
+        Slice<Item> items = itemRepository.findItems(lastItemId, category, keyword, pageable);
         List<ShopDto> shopDtoList = items.stream().map(ShopDto::fromEntity).toList();
         return new SliceImpl<>(shopDtoList, pageable, items.hasNext());
+    }
+
+    @Counted("ItemService.getItemCategories")
+    public List<String> getItemCategories() {
+        return itemRepository.findDistinctCategories();
     }
 
     @Counted("ItemService.getItemDetail")

@@ -3,6 +3,7 @@ package kcs.funding.fundingboost.elasticsearch.repository;
 import java.util.List;
 import kcs.funding.fundingboost.elasticsearch.index.ItemIndex;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.data.domain.SliceImpl;
@@ -21,36 +22,44 @@ public class ItemIndexRepositoryImpl implements ItemIndexRepositoryCustom {
 
     @Override
     public Slice<ItemIndex> findByCategoryOrItemName(String keyword, Pageable pageable) {
-        Criteria criteria = new Criteria("category").contains(keyword)
+        Criteria criteria = new Criteria("category").is(keyword)
                 .or("item_name").contains(keyword);
         CriteriaQuery query = new CriteriaQuery(criteria)
-                .addSort(Sort.by(Sort.Order.asc("item_id")))
-                .setPageable(pageable);
+                .addSort(defaultSort())
+                .setPageable(overFetchPageable(pageable));
 
-        SearchHits<ItemIndex> searchHits = elasticSearchOperations.search(query, ItemIndex.class);
-        List<ItemIndex> items = searchHits.getSearchHits().stream()
-                .map(SearchHit::getContent)
-                .toList();
-
-        boolean hasNext = items.size() == pageable.getPageSize();
-
-        return new SliceImpl<>(items, pageable, hasNext);
+        return searchAsSlice(query, pageable);
     }
 
     @Override
     public Slice<ItemIndex> findByCategory(String keyword, Pageable pageable) {
-        Criteria criteria = new Criteria("category").contains(keyword);
+        Criteria criteria = new Criteria("category").is(keyword);
         CriteriaQuery query = new CriteriaQuery(criteria)
-                .addSort(Sort.by(Sort.Order.asc("item_id")))
-                .setPageable(pageable);
+                .addSort(defaultSort())
+                .setPageable(overFetchPageable(pageable));
+        return searchAsSlice(query, pageable);
+    }
 
+    private Slice<ItemIndex> searchAsSlice(CriteriaQuery query, Pageable pageable) {
         SearchHits<ItemIndex> searchHits = elasticSearchOperations.search(query, ItemIndex.class);
         List<ItemIndex> items = searchHits.getSearchHits().stream()
                 .map(SearchHit::getContent)
                 .toList();
 
-        boolean hasNext = items.size() == pageable.getPageSize();
+        boolean hasNext = items.size() > pageable.getPageSize();
+        if (hasNext) {
+            items = items.subList(0, pageable.getPageSize());
+        }
 
         return new SliceImpl<>(items, pageable, hasNext);
+    }
+
+    private Pageable overFetchPageable(Pageable pageable) {
+        Sort sort = pageable.getSort().isSorted() ? pageable.getSort() : defaultSort();
+        return PageRequest.of(pageable.getPageNumber(), pageable.getPageSize() + 1, sort);
+    }
+
+    private Sort defaultSort() {
+        return Sort.by(Sort.Order.desc("itemId"));
     }
 }
