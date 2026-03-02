@@ -33,6 +33,21 @@ public class Order extends BaseTimeEntity {
     @NotNull
     private int totalPrice;
 
+    @NotNull
+    @Column(name = "point_used_amount")
+    private int pointUsedAmount;
+
+    @NotNull
+    @Column(name = "direct_paid_amount")
+    private int directPaidAmount;
+
+    @NotNull
+    @Column(name = "funding_supported_amount")
+    private int fundingSupportedAmount;
+
+    @Column(name = "source_funding_id")
+    private Long sourceFundingId;
+
 
     @ManyToOne(fetch = LAZY)
     @JoinColumn(name = "member_id")
@@ -48,6 +63,10 @@ public class Order extends BaseTimeEntity {
     public static Order createOrder(Member member, Delivery delivery) {
         Order order = new Order();
         order.totalPrice = 0;
+        order.pointUsedAmount = 0;
+        order.directPaidAmount = 0;
+        order.fundingSupportedAmount = 0;
+        order.sourceFundingId = null;
         order.member = member;
         order.delivery = delivery;
         return order;
@@ -55,5 +74,13 @@ public class Order extends BaseTimeEntity {
 
     public void plusTotalPrice(int plusPrice) {
         totalPrice += plusPrice;
+    }
+
+    public void applyPaymentBreakdown(int pointUsedAmount, int directPaidAmount, int fundingSupportedAmount,
+                                      Long sourceFundingId) {
+        this.pointUsedAmount = Math.max(pointUsedAmount, 0);
+        this.directPaidAmount = Math.max(directPaidAmount, 0);
+        this.fundingSupportedAmount = Math.max(fundingSupportedAmount, 0);
+        this.sourceFundingId = sourceFundingId;
     }
 }

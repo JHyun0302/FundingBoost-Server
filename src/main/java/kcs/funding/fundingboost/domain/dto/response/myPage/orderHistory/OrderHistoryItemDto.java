@@ -6,6 +6,7 @@ import lombok.Builder;
 
 @Builder
 public record OrderHistoryItemDto(
+        Long orderItemId,
         String itemName,
         String itemImageUrl,
         String optionName,
@@ -16,6 +17,7 @@ public record OrderHistoryItemDto(
 
     public static OrderHistoryItemDto fromEntity(OrderItem orderItem) {
         return OrderHistoryItemDto.builder()
+                .orderItemId(orderItem.getId())
                 .itemName(orderItem.getItem().getItemName())
                 .itemImageUrl(orderItem.getItem().getItemImageUrl())
                 .optionName(orderItem.getItem().getOptionName())

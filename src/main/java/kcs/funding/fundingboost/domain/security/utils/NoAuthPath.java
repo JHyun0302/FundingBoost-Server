@@ -27,6 +27,7 @@ public final class NoAuthPath {
             "/api/v3/search",
             "/api/v3/items",
             "/api/v3/items/**",
+            "/api/v1/pay/friends/barcode-token/**",
             "/h2-console/**"
     );
 }

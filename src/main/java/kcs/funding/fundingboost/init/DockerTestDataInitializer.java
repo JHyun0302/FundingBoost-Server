@@ -10,6 +10,7 @@ import java.util.Random;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.Comparator;
 import kcs.funding.fundingboost.domain.entity.Bookmark;
 import kcs.funding.fundingboost.domain.entity.Contributor;
 import kcs.funding.fundingboost.domain.entity.Delivery;
@@ -19,6 +20,7 @@ import kcs.funding.fundingboost.domain.entity.Item;
 import kcs.funding.fundingboost.domain.entity.Order;
 import kcs.funding.fundingboost.domain.entity.OrderItem;
 import kcs.funding.fundingboost.domain.entity.Relationship;
+import kcs.funding.fundingboost.domain.entity.Review;
 import kcs.funding.fundingboost.domain.entity.Tag;
 import kcs.funding.fundingboost.domain.entity.member.Member;
 import kcs.funding.fundingboost.domain.entity.member.MemberGender;
@@ -32,6 +34,7 @@ import kcs.funding.fundingboost.domain.repository.fundingItem.FundingItemReposit
 import kcs.funding.fundingboost.domain.repository.item.ItemRepository;
 import kcs.funding.fundingboost.domain.repository.orderItem.OrderItemRepository;
 import kcs.funding.fundingboost.domain.repository.relationship.RelationshipRepository;
+import kcs.funding.fundingboost.domain.repository.ReviewRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -59,6 +62,15 @@ public class DockerTestDataInitializer {
     private static final List<Tag> FUNDING_TAGS = List.of(
             Tag.BIRTHDAY, Tag.GRADUATE, Tag.ETC, Tag.BIRTHDAY, Tag.ETC
     );
+    private static final int TARGET_HISTORY_FUNDING_COUNT = 20;
+    private static final int TARGET_REVIEW_COUNT = 12;
+    private static final List<String> REVIEW_COMMENTS = List.of(
+            "배송이 빨랐고 상품 상태도 만족스러웠어요.",
+            "선물용으로 좋았습니다. 다음에도 다시 구매할 것 같아요.",
+            "사진과 거의 동일했고 포장 상태가 깔끔했습니다.",
+            "가성비가 좋고 만족도가 높아요.",
+            "실사용해보니 기대한 만큼 괜찮았습니다."
+    );
 
     private final MemberRepository memberRepository;
     private final RelationshipRepository relationshipRepository;
@@ -70,6 +82,7 @@ public class DockerTestDataInitializer {
     private final OrderRepository orderRepository;
     private final OrderItemRepository orderItemRepository;
     private final ItemRepository itemRepository;
+    private final ReviewRepository reviewRepository;
     private final PasswordEncoder passwordEncoder;
 
     private volatile boolean initialized = false;
@@ -84,18 +97,28 @@ public class DockerTestDataInitializer {
             return;
         }
 
-        if (memberRepository.findByEmail(SEED_MEMBERS.get(0).email()).isPresent()) {
-            refreshSeedMemberProfiles();
-            initialized = true;
-            log.info("테스트 데이터가 이미 존재합니다. 추가 생성은 건너뜁니다.");
-            return;
-        }
-
         List<Item> items;
         try {
             items = itemRepository.findAll(Sort.by(Sort.Order.asc("category"), Sort.Order.asc("itemId")));
         } catch (RuntimeException ex) {
             log.info("item 스키마 준비 전입니다. 테스트 데이터 시드를 대기합니다.");
+            return;
+        }
+
+        List<Member> existingSeedMembers = loadSeedMembers();
+        if (!existingSeedMembers.isEmpty()) {
+            if (existingSeedMembers.size() != SEED_MEMBERS.size()) {
+                log.warn("테스트 계정이 일부만 존재합니다. 수동 정리 후 재기동이 필요합니다. 발견된 계정 수={}", existingSeedMembers.size());
+                return;
+            }
+            refreshSeedMemberProfiles();
+            backfillSeedDeliveries(existingSeedMembers);
+            backfillSeedOrders(existingSeedMembers);
+            ensureMarioFundedOrder(existingSeedMembers.get(0));
+            ensureHistoricalFundings(existingSeedMembers, items);
+            ensureSeedReviews(existingSeedMembers, items);
+            initialized = true;
+            log.info("테스트 데이터가 이미 존재합니다. 누락된 보조 데이터만 보정했습니다.");
             return;
         }
 
@@ -108,9 +131,12 @@ public class DockerTestDataInitializer {
         createRelationships(members);
 
         Map<Member, List<Item>> memberBookmarks = createBookmarks(members, bookmarkPools);
-        createDeliveriesAndOrders(members, memberBookmarks);
         List<Funding> fundings = createFundings(members, memberBookmarks);
         createContributors(members, fundings);
+        createDeliveriesAndOrders(members, memberBookmarks);
+        ensureMarioFundedOrder(members.get(0));
+        ensureHistoricalFundings(members, items);
+        ensureSeedReviews(members, items);
 
         initialized = true;
         log.info("Docker 테스트 데이터 생성 완료: members={}, bookmarks={}, fundings={}",
@@ -149,6 +175,14 @@ public class DockerTestDataInitializer {
                 }
             });
         }
+    }
+
+    private List<Member> loadSeedMembers() {
+        List<Member> members = new ArrayList<>();
+        for (SeedMemberDefinition seedMember : SEED_MEMBERS) {
+            memberRepository.findByEmail(seedMember.email()).ifPresent(members::add);
+        }
+        return members;
     }
 
     private void createRelationships(List<Member> members) {
@@ -198,6 +232,8 @@ public class DockerTestDataInitializer {
                     "서울특별시 송파구 올림픽로 " + (300 + i),
                     String.format("010-9000-10%02d", i + 1),
                     member.getNickName(),
+                    buildPostalCode(i),
+                    buildDeliveryMemo(i),
                     member
             ));
         }
@@ -211,8 +247,103 @@ public class DockerTestDataInitializer {
             Item orderTarget = bookmarkedItems.get((i + 2) % bookmarkedItems.size());
 
             Order order = orderRepository.save(Order.createOrder(member, delivery));
-            orderItemRepository.save(OrderItem.createOrderItem(order, orderTarget, (i % 2) + 1));
+            int quantity = (i % 2) + 1;
+            OrderItem orderItem = OrderItem.createOrderItem(order, orderTarget, quantity);
+            int pointUsedAmount = i == 0 ? 0 : Math.min(1_000 * ((i % 3) + 1), order.getTotalPrice() / 3);
+            int directPaidAmount = Math.max(order.getTotalPrice() - pointUsedAmount, 0);
+            order.applyPaymentBreakdown(pointUsedAmount, directPaidAmount, 0, null);
+            orderItemRepository.save(orderItem);
         }
+    }
+
+    private void backfillSeedOrders(List<Member> members) {
+        for (int memberIndex = 0; memberIndex < members.size(); memberIndex++) {
+            Member member = members.get(memberIndex);
+            Map<Long, Order> ordersById = new LinkedHashMap<>();
+
+            orderItemRepository.findLastOrderByMemberId(member.getMemberId()).forEach(orderItem ->
+                    ordersById.putIfAbsent(orderItem.getOrder().getOrderId(), orderItem.getOrder()));
+
+            int orderIndex = 0;
+            for (Order order : ordersById.values()) {
+                if (order.getSourceFundingId() != null) {
+                    orderIndex++;
+                    continue;
+                }
+
+                if (order.getPointUsedAmount() == 0
+                        && order.getDirectPaidAmount() == 0
+                        && order.getFundingSupportedAmount() == 0) {
+                    int pointUsedAmount = memberIndex == 0 && orderIndex == 0
+                            ? 0
+                            : Math.min(1_000 * (((memberIndex + orderIndex) % 3) + 1), order.getTotalPrice() / 3);
+                    int directPaidAmount = Math.max(order.getTotalPrice() - pointUsedAmount, 0);
+                    order.applyPaymentBreakdown(pointUsedAmount, directPaidAmount, 0, null);
+                }
+                orderIndex++;
+            }
+        }
+    }
+
+    private void backfillSeedDeliveries(List<Member> members) {
+        for (int memberIndex = 0; memberIndex < members.size(); memberIndex++) {
+            Member member = members.get(memberIndex);
+            String postalCode = buildPostalCode(memberIndex);
+            String deliveryMemo = buildDeliveryMemo(memberIndex);
+            deliveryRepository.findAllByMemberId(member.getMemberId())
+                    .forEach(delivery -> {
+                        if (postalCode.equals(delivery.getPostalCode()) && deliveryMemo.equals(delivery.getDeliveryMemo())) {
+                            return;
+                        }
+                        delivery.updateExtraInfo(postalCode, deliveryMemo);
+                    });
+        }
+    }
+
+    private void ensureMarioFundedOrder(Member mario) {
+        boolean hasMarioFundedOrder = orderItemRepository.findLastOrderByMemberId(mario.getMemberId()).stream()
+                .anyMatch(orderItem -> orderItem.getOrder().getSourceFundingId() != null);
+
+        if (hasMarioFundedOrder) {
+            return;
+        }
+
+        Funding marioFunding = fundingRepository.findFundingInfo(mario.getMemberId()).orElse(null);
+        if (marioFunding == null || marioFunding.getFundingItems().isEmpty()) {
+            return;
+        }
+
+        List<Delivery> deliveries = deliveryRepository.findAllByMemberId(mario.getMemberId());
+        Delivery delivery = deliveries.isEmpty()
+                ? deliveryRepository.save(Delivery.createDelivery(
+                "서울특별시 송파구 올림픽로 999",
+                "010-9000-1099",
+                mario.getNickName(),
+                "05555",
+                "부재 시 문 앞에 두고 사진 부탁드려요.",
+                mario
+        ))
+                : deliveries.get(0);
+
+        Order fundedOrder = Order.createOrder(mario, delivery);
+        OrderItem fundedOrderItem = OrderItem.createOrderItem(
+                fundedOrder,
+                marioFunding.getFundingItems().get(0).getItem(),
+                1
+        );
+
+        int pointUsedAmount = Math.min(3_000, fundedOrder.getTotalPrice() / 5);
+        int fundingSupportedAmount = Math.min(marioFunding.getCollectPrice(), fundedOrder.getTotalPrice());
+        int directPaidAmount = Math.max(fundedOrder.getTotalPrice() - pointUsedAmount - fundingSupportedAmount, 0);
+        fundedOrder.applyPaymentBreakdown(
+                pointUsedAmount,
+                directPaidAmount,
+                fundingSupportedAmount,
+                marioFunding.getFundingId()
+        );
+
+        orderRepository.save(fundedOrder);
+        orderItemRepository.save(fundedOrderItem);
     }
 
     private List<Funding> createFundings(List<Member> members, Map<Member, List<Item>> memberBookmarks) {
@@ -236,6 +367,21 @@ public class DockerTestDataInitializer {
         }
 
         return fundings;
+    }
+
+    private String buildPostalCode(int index) {
+        return String.format("05%03d", 110 + index);
+    }
+
+    private String buildDeliveryMemo(int index) {
+        List<String> memos = List.of(
+                "문 앞에 두고 벨 눌러주세요.",
+                "경비실에 맡겨주세요.",
+                "부재 시 택배함에 넣어주세요.",
+                "배송 전 연락 부탁드려요.",
+                "파손 주의 스티커 부탁드립니다."
+        );
+        return memos.get(index % memos.size());
     }
 
     private Item pickUniqueFundingTarget(List<Item> bookmarkedItems, int preferredIndex, Set<Long> usedFundingItemIds) {
@@ -266,6 +412,124 @@ public class DockerTestDataInitializer {
         }
 
         contributorRepository.saveAll(contributors);
+    }
+
+    private void ensureHistoricalFundings(List<Member> members, List<Item> items) {
+        if (members.isEmpty() || items.isEmpty()) {
+            return;
+        }
+
+        Member mario = members.get(0);
+        List<Item> candidateItems = items.stream()
+                .sorted(Comparator.comparing(Item::getItemId))
+                .limit(TARGET_HISTORY_FUNDING_COUNT)
+                .toList();
+
+        if (candidateItems.isEmpty()) {
+            return;
+        }
+
+        int targetHistoryCount = Math.min(TARGET_HISTORY_FUNDING_COUNT, candidateItems.size());
+        List<Funding> existingHistory = new ArrayList<>(fundingRepository.findFundingByMemberId(mario.getMemberId()));
+        Set<Long> existingHistoryItemIds = existingHistory.stream()
+                .flatMap(funding -> funding.getFundingItems().stream())
+                .map(fundingItem -> fundingItem.getItem().getItemId())
+                .collect(Collectors.toSet());
+
+        boolean hasUniqueHistoryItems = existingHistory.size() == existingHistoryItemIds.size();
+        boolean alreadyAligned = existingHistory.size() == targetHistoryCount && hasUniqueHistoryItems;
+
+        if (alreadyAligned) {
+            return;
+        }
+
+        if (!existingHistory.isEmpty()) {
+            fundingRepository.deleteAll(existingHistory);
+        }
+
+        List<Funding> createdFundings = new ArrayList<>();
+        List<Contributor> createdContributors = new ArrayList<>();
+
+        for (int i = 0; i < targetHistoryCount; i++) {
+            Item targetItem = candidateItems.get(i);
+            Funding historyFunding = fundingRepository.save(Funding.createFundingForTest(
+                    mario,
+                    "마리오 지난 펀딩 테스트 #" + (i + 1),
+                    FUNDING_TAGS.get(i % FUNDING_TAGS.size()),
+                    0,
+                    LocalDateTime.now().minusDays(7 + i),
+                    false
+            ));
+
+            FundingItem fundingItem = FundingItem.createFundingItem(historyFunding, targetItem, 1);
+            fundingItemRepository.save(fundingItem);
+
+            List<Member> contributors = members.subList(1, members.size());
+            int remainingPrice = targetItem.getItemPrice();
+
+            for (int contributorIndex = 0; contributorIndex < contributors.size(); contributorIndex++) {
+                int contributorPrice;
+                if (contributorIndex == contributors.size() - 1) {
+                    contributorPrice = remainingPrice;
+                } else {
+                    contributorPrice = targetItem.getItemPrice() / contributors.size();
+                    remainingPrice -= contributorPrice;
+                }
+                createdContributors.add(Contributor.createContributor(contributorPrice, contributors.get(contributorIndex), historyFunding));
+            }
+
+            fundingItem.completeFunding();
+            fundingItem.finishFundingItem();
+            createdFundings.add(historyFunding);
+        }
+
+        contributorRepository.saveAll(createdContributors);
+        log.info("마리오 지난 펀딩 이력 재구성 완료: 총 생성={}", createdFundings.size());
+    }
+
+    private void ensureSeedReviews(List<Member> members, List<Item> items) {
+        if (members.isEmpty() || items.isEmpty()) {
+            return;
+        }
+
+        Member mario = members.get(0);
+        List<Review> existingReviews = reviewRepository.findAllByMemberIdOrderByReviewIdDesc(mario.getMemberId());
+
+        List<Item> sortedItems = items.stream()
+                .sorted(Comparator.comparing(Item::getItemId))
+                .toList();
+        int startIndex = sortedItems.size() > 20 ? 20 : 0;
+        List<Item> candidateItems = sortedItems.stream()
+                .skip(startIndex)
+                .limit(TARGET_REVIEW_COUNT)
+                .toList();
+
+        if (candidateItems.isEmpty()) {
+            return;
+        }
+
+        int targetReviewCount = Math.min(TARGET_REVIEW_COUNT, candidateItems.size());
+        boolean alreadyAligned = existingReviews.size() == targetReviewCount
+                && existingReviews.stream().map(review -> review.getItem().getItemId()).distinct().count() == targetReviewCount;
+
+        if (alreadyAligned) {
+            return;
+        }
+
+        if (!existingReviews.isEmpty()) {
+            reviewRepository.deleteAll(existingReviews);
+        }
+
+        List<Review> reviews = new ArrayList<>();
+        for (int i = 0; i < targetReviewCount; i++) {
+            Item item = candidateItems.get(i);
+            int rating = 5 - (i % 2);
+            String content = REVIEW_COMMENTS.get(i % REVIEW_COMMENTS.size());
+            reviews.add(Review.createReview(mario, item, rating, content));
+        }
+
+        reviewRepository.saveAll(reviews);
+        log.info("마리오 리뷰 데이터 재구성 완료: 총 생성={}", reviews.size());
     }
 
     private List<List<Item>> buildBookmarkPools(List<Item> items) {

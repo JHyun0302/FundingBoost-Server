@@ -7,6 +7,7 @@ import lombok.Builder;
 @Builder
 public record MyPageFundingDetailHistoryDto(
         Long fundingId,
+        String itemName,
         String createdDate,
         String deadLine,
         String itemImageUrl,
@@ -19,6 +20,7 @@ public record MyPageFundingDetailHistoryDto(
     public static MyPageFundingDetailHistoryDto fromEntity(Funding funding, int contributor, int fundingPercent) {
         return MyPageFundingDetailHistoryDto.builder()
                 .fundingId(funding.getFundingId())
+                .itemName(funding.getFundingItems().get(0).getItem().getItemName())
                 .createdDate(funding.getCreatedDate().format(DateTimeFormatter.ofPattern("yyyy-MM-dd")))
                 .deadLine(funding.getDeadline().format(DateTimeFormatter.ofPattern("yyyy-MM-dd")))
                 .itemImageUrl(funding.getFundingItems().get(0).getItem().getItemImageUrl())

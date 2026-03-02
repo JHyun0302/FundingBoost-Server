@@ -45,4 +45,13 @@ public class Review extends BaseTimeEntity {
     @JoinColumn(name = "item_id", foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT))
     private Item item;
 
+    public static Review createReview(Member member, Item item, int rating, String content) {
+        Review review = new Review();
+        review.member = member;
+        review.item = item;
+        review.rating = rating;
+        review.content = content;
+        return review;
+    }
+
 }

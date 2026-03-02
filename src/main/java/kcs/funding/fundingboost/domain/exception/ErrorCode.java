@@ -42,6 +42,7 @@ public enum ErrorCode {
     ONGOING_FUNDING_ERROR(40014, HttpStatus.BAD_REQUEST, "현재 진행중인 펀딩입니다."),
     INVALID_ACCESS_URL(40015, HttpStatus.BAD_REQUEST, "잘못된 사용자 접근입니다."),
     INVALID_ITEM_QUANTITY(40016, HttpStatus.BAD_REQUEST, "최소 1개 이상의 수량을 선택해야 합니다."),
+    DELIVERY_IN_USE(40017, HttpStatus.BAD_REQUEST, "주문에 사용 중인 배송지는 삭제할 수 없습니다."),
 
     // Gone Error
     GONE_SHARED_URL(41001, HttpStatus.GONE, "해당 공유 URL이 만료되었습니다."),
@@ -75,4 +76,3 @@ public enum ErrorCode {
     private final HttpStatus httpStatus;
     private final String message;
 }
-

@@ -5,15 +5,21 @@ import lombok.Builder;
 
 @Builder
 public record MyPageDeliveryDto(
+        Long deliveryId,
         String customerName,
         String address,
-        String phoneNumber
+        String phoneNumber,
+        String postalCode,
+        String deliveryMemo
 ) {
     public static MyPageDeliveryDto fromEntity(Delivery delivery) {
         return MyPageDeliveryDto.builder()
+                .deliveryId(delivery.getDeliveryId())
                 .customerName(delivery.getCustomerName())
                 .address(delivery.getAddress())
                 .phoneNumber(delivery.getPhoneNumber())
+                .postalCode(delivery.getPostalCode())
+                .deliveryMemo(delivery.getDeliveryMemo())
                 .build();
     }
 }

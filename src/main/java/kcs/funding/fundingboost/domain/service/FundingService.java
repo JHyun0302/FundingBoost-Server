@@ -365,8 +365,14 @@ public class FundingService {
         return MyFundingHistoryDto.fromEntity(myPageMemberDto, myPageFundingDetailHistoryDtos);
     }
 
-    public MyFundingHistoryDetailDto getMyFundingHistoryDetails(Long fundingId) {
-        Funding funding = fundingRepository.findMemberById(fundingId);
+    public MyFundingHistoryDetailDto getMyFundingHistoryDetails(Long fundingId, Long memberId) {
+        Funding funding = fundingRepository.findFundingById(fundingId);
+        if (funding == null) {
+            throw new CommonException(NOT_FOUND_FUNDING);
+        }
+        if (!funding.getMember().getMemberId().equals(memberId)) {
+            throw new CommonException(INVALID_ACCESS_URL);
+        }
         MyPageMemberDto myPageMemberDto = MyPageMemberDto.fromEntity(funding.getMember());
         if (funding.isFundingStatus()) {
             // 펀딩이 진행중인 상황

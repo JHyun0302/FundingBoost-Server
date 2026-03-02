@@ -32,6 +32,10 @@ public class Delivery extends BaseTimeEntity {
     private String phoneNumber;
     @Column(name = "customer_name", length = 50)
     private String customerName;
+    @Column(name = "postal_code", length = 10)
+    private String postalCode;
+    @Column(name = "delivery_memo", length = 200)
+    private String deliveryMemo;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "member_id", nullable = false)
@@ -39,11 +43,29 @@ public class Delivery extends BaseTimeEntity {
     private Member member;
 
     public static Delivery createDelivery(String address, String phoneNumber, String customerName, Member member) {
+        return createDelivery(address, phoneNumber, customerName, null, null, member);
+    }
+
+    public static Delivery createDelivery(
+            String address,
+            String phoneNumber,
+            String customerName,
+            String postalCode,
+            String deliveryMemo,
+            Member member
+    ) {
         Delivery delivery = new Delivery();
         delivery.address = address;
         delivery.phoneNumber = phoneNumber;
         delivery.customerName = customerName;
+        delivery.postalCode = postalCode;
+        delivery.deliveryMemo = deliveryMemo;
         delivery.member = member;
         return delivery;
+    }
+
+    public void updateExtraInfo(String postalCode, String deliveryMemo) {
+        this.postalCode = postalCode;
+        this.deliveryMemo = deliveryMemo;
     }
 }

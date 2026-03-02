@@ -1,6 +1,8 @@
 package kcs.funding.fundingboost.domain.dto.response.shoppingDetail;
 
+import java.util.List;
 import kcs.funding.fundingboost.domain.entity.Item;
+import kcs.funding.fundingboost.domain.utils.ItemOptionParser;
 import kcs.funding.fundingboost.elasticsearch.index.ItemIndex;
 import lombok.Builder;
 
@@ -10,7 +12,7 @@ public record ItemDetailDto(
         String itemName,
         int itemPrice,
         boolean bookmark,
-        String option
+        List<String> options
 ) {
     public static ItemDetailDto fromEntity(Item item, boolean bookmark) {
         return ItemDetailDto.builder()
@@ -18,7 +20,7 @@ public record ItemDetailDto(
                 .itemName(item.getItemName())
                 .itemPrice(item.getItemPrice())
                 .bookmark(bookmark)
-                .option(item.getOptionName())
+                .options(ItemOptionParser.parseOptions(item.getOptionName()))
                 .build();
     }
 
@@ -28,7 +30,7 @@ public record ItemDetailDto(
                 .itemName(itemIndex.getItemName())
                 .itemPrice(itemIndex.getItemPrice())
                 .bookmark(bookmark)
-                .option(itemIndex.getOptionName())
+                .options(ItemOptionParser.parseOptions(itemIndex.getOptionName()))
                 .build();
     }
 }

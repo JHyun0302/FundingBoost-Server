@@ -118,7 +118,7 @@ public class FundingController {
     @GetMapping("/funding/history/{fundingId}")
     public ResponseDto<MyFundingHistoryDetailDto> viewMyFundingHistoryDetail(@Login Long memberId,
                                                                              @PathVariable("fundingId") Long fundingId) {
-        return ResponseDto.ok(fundingService.getMyFundingHistoryDetails(fundingId));
+        return ResponseDto.ok(fundingService.getMyFundingHistoryDetails(fundingId, memberId));
     }
 
     /**

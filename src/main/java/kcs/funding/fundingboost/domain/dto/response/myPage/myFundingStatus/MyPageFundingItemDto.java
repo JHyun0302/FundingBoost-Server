@@ -8,6 +8,7 @@ import lombok.Builder;
 public record MyPageFundingItemDto(
         Long fundingId,
         Long fundingItemId,
+        Long itemId,
         String itemName,
         int itemPrice,
         String itemImageUrl,
@@ -24,6 +25,7 @@ public record MyPageFundingItemDto(
         return MyPageFundingItemDto.builder()
                 .fundingId(funding.getFundingId())
                 .fundingItemId(fundingItem.getFundingItemId())
+                .itemId(fundingItem.getItem().getItemId())
                 .itemName(fundingItem.getItem().getItemName())
                 .itemPrice(fundingItem.getItem().getItemPrice())
                 .itemImageUrl(fundingItem.getItem().getItemImageUrl())

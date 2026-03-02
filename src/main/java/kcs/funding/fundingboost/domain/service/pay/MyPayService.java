@@ -137,6 +137,10 @@ public class MyPayService {
         List<Long> giftHubIdList = myPayDto.itemPayDtoList().stream()
                 .map(ItemPayDto::giftHubId).toList();
 
+        int pointUsedAmount = Math.min(Math.max(myPayDto.usingPoint(), 0), order.getTotalPrice());
+        int directPaidAmount = Math.max(order.getTotalPrice() - pointUsedAmount, 0);
+        order.applyPaymentBreakdown(pointUsedAmount, directPaidAmount, 0, null);
+
         giftHubItemRepository.deleteAllById(giftHubIdList);
 		orderRepository.save(order);
         orderItemRepository.saveAll(orderItems);
@@ -166,6 +170,9 @@ public class MyPayService {
                 () -> new CommonException(NOT_FOUND_ITEM));
         Order order = Order.createOrder(member, delivery);
         OrderItem orderItem = OrderItem.createOrderItem(order, item, itemPayNowDto.quantity());
+        int pointUsedAmount = Math.min(Math.max(itemPayNowDto.usingPoint(), 0), order.getTotalPrice());
+        int directPaidAmount = Math.max(order.getTotalPrice() - pointUsedAmount, 0);
+        order.applyPaymentBreakdown(pointUsedAmount, directPaidAmount, 0, null);
         orderRepository.save(order);
         orderItemRepository.save(orderItem);
         return CommonSuccessDto.fromEntity(true);
@@ -190,6 +197,15 @@ public class MyPayService {
 
         Order order = Order.createOrder(member, delivery);
         OrderItem orderItem = OrderItem.createOrderItem(order, fundingItem.getItem(), 1);
+        int pointUsedAmount = Math.min(Math.max(payRemainDto.usingPoint(), 0), order.getTotalPrice());
+        int fundingSupportedAmount = Math.min(fundingItem.getFunding().getCollectPrice(), order.getTotalPrice());
+        int directPaidAmount = Math.max(order.getTotalPrice() - pointUsedAmount - fundingSupportedAmount, 0);
+        order.applyPaymentBreakdown(
+                pointUsedAmount,
+                directPaidAmount,
+                fundingSupportedAmount,
+                fundingItem.getFunding().getFundingId()
+        );
         orderRepository.save(order);
         orderItemRepository.save(orderItem);
 
