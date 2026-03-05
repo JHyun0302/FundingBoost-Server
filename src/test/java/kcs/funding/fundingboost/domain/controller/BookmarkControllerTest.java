@@ -75,6 +75,8 @@ class BookmarkControllerTest {
                 .andExpect(jsonPath("$.data.bookmarkItemDtos[2].itemId").value(bookmarkItemDtos.get(2).itemId()))
                 .andExpect(jsonPath("$.data.bookmarkItemDtos[2].itemThumbnailImageUrl").value(
                         bookmarkItemDtos.get(2).itemThumbnailImageUrl()))
+                .andExpect(jsonPath("$.data.bookmarkItemDtos[2].category").value(
+                        bookmarkItemDtos.get(2).category()))
                 .andExpect(jsonPath("$.data.bookmarkItemDtos[4].itemId").value(bookmarkItemDtos.get(4).itemId()))
                 .andExpect(jsonPath("$.data.bookmarkItemDtos[4].itemThumbnailImageUrl").value(
                         bookmarkItemDtos.get(4).itemThumbnailImageUrl()));

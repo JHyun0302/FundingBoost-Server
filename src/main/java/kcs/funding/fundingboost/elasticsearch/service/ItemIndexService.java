@@ -11,6 +11,7 @@ import com.querydsl.core.Tuple;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import io.micrometer.core.annotation.Counted;
+import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -43,6 +44,7 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 @Slf4j
 public class ItemIndexService {
+    private static final Duration INDEX_SYNC_RETRY_INTERVAL = Duration.ofMinutes(5);
 
     private final ItemIndexRepository itemIndexRepository;
     private final ItemRepository itemRepository;
@@ -51,6 +53,7 @@ public class ItemIndexService {
     private final JPAQueryFactory queryFactory;
     private volatile long lastIndexedItemCount = -1L;
     private volatile LocalDateTime lastIndexedModifiedDate;
+    private volatile LocalDateTime lastSyncAttemptAt;
 
     public Slice<ShopDto> searchWithCategoryAndName(String keyword, Pageable pageable) {
         ensureIndexReady();
@@ -120,44 +123,57 @@ public class ItemIndexService {
     }
 
     synchronized void ensureIndexReady() {
-        long databaseItemCount = itemRepository.count();
-        IndexOperations indexOperations = elasticsearchOperations.indexOps(ItemIndex.class);
+        try {
+            long databaseItemCount = itemRepository.count();
+            IndexOperations indexOperations = elasticsearchOperations.indexOps(ItemIndex.class);
 
-        if (!indexOperations.exists()) {
-            indexOperations.createWithMapping();
-        }
-
-        long indexItemCount = itemIndexRepository.count();
-        LocalDateTime latestModifiedDate = itemRepository.findFirstByOrderByModifiedDateDesc()
-                .map(Item::getModifiedDate)
-                .orElse(null);
-
-        if (databaseItemCount == 0) {
-            if (indexItemCount > 0) {
-                itemIndexRepository.deleteAll();
+            if (!indexOperations.exists()) {
+                indexOperations.createWithMapping();
             }
-            lastIndexedItemCount = 0L;
-            lastIndexedModifiedDate = null;
-            return;
+
+            LocalDateTime latestModifiedDate = itemRepository.findFirstByOrderByModifiedDateDesc()
+                    .map(Item::getModifiedDate)
+                    .orElse(null);
+
+            boolean alreadySynced = databaseItemCount == lastIndexedItemCount
+                    && Objects.equals(latestModifiedDate, lastIndexedModifiedDate);
+
+            if (alreadySynced) {
+                return;
+            }
+
+            if (databaseItemCount == 0) {
+                // 빈 상태는 읽기 경로에서 굳이 전체 삭제를 강제하지 않는다.
+                lastIndexedItemCount = 0L;
+                lastIndexedModifiedDate = null;
+                return;
+            }
+
+            LocalDateTime now = LocalDateTime.now();
+            if (lastSyncAttemptAt != null && now.isBefore(lastSyncAttemptAt.plus(INDEX_SYNC_RETRY_INTERVAL))) {
+                return;
+            }
+            lastSyncAttemptAt = now;
+
+            List<ItemIndex> itemIndexes = itemRepository.findAll(Sort.by(Sort.Direction.ASC, "itemId")).stream()
+                    .map(ItemIndex::fromEntity)
+                    .toList();
+
+            // document id(itemId) 기준 upsert. read API 경로에서 deleteAll()로 블로킹하지 않는다.
+            itemIndexRepository.saveAll(itemIndexes);
+            lastIndexedItemCount = databaseItemCount;
+            lastIndexedModifiedDate = latestModifiedDate;
+            log.info("elasticsearch item index synced: {} docs", itemIndexes.size());
+        } catch (Exception e) {
+            // 인덱스 동기화 실패가 즉시 사용자 조회 실패(500)로 이어지지 않게 격리한다.
+            String reason = e.getMessage();
+            if (reason == null || reason.isBlank()) {
+                reason = e.getClass().getSimpleName();
+            } else if (reason.length() > 300) {
+                reason = reason.substring(0, 300) + "...";
+            }
+            log.warn("elasticsearch item index sync skipped due to error: {}", reason);
         }
-
-        boolean alreadySynced = databaseItemCount == indexItemCount
-                && databaseItemCount == lastIndexedItemCount
-                && Objects.equals(latestModifiedDate, lastIndexedModifiedDate);
-
-        if (alreadySynced) {
-            return;
-        }
-
-        List<ItemIndex> itemIndexes = itemRepository.findAll(Sort.by(Sort.Direction.ASC, "itemId")).stream()
-                .map(ItemIndex::fromEntity)
-                .toList();
-
-        itemIndexRepository.deleteAll();
-        itemIndexRepository.saveAll(itemIndexes);
-        lastIndexedItemCount = databaseItemCount;
-        lastIndexedModifiedDate = latestModifiedDate;
-        log.info("elasticsearch item index synced: {} docs", itemIndexes.size());
     }
 
     private List<HomeRankingItemDto> toHomeRankingItems(List<ScoredItem> scoredItems) {

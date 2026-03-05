@@ -69,6 +69,7 @@ class BookmarkServiceTest {
         when(memberRepository.findById(anyLong())).thenReturn(Optional.of(member));
 
         when(bookmarkRepository.findAllByMemberId(member.getMemberId())).thenReturn(List.of(bookmark1, bookmark2));
+        when(itemRepository.findAllById(any())).thenReturn(List.of(item, item2));
 
         //when
         MyBookmarkListDto resultDto = bookmarkService.getMyBookmark(member.getMemberId());
@@ -95,6 +96,35 @@ class BookmarkServiceTest {
         assertNotNull(resultDto);
         assertThat(resultDto.myPageMemberDto().nickName()).isEqualTo(member.getNickName());
         assertThat(resultDto.bookmarkItemDtos()).isEmpty();
+    }
+
+    @DisplayName("북마크 연관 아이템의 카테고리가 비어 있어도 itemRepository 재조회 값으로 보강된다")
+    @Test
+    void getMyWishList_EnrichCategoryFromItemRepository() {
+        ReflectionTestUtils.setField(member, "memberId", 1L);
+        ReflectionTestUtils.setField(item, "itemId", 1L);
+        ReflectionTestUtils.setField(item, "category", null);
+
+        Item refreshedItem = Item.createItem(
+                item.getItemName(),
+                item.getItemPrice(),
+                item.getItemImageUrl(),
+                item.getBrandName(),
+                "뷰티",
+                null
+        );
+        ReflectionTestUtils.setField(refreshedItem, "itemId", 1L);
+
+        Bookmark bookmark = Bookmark.createBookmark(member, item);
+
+        when(memberRepository.findById(member.getMemberId())).thenReturn(Optional.of(member));
+        when(bookmarkRepository.findAllByMemberId(member.getMemberId())).thenReturn(List.of(bookmark));
+        when(itemRepository.findAllById(any())).thenReturn(List.of(refreshedItem));
+
+        MyBookmarkListDto resultDto = bookmarkService.getMyBookmark(member.getMemberId());
+
+        assertThat(resultDto.bookmarkItemDtos()).hasSize(1);
+        assertThat(resultDto.bookmarkItemDtos().get(0).category()).isEqualTo("뷰티");
     }
 
     @DisplayName("북마크가 존재할 때 : 북마크 삭제")

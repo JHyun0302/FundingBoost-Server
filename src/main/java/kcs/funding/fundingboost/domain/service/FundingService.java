@@ -1,5 +1,6 @@
 package kcs.funding.fundingboost.domain.service;
 
+import static kcs.funding.fundingboost.domain.exception.ErrorCode.ACCESS_DENIED;
 import static kcs.funding.fundingboost.domain.exception.ErrorCode.INVALID_ACCESS_URL;
 import static kcs.funding.fundingboost.domain.exception.ErrorCode.INVALID_FUNDING_STATUS;
 import static kcs.funding.fundingboost.domain.exception.ErrorCode.NOT_FOUND_FUNDING;
@@ -10,8 +11,10 @@ import io.micrometer.core.annotation.Counted;
 import io.micrometer.core.annotation.Timed;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import kcs.funding.fundingboost.domain.dto.common.CommonSuccessDto;
 import kcs.funding.fundingboost.domain.dto.request.fundingRegist.RegisterFundingDto;
 import kcs.funding.fundingboost.domain.dto.response.common.CommonFriendFundingDto;
@@ -143,9 +146,13 @@ public class FundingService {
             if (funding.getMember().getMemberId().equals(memberId)) {
                 throw new CommonException(INVALID_ACCESS_URL);
             }
+            if (!isFriend(memberId, funding.getMember().getMemberId())) {
+                throw new CommonException(ACCESS_DENIED);
+            }
 
-            List<ContributorDto> contributorList = contributorRepository.findByFundingId(fundingId)
-                    .stream()
+            Set<Long> uniqueContributorMemberIds = new HashSet<>();
+            List<ContributorDto> contributorList = contributorRepository.findByFundingId(fundingId).stream()
+                    .filter(contributor -> uniqueContributorMemberIds.add(contributor.getMember().getMemberId()))
                     .map(ContributorDto::fromEntity)
                     .toList();
 
@@ -156,6 +163,11 @@ public class FundingService {
         } else {
             throw new CommonException(NOT_FOUND_FUNDING);
         }
+    }
+
+    private boolean isFriend(Long memberId, Long friendMemberId) {
+        return relationshipRepository.findFriendByMemberId(memberId).stream()
+                .anyMatch(relationship -> relationship.getFriend().getMemberId().equals(friendMemberId));
     }
 
     private List<CommonFriendFundingDto> getCommonFriendFundingList(Long memberId) {

@@ -44,6 +44,10 @@ public class SecurityConfig {
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .headers(headers -> headers.frameOptions(FrameOptionsConfig::sameOrigin))
                 .authorizeHttpRequests(auth -> auth
+                        .requestMatchers("/api/v1/admin/dashboard/access", "/api/v1/admin/barcode-lab/access")
+                        .authenticated()
+                        .requestMatchers("/api/v1/admin/**").hasRole("ADMIN")
+                        .requestMatchers("/api/v1/pay/friends/barcode-token/**").hasRole("ADMIN")
                         .requestMatchers(NoAuthPath.paths.toArray(String[]::new)).permitAll()
                         .anyRequest().authenticated())
                 .with(new JwtSecurityConfig(jwtAuthenticationProvider), customizer -> {

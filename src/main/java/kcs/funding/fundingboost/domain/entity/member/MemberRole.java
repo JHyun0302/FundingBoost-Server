@@ -1,7 +1,8 @@
 package kcs.funding.fundingboost.domain.entity.member;
 
 public enum MemberRole {
-    ROLE_USER("사용자");
+    ROLE_USER("사용자"),
+    ROLE_ADMIN("관리자");
 
     private String role;
 

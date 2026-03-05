@@ -15,9 +15,11 @@ import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.MalformedJwtException;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.UnsupportedJwtException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import kcs.funding.fundingboost.domain.entity.member.MemberRole;
 import kcs.funding.fundingboost.domain.exception.CommonException;
 import kcs.funding.fundingboost.domain.security.CustomUserDetails;
 import kcs.funding.fundingboost.domain.security.CustomUserDetailsService;
@@ -83,9 +85,14 @@ public class JwtAuthenticationProvider implements AuthenticationProvider {
                 // request에서 얻은 signature와 서버가 계산한 signature가 동일한 경우
                 Long userId = Long.parseLong(body.getSubject());
                 CustomUserDetails principal = customUserDetailsService.loadUserByUserId(userId);
+                List<SimpleGrantedAuthority> authorities = new ArrayList<>();
+                authorities.add(new SimpleGrantedAuthority("ROLE_USER"));
 
-                return new UsernamePasswordAuthenticationToken(principal, null,
-                        List.of(new SimpleGrantedAuthority("ROLE_USER")));
+                if (principal.getMemberRole() == MemberRole.ROLE_ADMIN) {
+                    authorities.add(new SimpleGrantedAuthority("ROLE_ADMIN"));
+                }
+
+                return new UsernamePasswordAuthenticationToken(principal, null, authorities);
             } else {
                 throw new CommonException(TOKEN_MALFORMED_ERROR);
             }

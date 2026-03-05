@@ -1,5 +1,6 @@
 package kcs.funding.fundingboost.domain.service;
 
+import static kcs.funding.fundingboost.domain.exception.ErrorCode.ACCESS_DENIED;
 import static kcs.funding.fundingboost.domain.exception.ErrorCode.NOT_FOUND_FUNDING;
 import static kcs.funding.fundingboost.domain.service.utils.FundingConst.EXTEND_DEADLINE;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -23,6 +24,7 @@ import kcs.funding.fundingboost.domain.entity.Contributor;
 import kcs.funding.fundingboost.domain.entity.Funding;
 import kcs.funding.fundingboost.domain.entity.FundingItem;
 import kcs.funding.fundingboost.domain.entity.Item;
+import kcs.funding.fundingboost.domain.entity.Relationship;
 import kcs.funding.fundingboost.domain.entity.member.Member;
 import kcs.funding.fundingboost.domain.exception.CommonException;
 import kcs.funding.fundingboost.domain.model.FundingFixture;
@@ -33,6 +35,7 @@ import kcs.funding.fundingboost.domain.repository.MemberRepository;
 import kcs.funding.fundingboost.domain.repository.contributor.ContributorRepository;
 import kcs.funding.fundingboost.domain.repository.funding.FundingRepository;
 import kcs.funding.fundingboost.domain.repository.fundingItem.FundingItemRepository;
+import kcs.funding.fundingboost.domain.repository.relationship.RelationshipRepository;
 import kcs.funding.fundingboost.domain.service.utils.FundingUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.DisplayName;
@@ -52,6 +55,8 @@ class FundingServiceTest {
     FundingRepository fundingRepository;
     @Mock
     FundingItemRepository fundingItemRepository;
+    @Mock
+    RelationshipRepository relationshipRepository;
     @Mock
     ContributorRepository contributorRepository;
     @InjectMocks
@@ -84,6 +89,7 @@ class FundingServiceTest {
         List<FundingItem> fundingItems = FundingItemFixture.fundingItems(items, funding);
 
         when(fundingItemRepository.findAllByFundingId(funding.getFundingId())).thenReturn(fundingItems);
+        when(relationshipRepository.findFriendByMemberId(myMemberId)).thenReturn(friendshipsWith(friend.getMemberId()));
 
         // when
         FriendFundingDetailDto friendFundingDetailDto = fundingService.viewFriendsFundingDetail(funding.getFundingId(),
@@ -139,6 +145,7 @@ class FundingServiceTest {
         List<FundingItem> fundingItems = FundingItemFixture.fundingItems(items, funding);
 
         when(fundingItemRepository.findAllByFundingId(funding.getFundingId())).thenReturn(fundingItems);
+        when(relationshipRepository.findFriendByMemberId(myMemberId)).thenReturn(friendshipsWith(friend.getMemberId()));
         when(contributorRepository.findByFundingId(funding.getFundingId())).thenReturn(contributors);
 
         // when
@@ -157,6 +164,41 @@ class FundingServiceTest {
 
         assertEquals(friend3.getNickName(), contributorDto2.contributorName());
         assertEquals(friend3.getProfileImgUrl(), contributorDto2.contributorProfileImgUrl());
+    }
+
+    @DisplayName("viewFriendsFundingDetail : 같은 친구가 여러 번 펀딩해도 한 번만 노출되어야 한다")
+    @Test
+    void viewFriendsFundingDetail_친구목록중복제거() throws NoSuchFieldException, IllegalAccessException {
+        // given
+        Long myMemberId = 4L;
+        Member friend = MemberFixture.member1();
+        Member friend2 = MemberFixture.member2();
+        Member friend3 = MemberFixture.member3();
+
+        Funding funding = FundingFixture.Birthday(friend);
+
+        Contributor contributor1 = Contributor.createContributor(1000, friend2, funding);
+        Contributor contributor2 = Contributor.createContributor(2000, friend2, funding);
+        Contributor contributor3 = Contributor.createContributor(3000, friend3, funding);
+        List<Contributor> contributors = List.of(contributor1, contributor2, contributor3);
+
+        List<Item> items = ItemFixture.items3();
+        List<FundingItem> fundingItems = FundingItemFixture.fundingItems(items, funding);
+
+        when(fundingItemRepository.findAllByFundingId(funding.getFundingId())).thenReturn(fundingItems);
+        when(relationshipRepository.findFriendByMemberId(myMemberId)).thenReturn(friendshipsWith(friend.getMemberId()));
+        when(contributorRepository.findByFundingId(funding.getFundingId())).thenReturn(contributors);
+
+        // when
+        FriendFundingDetailDto friendFundingDetailDto = fundingService.viewFriendsFundingDetail(
+                funding.getFundingId(),
+                myMemberId
+        );
+
+        // then
+        assertEquals(2, friendFundingDetailDto.contributorList().size());
+        assertEquals(friend2.getNickName(), friendFundingDetailDto.contributorList().get(0).contributorName());
+        assertEquals(friend3.getNickName(), friendFundingDetailDto.contributorList().get(1).contributorName());
     }
 
     @DisplayName("viewFriendsFundingDetail : 펀딩에 기여한 친구가 없으면 Dto에 빈 리스트가 들어가야 한다")
@@ -179,6 +221,7 @@ class FundingServiceTest {
         List<Contributor> contributors = new ArrayList<>();
 
         when(fundingItemRepository.findAllByFundingId(funding.getFundingId())).thenReturn(fundingItems);
+        when(relationshipRepository.findFriendByMemberId(myMemberId)).thenReturn(friendshipsWith(friend.getMemberId()));
         when(contributorRepository.findByFundingId(funding.getFundingId())).thenReturn(contributors);
 
         // when
@@ -206,6 +249,7 @@ class FundingServiceTest {
         List<FundingItem> fundingItems = FundingItemFixture.fundingItems(items, funding);
 
         when(fundingItemRepository.findAllByFundingId(funding.getFundingId())).thenReturn(fundingItems);
+        when(relationshipRepository.findFriendByMemberId(myMemberId)).thenReturn(friendshipsWith(friend.getMemberId()));
 
         // when
         FriendFundingDetailDto friendFundingDetailDto = fundingService.viewFriendsFundingDetail(funding.getFundingId(),
@@ -230,6 +274,7 @@ class FundingServiceTest {
         List<FundingItem> fundingItems = FundingItemFixture.fundingItems(items, funding);
 
         when(fundingItemRepository.findAllByFundingId(funding.getFundingId())).thenReturn(fundingItems);
+        when(relationshipRepository.findFriendByMemberId(myMemberId)).thenReturn(friendshipsWith(friend.getMemberId()));
 
         // when
         FriendFundingDetailDto friendFundingDetailDto = fundingService.viewFriendsFundingDetail(funding.getFundingId(),
@@ -242,6 +287,28 @@ class FundingServiceTest {
         assertEquals(friend.getProfileImgUrl(), friendFundingDetailDto.friendProfileImgUrl());
         assertEquals(funding.getDeadline().format(DateTimeFormatter.ofPattern("yyyy-MM-dd")),
                 friendFundingDetailDto.deadline());
+    }
+
+    @DisplayName("viewFriendsFundingDetail : 친구 관계가 아니면 ACCESS_DENIED 예외가 발생해야 한다")
+    @Test
+    void viewFriendsFundingDetail_친구아님_접근권한없음() throws NoSuchFieldException, IllegalAccessException {
+        // given
+        Long myMemberId = 99L;
+        Member friend = MemberFixture.member1();
+
+        Funding funding = FundingFixture.Graduate(friend);
+        List<Item> items = ItemFixture.items3();
+        List<FundingItem> fundingItems = FundingItemFixture.fundingItems(items, funding);
+
+        when(fundingItemRepository.findAllByFundingId(funding.getFundingId())).thenReturn(fundingItems);
+        when(relationshipRepository.findFriendByMemberId(myMemberId)).thenReturn(new ArrayList<>());
+
+        // when
+        CommonException exception = assertThrows(CommonException.class,
+                () -> fundingService.viewFriendsFundingDetail(funding.getFundingId(), myMemberId));
+
+        // then
+        assertEquals(ACCESS_DENIED.getMessage(), exception.getMessage());
     }
 
     @DisplayName("extendFunding : 아이템이 존재한다면 펀딩 기간이 FundingConst.EXTEND_DEADLINE만큼 증가해야 한다")
@@ -335,5 +402,15 @@ class FundingServiceTest {
 
         // then
         assertTrue(myPageFundingDetailHistoryDtos.isEmpty());
+    }
+
+    private List<Relationship> friendshipsWith(Long friendMemberId) {
+        Relationship relationship = mock(Relationship.class);
+        Member friend = mock(Member.class);
+
+        when(friend.getMemberId()).thenReturn(friendMemberId);
+        when(relationship.getFriend()).thenReturn(friend);
+
+        return List.of(relationship);
     }
 }

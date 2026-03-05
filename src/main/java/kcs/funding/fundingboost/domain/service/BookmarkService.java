@@ -5,8 +5,12 @@ import static kcs.funding.fundingboost.domain.exception.ErrorCode.NOT_FOUND_MEMB
 
 import io.micrometer.core.annotation.Counted;
 import io.micrometer.core.annotation.Timed;
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 import kcs.funding.fundingboost.domain.dto.common.CommonSuccessDto;
 import kcs.funding.fundingboost.domain.dto.response.myPage.MyPageMemberDto;
 import kcs.funding.fundingboost.domain.dto.response.myPage.wishList.BookmarkItemDto;
@@ -35,8 +39,28 @@ public class BookmarkService {
     @Counted("BookmarkService.getMyBookmark")
     public MyBookmarkListDto getMyBookmark(Long memberId) {
 
-        List<BookmarkItemDto> bookmarkItemDtos = bookmarkRepository.findAllByMemberId(memberId).stream()
-                .map(bookmark -> BookmarkItemDto.fromEntity(bookmark.getItem())).toList();
+        List<Bookmark> bookmarks = bookmarkRepository.findAllByMemberId(memberId);
+        List<Long> itemIds = bookmarks.stream()
+                .map(bookmark -> bookmark.getItem().getItemId())
+                .distinct()
+                .toList();
+
+        List<Item> items = Optional.ofNullable(itemRepository.findAllById(itemIds))
+                .orElse(Collections.emptyList());
+
+        Map<Long, Item> itemById = items.stream()
+                .collect(Collectors.toMap(Item::getItemId, Function.identity()));
+
+        List<BookmarkItemDto> bookmarkItemDtos = bookmarks.stream()
+                .map(bookmark -> {
+                    Long itemId = bookmark.getItem().getItemId();
+                    Item item = itemById.get(itemId);
+                    if (item == null) {
+                        return BookmarkItemDto.fromEntity(bookmark.getItem());
+                    }
+                    return BookmarkItemDto.fromEntity(item);
+                })
+                .toList();
 
         MyPageMemberDto myPageMemberDto = MyPageMemberDto.fromEntity(
                 memberRepository.findById(memberId).orElseThrow(() -> new CommonException(NOT_FOUND_MEMBER)));

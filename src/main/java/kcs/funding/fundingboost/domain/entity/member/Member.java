@@ -32,7 +32,7 @@ public class Member extends BaseTimeEntity {
     private String nickName;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "member_role")
+    @Column(name = "member_role", nullable = false, length = 20, columnDefinition = "varchar(20)")
     private MemberRole memberRole;
 
     @Column(length = 100)
@@ -110,5 +110,9 @@ public class Member extends BaseTimeEntity {
 
     public void changeGender(MemberGender newGender) {
         this.gender = newGender;
+    }
+
+    public void changeMemberRole(MemberRole newRole) {
+        this.memberRole = newRole;
     }
 }

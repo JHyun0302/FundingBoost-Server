@@ -24,6 +24,7 @@ import kcs.funding.fundingboost.domain.entity.Review;
 import kcs.funding.fundingboost.domain.entity.Tag;
 import kcs.funding.fundingboost.domain.entity.member.Member;
 import kcs.funding.fundingboost.domain.entity.member.MemberGender;
+import kcs.funding.fundingboost.domain.entity.member.MemberRole;
 import kcs.funding.fundingboost.domain.repository.DeliveryRepository;
 import kcs.funding.fundingboost.domain.repository.MemberRepository;
 import kcs.funding.fundingboost.domain.repository.OrderRepository;
@@ -51,6 +52,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class DockerTestDataInitializer {
 
     private static final String QA_PASSWORD = "Test1234!";
+    private static final String ADMIN_SEED_EMAIL = "qa1@fundingboost.test";
     private static final long RANDOM_SEED = 20260228L;
     private static final List<SeedMemberDefinition> SEED_MEMBERS = List.of(
             new SeedMemberDefinition("마리오", "qa1@fundingboost.test", MemberGender.MAN, "seed_qa1", "/test-members/mario.png"),
@@ -150,7 +152,7 @@ public class DockerTestDataInitializer {
         List<Member> members = new ArrayList<>();
 
         for (SeedMemberDefinition seedMember : SEED_MEMBERS) {
-            members.add(Member.createMemberWithPoint(
+            Member member = Member.createMemberWithPoint(
                     seedMember.name(),
                     seedMember.email(),
                     encodedPassword,
@@ -158,7 +160,11 @@ public class DockerTestDataInitializer {
                     50_000,
                     seedMember.kakaoId(),
                     seedMember.gender()
-            ));
+            );
+            if (isAdminSeed(seedMember.email())) {
+                member.changeMemberRole(MemberRole.ROLE_ADMIN);
+            }
+            members.add(member);
         }
 
         return memberRepository.saveAll(members);
@@ -173,8 +179,18 @@ public class DockerTestDataInitializer {
                 if (existingMember.getGender() != seedMember.gender()) {
                     existingMember.changeGender(seedMember.gender());
                 }
+                MemberRole expectedRole = isAdminSeed(seedMember.email())
+                        ? MemberRole.ROLE_ADMIN
+                        : MemberRole.ROLE_USER;
+                if (existingMember.getMemberRole() != expectedRole) {
+                    existingMember.changeMemberRole(expectedRole);
+                }
             });
         }
+    }
+
+    private boolean isAdminSeed(String email) {
+        return ADMIN_SEED_EMAIL.equalsIgnoreCase(email);
     }
 
     private List<Member> loadSeedMembers() {

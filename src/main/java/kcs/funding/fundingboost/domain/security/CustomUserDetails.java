@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import kcs.funding.fundingboost.domain.entity.member.Member;
+import kcs.funding.fundingboost.domain.entity.member.MemberRole;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.oauth2.core.user.OAuth2User;
@@ -112,6 +113,14 @@ public class CustomUserDetails implements UserDetails, OAuth2User {
 
     public Long getMemberId() {
         return member.getMemberId();
+    }
+
+    public String getMemberEmail() {
+        return member.getEmail();
+    }
+
+    public MemberRole getMemberRole() {
+        return member.getMemberRole();
     }
 
     @Override
