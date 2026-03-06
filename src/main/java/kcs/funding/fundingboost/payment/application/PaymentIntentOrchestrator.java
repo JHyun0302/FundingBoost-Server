@@ -1,8 +1,10 @@
 package kcs.funding.fundingboost.payment.application;
 
+import static kcs.funding.fundingboost.domain.exception.ErrorCode.BAD_REQUEST_PARAMETER;
 import static kcs.funding.fundingboost.domain.exception.ErrorCode.INTERNAL_SERVER_ERROR;
 
 import java.util.Optional;
+import java.util.Objects;
 import java.util.UUID;
 import kcs.funding.fundingboost.domain.exception.CommonException;
 import kcs.funding.fundingboost.payment.domain.PaymentAttemptStage;
@@ -21,8 +23,28 @@ public class PaymentIntentOrchestrator {
 
     @Transactional
     public PaymentExecutionResult execute(PaymentExecutionCommand command) {
+        String intentKey = PaymentIntentKeyResolver.resolveFromIdempotencyKey(command.idempotencyKey())
+                .orElseGet(this::generateIntentKey);
+
+        Optional<PaymentIntent> existingIntent = paymentIntentStore.findByIntentKey(intentKey);
+        if (existingIntent.isPresent()) {
+            PaymentIntent existing = existingIntent.get();
+            if (!isSamePaymentRequest(existing, command)) {
+                throw new CommonException(BAD_REQUEST_PARAMETER);
+            }
+            if (existing.getStatus() != PaymentIntentStatus.CAPTURED) {
+                throw new CommonException(INTERNAL_SERVER_ERROR);
+            }
+            return new PaymentExecutionResult(
+                    existing.getIntentKey(),
+                    existing.getStatus(),
+                    existing.getPgProvider(),
+                    existing.getPgTransactionId()
+            );
+        }
+
         PaymentIntent paymentIntent = PaymentIntent.create(
-                generateIntentKey(),
+                intentKey,
                 command.memberId(),
                 command.intentType(),
                 command.referenceId(),
@@ -135,5 +157,15 @@ public class PaymentIntentOrchestrator {
     private String generateIntentKey() {
         return "pi_" + UUID.randomUUID().toString().replace("-", "");
     }
-}
 
+    private boolean isSamePaymentRequest(PaymentIntent existing, PaymentExecutionCommand command) {
+        return Objects.equals(existing.getMemberId(), command.memberId())
+                && existing.getIntentType() == command.intentType()
+                && Objects.equals(existing.getReferenceId(), command.referenceId())
+                && Objects.equals(existing.getCurrency(), command.currency())
+                && existing.getTotalAmount() == command.totalAmount()
+                && existing.getPointAmount() == command.pointAmount()
+                && existing.getPgAmount() == command.pgAmount()
+                && existing.getFundingSupportedAmount() == command.fundingSupportedAmount();
+    }
+}

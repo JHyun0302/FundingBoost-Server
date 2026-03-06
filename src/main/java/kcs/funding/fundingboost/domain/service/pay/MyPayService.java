@@ -4,6 +4,7 @@ import static kcs.funding.fundingboost.domain.exception.ErrorCode.BAD_REQUEST_PA
 import static kcs.funding.fundingboost.domain.exception.ErrorCode.INVALID_FUNDINGITEM_STATUS;
 import static kcs.funding.fundingboost.domain.exception.ErrorCode.INVALID_ITEM_QUANTITY;
 import static kcs.funding.fundingboost.domain.exception.ErrorCode.NOT_FOUND_DELIVERY;
+import static kcs.funding.fundingboost.domain.exception.ErrorCode.NOT_FOUND_FUNDING_ITEM;
 import static kcs.funding.fundingboost.domain.exception.ErrorCode.NOT_FOUND_ITEM;
 import static kcs.funding.fundingboost.domain.exception.ErrorCode.NOT_FOUND_MEMBER;
 import static kcs.funding.fundingboost.domain.exception.ErrorCode.ONGOING_FUNDING_ERROR;
@@ -13,6 +14,7 @@ import io.micrometer.core.annotation.Timed;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import kcs.funding.fundingboost.domain.dto.common.CommonSuccessDto;
@@ -40,6 +42,7 @@ import kcs.funding.fundingboost.domain.repository.orderItem.OrderItemRepository;
 import kcs.funding.fundingboost.domain.service.utils.PayUtils;
 import kcs.funding.fundingboost.payment.application.PaymentExecutionCommand;
 import kcs.funding.fundingboost.payment.application.PaymentExecutionResult;
+import kcs.funding.fundingboost.payment.application.PaymentIntentKeyResolver;
 import kcs.funding.fundingboost.payment.application.PaymentIntentOrchestrator;
 import kcs.funding.fundingboost.payment.domain.PaymentIntentType;
 import lombok.RequiredArgsConstructor;
@@ -65,25 +68,26 @@ public class MyPayService {
 
     @Counted("MyPayService.myFundingPayView")
     public MyFundingPayViewDto myFundingPayView(Long fundingItemId, Long memberId) {
-        Optional<FundingItem> fundingItem = fundingItemRepository.findFundingItemByFundingItemId(fundingItemId);
+        FundingItem fundingItem = fundingItemRepository.findFundingItemByFundingItemId(fundingItemId)
+                .orElseThrow(() -> new CommonException(NOT_FOUND_FUNDING_ITEM));
 
         List<DeliveryDto> deliveryDtoList = deliveryRepository.findAllByMemberId(memberId)
                 .stream()
                 .map(DeliveryDto::fromEntity)
                 .toList();
         // 펀딩 아이템이 이미 배송지 입력이 완료되었거나 포인트로 전환 했거나 전여 금액 결제했을 경우
-        if (!fundingItem.get().isFinishedStatus()) {
+        if (!fundingItem.isFinishedStatus()) {
             throw new CommonException(INVALID_FUNDINGITEM_STATUS);
         }
         // 펀딩 진행중일 때
-        if (fundingItem.get().getFunding().getDeadline().isAfter(LocalDateTime.now())) {
+        if (fundingItem.getFunding().getDeadline().isAfter(LocalDateTime.now())) {
             throw new CommonException(ONGOING_FUNDING_ERROR);
         }
         // 로그인 한 사용자와 일치하는 지 확인
-        if (!fundingItem.get().getFunding().getMember().getMemberId().equals(memberId)) {
+        if (!fundingItem.getFunding().getMember().getMemberId().equals(memberId)) {
             throw new CommonException(BAD_REQUEST_PARAMETER);
         }
-        return MyFundingPayViewDto.fromEntity(fundingItem.get().getFunding(), deliveryDtoList);
+        return MyFundingPayViewDto.fromEntity(fundingItem.getFunding(), deliveryDtoList);
     }
 
     public MyOrderPayViewDto myOrderPayView(Long memberId) {
@@ -102,13 +106,19 @@ public class MyPayService {
     @Counted("MyPayService.payMyItem")
     @Transactional
     public CommonSuccessDto payMyItem(MyPayDto myPayDto, Long memberId) {
-        Member member = memberRepository.findById(memberId)
+        return payMyItem(myPayDto, memberId, null);
+    }
+
+    @Counted("MyPayService.payMyItem")
+    @Transactional
+    public CommonSuccessDto payMyItem(MyPayDto myPayDto, Long memberId, String idempotencyKey) {
+        Member member = memberRepository.findByIdForUpdate(memberId)
                 .orElseThrow(() -> new CommonException(NOT_FOUND_MEMBER));
 
         Delivery delivery = deliveryRepository.findById(myPayDto.deliveryId())
                 .orElseThrow(() -> new CommonException((NOT_FOUND_DELIVERY)));
 
-        if (delivery.getMember() != member) {
+        if (!Objects.equals(delivery.getMember().getMemberId(), member.getMemberId())) {
             throw new CommonException(BAD_REQUEST_PARAMETER);
         }
 
@@ -138,8 +148,7 @@ public class MyPayService {
                     return OrderItem.createOrderItem(order, item, quantity);
                 }).toList();
 
-        List<Long> giftHubIdList = myPayDto.itemPayDtoList().stream()
-                .map(ItemPayDto::giftHubId).toList();
+        List<Long> giftHubIdList = extractValidatedGiftHubItemIds(myPayDto.itemPayDtoList(), memberId);
 
         int pointUsedAmount = resolveApplicablePoint(member, requestedUsingPoint, order.getTotalPrice());
         int directPaidAmount = Math.max(order.getTotalPrice() - pointUsedAmount, 0);
@@ -147,16 +156,22 @@ public class MyPayService {
                 memberId,
                 PaymentIntentType.ORDER_CART,
                 null,
+                idempotencyKey,
                 order.getTotalPrice(),
                 pointUsedAmount,
                 directPaidAmount,
                 0
         );
+        if (isAlreadyProcessed(paymentExecutionResult.intentKey())) {
+            return CommonSuccessDto.fromEntity(true);
+        }
         PayUtils.deductPointsIfPossible(member, pointUsedAmount);
         order.applyPaymentBreakdown(pointUsedAmount, directPaidAmount, 0, null);
         order.linkPaymentIntentKey(paymentExecutionResult.intentKey());
 
-        giftHubItemRepository.deleteAllById(giftHubIdList);
+        if (!giftHubIdList.isEmpty()) {
+            giftHubItemRepository.deleteAllById(giftHubIdList);
+        }
         orderRepository.save(order);
         paymentIntentOrchestrator.attachOrderId(paymentExecutionResult.intentKey(), order.getOrderId());
         orderItemRepository.saveAll(orderItems);
@@ -167,13 +182,19 @@ public class MyPayService {
     @Counted("MyPayService.payMyItemNow")
     @Transactional
     public CommonSuccessDto payMyItemNow(ItemPayNowDto itemPayNowDto, Long memberId) {
-        Member member = memberRepository.findById(memberId)
+        return payMyItemNow(itemPayNowDto, memberId, null);
+    }
+
+    @Counted("MyPayService.payMyItemNow")
+    @Transactional
+    public CommonSuccessDto payMyItemNow(ItemPayNowDto itemPayNowDto, Long memberId, String idempotencyKey) {
+        Member member = memberRepository.findByIdForUpdate(memberId)
                 .orElseThrow(() -> new CommonException(NOT_FOUND_MEMBER));
 
         Delivery delivery = deliveryRepository.findById(itemPayNowDto.deliveryId())
                 .orElseThrow(() -> new CommonException((NOT_FOUND_DELIVERY)));
 
-        if (delivery.getMember() != member) {
+        if (!Objects.equals(delivery.getMember().getMemberId(), member.getMemberId())) {
             throw new CommonException(BAD_REQUEST_PARAMETER);
         }
 
@@ -191,11 +212,15 @@ public class MyPayService {
                 memberId,
                 PaymentIntentType.ORDER_NOW,
                 itemPayNowDto.itemId(),
+                idempotencyKey,
                 order.getTotalPrice(),
                 pointUsedAmount,
                 directPaidAmount,
                 0
         );
+        if (isAlreadyProcessed(paymentExecutionResult.intentKey())) {
+            return CommonSuccessDto.fromEntity(true);
+        }
         PayUtils.deductPointsIfPossible(member, pointUsedAmount);
         order.applyPaymentBreakdown(pointUsedAmount, directPaidAmount, 0, null);
         order.linkPaymentIntentKey(paymentExecutionResult.intentKey());
@@ -208,13 +233,27 @@ public class MyPayService {
     @Counted("MyPayService.payMyFunding")
     @Transactional
     public CommonSuccessDto payMyFunding(Long fundingItemId, PayRemainDto payRemainDto, Long memberId) {
-        FundingItem fundingItem = fundingItemRepository.findFundingItemAndItemByFundingItemId(fundingItemId);
-        Member member = memberRepository.findById(memberId)
+        return payMyFunding(fundingItemId, payRemainDto, memberId, null);
+    }
+
+    @Counted("MyPayService.payMyFunding")
+    @Transactional
+    public CommonSuccessDto payMyFunding(Long fundingItemId, PayRemainDto payRemainDto, Long memberId, String idempotencyKey) {
+        FundingItem fundingItem = Optional.ofNullable(fundingItemRepository.findFundingItemAndItemByFundingItemId(fundingItemId))
+                .orElseThrow(() -> new CommonException(NOT_FOUND_FUNDING_ITEM));
+        Member member = memberRepository.findByIdForUpdate(memberId)
                 .orElseThrow(() -> new CommonException(NOT_FOUND_MEMBER));
         Delivery delivery = deliveryRepository.findById(payRemainDto.deliveryId())
                 .orElseThrow(() -> new CommonException(NOT_FOUND_DELIVERY));
 
+        if (!Objects.equals(delivery.getMember().getMemberId(), member.getMemberId())) {
+            throw new CommonException(BAD_REQUEST_PARAMETER);
+        }
+
         if (!fundingItem.isFinishedStatus()) {
+            if (isAlreadyProcessedByIdempotencyKey(memberId, idempotencyKey)) {
+                return CommonSuccessDto.fromEntity(true);
+            }
             throw new CommonException(INVALID_FUNDINGITEM_STATUS);
         } else {
             fundingItem.finishFundingItem();
@@ -231,11 +270,15 @@ public class MyPayService {
                 memberId,
                 PaymentIntentType.FUNDING_REMAIN,
                 fundingItem.getFundingItemId(),
+                idempotencyKey,
                 order.getTotalPrice(),
                 pointUsedAmount,
                 directPaidAmount,
                 fundingSupportedAmount
         );
+        if (isAlreadyProcessed(paymentExecutionResult.intentKey())) {
+            return CommonSuccessDto.fromEntity(true);
+        }
         PayUtils.deductPointsIfPossible(member, pointUsedAmount);
         order.applyPaymentBreakdown(
                 pointUsedAmount,
@@ -268,6 +311,7 @@ public class MyPayService {
             Long memberId,
             PaymentIntentType paymentIntentType,
             Long referenceId,
+            String idempotencyKey,
             int totalAmount,
             int pointAmount,
             int pgAmount,
@@ -278,6 +322,7 @@ public class MyPayService {
                         memberId,
                         paymentIntentType,
                         referenceId,
+                        idempotencyKey,
                         totalAmount,
                         pointAmount,
                         pgAmount,
@@ -285,5 +330,36 @@ public class MyPayService {
                         "KRW"
                 )
         );
+    }
+
+    private boolean isAlreadyProcessed(String intentKey) {
+        return orderRepository.findByPaymentIntentKey(intentKey).isPresent();
+    }
+
+    private boolean isAlreadyProcessedByIdempotencyKey(Long memberId, String idempotencyKey) {
+        return paymentIntentKeyFromIdempotencyKey(idempotencyKey)
+                .flatMap(orderRepository::findByPaymentIntentKey)
+                .filter(order -> order.getMember().getMemberId().equals(memberId))
+                .isPresent();
+    }
+
+    private Optional<String> paymentIntentKeyFromIdempotencyKey(String idempotencyKey) {
+        return PaymentIntentKeyResolver.resolveFromIdempotencyKey(idempotencyKey);
+    }
+
+    private List<Long> extractValidatedGiftHubItemIds(List<ItemPayDto> itemPayDtoList, Long memberId) {
+        List<Long> giftHubItemIds = itemPayDtoList.stream()
+                .map(ItemPayDto::giftHubId)
+                .filter(Objects::nonNull)
+                .distinct()
+                .toList();
+        if (giftHubItemIds.isEmpty()) {
+            return giftHubItemIds;
+        }
+        long ownedCount = giftHubItemRepository.countByGiftHubItemIdInAndMember_MemberId(giftHubItemIds, memberId);
+        if (ownedCount != giftHubItemIds.size()) {
+            throw new CommonException(BAD_REQUEST_PARAMETER);
+        }
+        return giftHubItemIds;
     }
 }

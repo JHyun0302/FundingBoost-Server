@@ -11,6 +11,8 @@ import java.lang.annotation.Target;
 public @interface RedisLock {
     String key();
 
+    int argIndex() default -1;
+
     long expire() default 30000; // 기본 30초
 
     long waitTime() default 5000; // 기본 5초 대기 시간

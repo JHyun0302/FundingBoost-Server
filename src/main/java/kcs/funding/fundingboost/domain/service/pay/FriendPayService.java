@@ -121,11 +121,11 @@ public class FriendPayService {
     }
 
     @Counted("FriendPayService.fund")
-    @RedisLock(key = "lock")
+    @RedisLock(key = "lock:friend-funding", argIndex = 1)
     @Transactional
     public CommonSuccessDto fund(Long memberId, Long fundingId,
                                  FriendPayProcessDto friendPayProcessDto) {
-        Member member = memberRepository.findById(memberId)
+        Member member = memberRepository.findByIdForUpdate(memberId)
                 .orElseThrow(() -> new CommonException(NOT_FOUND_MEMBER));
         Funding funding = fundingRepository.findById(fundingId)
                 .orElseThrow(() -> new CommonException(NOT_FOUND_FUNDING));
@@ -138,7 +138,7 @@ public class FriendPayService {
     }
 
     @Counted("FriendPayService.fundWithBarcodeToken")
-    @RedisLock(key = "friend-pay-barcode-lock")
+    @RedisLock(key = "lock:friend-funding", argIndex = 1)
     @Transactional
     public CommonSuccessDto fundWithBarcodeToken(
             Long memberId,
@@ -161,7 +161,7 @@ public class FriendPayService {
             throw new CommonException(INVALID_ACCESS_URL);
         }
 
-        Member member = memberRepository.findById(memberId)
+        Member member = memberRepository.findByIdForUpdate(memberId)
                 .orElseThrow(() -> new CommonException(NOT_FOUND_MEMBER));
         Funding funding = fundingRepository.findById(fundingId)
                 .orElseThrow(() -> new CommonException(NOT_FOUND_FUNDING));

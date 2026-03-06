@@ -7,6 +7,7 @@ public record PaymentExecutionCommand(
         Long memberId,
         PaymentIntentType intentType,
         Long referenceId,
+        String idempotencyKey,
         int totalAmount,
         int pointAmount,
         int pgAmount,
@@ -26,4 +27,3 @@ public record PaymentExecutionCommand(
         }
     }
 }
-

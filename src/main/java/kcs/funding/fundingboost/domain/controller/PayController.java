@@ -22,6 +22,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
@@ -59,16 +60,24 @@ public class PayController {
      * 상품 구매하기
      */
     @PostMapping("/order")
-    public ResponseDto<CommonSuccessDto> payMyOrder(@Login Long memberId, @RequestBody MyPayDto paymentDto) {
-        return ResponseDto.ok(myPayService.payMyItem(paymentDto, memberId));
+    public ResponseDto<CommonSuccessDto> payMyOrder(
+            @Login Long memberId,
+            @RequestBody MyPayDto paymentDto,
+            @RequestHeader(value = "Idempotency-Key", required = false) String idempotencyKey
+    ) {
+        return ResponseDto.ok(myPayService.payMyItem(paymentDto, memberId, idempotencyKey));
     }
 
     /**
      * 상품 즉시 구매하기
      */
     @PostMapping("/order/now")
-    public ResponseDto<CommonSuccessDto> payMyOrderNow(@Login Long memberId, @RequestBody ItemPayNowDto itemPayNowDto) {
-        return ResponseDto.ok(myPayService.payMyItemNow(itemPayNowDto, memberId));
+    public ResponseDto<CommonSuccessDto> payMyOrderNow(
+            @Login Long memberId,
+            @RequestBody ItemPayNowDto itemPayNowDto,
+            @RequestHeader(value = "Idempotency-Key", required = false) String idempotencyKey
+    ) {
+        return ResponseDto.ok(myPayService.payMyItemNow(itemPayNowDto, memberId, idempotencyKey));
     }
 
     /**
@@ -77,8 +86,9 @@ public class PayController {
     @PostMapping("/funding/{fundingItemId}")
     public ResponseDto<CommonSuccessDto> payMyFunding(@Login Long memberId,
                                                       @PathVariable("fundingItemId") Long fundingItemId,
-                                                      @RequestBody PayRemainDto payRemainDto) {
-        return ResponseDto.ok(myPayService.payMyFunding(fundingItemId, payRemainDto, memberId));
+                                                      @RequestBody PayRemainDto payRemainDto,
+                                                      @RequestHeader(value = "Idempotency-Key", required = false) String idempotencyKey) {
+        return ResponseDto.ok(myPayService.payMyFunding(fundingItemId, payRemainDto, memberId, idempotencyKey));
     }
 
     /**
