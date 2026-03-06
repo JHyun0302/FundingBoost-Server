@@ -2,7 +2,6 @@ package kcs.funding.fundingboost.init;
 
 import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 import java.util.regex.Pattern;
 import lombok.RequiredArgsConstructor;
@@ -17,6 +16,8 @@ import org.springframework.stereotype.Component;
 @ConditionalOnProperty(prefix = "app.schema-comment", name = "enabled", havingValue = "true", matchIfMissing = true)
 public class SchemaCommentInitializer {
 
+    private static final String CURRENT_SCHEMA_ALIAS = "__current_schema__";
+    private static final String DEFAULT_APP_SCHEMA = "fundingboost";
     private static final Pattern IDENTIFIER_PATTERN = Pattern.compile("^[A-Za-z0-9_]+$");
     private static final Pattern CURRENT_TIMESTAMP_PATTERN =
             Pattern.compile("(?i)^CURRENT_TIMESTAMP(?:\\([0-9]+\\))?$");
@@ -26,15 +27,31 @@ public class SchemaCommentInitializer {
 
     @jakarta.annotation.PostConstruct
     public void applySchemaComments() {
+        String currentSchema = resolveCurrentSchema();
         COMMENT_SPECS.forEach((tableRef, spec) -> {
-            if (!tableExists(tableRef)) {
-                log.warn("skip schema comment bootstrap: missing table {}.{}", tableRef.schema(), tableRef.table());
+            TableRef resolvedTableRef = tableRef.resolve(currentSchema);
+            if (!tableExists(resolvedTableRef)) {
+                log.warn("skip schema comment bootstrap: missing table {}.{}", resolvedTableRef.schema(),
+                        resolvedTableRef.table());
                 return;
             }
-            applyTableComment(tableRef, spec.tableComment());
-            applyColumnComments(tableRef, spec.columnComments());
+            applyTableComment(resolvedTableRef, spec.tableComment());
+            applyColumnComments(resolvedTableRef, spec.columnComments());
         });
         log.info("schema comment bootstrap completed: {} table(s)", COMMENT_SPECS.size());
+    }
+
+    private String resolveCurrentSchema() {
+        try {
+            String schema = jdbcTemplate.queryForObject("SELECT DATABASE()", String.class);
+            if (schema == null || schema.isBlank()) {
+                return DEFAULT_APP_SCHEMA;
+            }
+            return validateIdentifier(schema);
+        } catch (Exception e) {
+            log.warn("failed to resolve current schema; fallback={}", DEFAULT_APP_SCHEMA, e);
+            return DEFAULT_APP_SCHEMA;
+        }
     }
 
     private boolean tableExists(TableRef tableRef) {
@@ -139,7 +156,7 @@ public class SchemaCommentInitializer {
         Map<TableRef, TableCommentSpec> specs = new LinkedHashMap<>();
 
         specs.put(
-                new TableRef("fundingboost", "bookmark"),
+                new TableRef(CURRENT_SCHEMA_ALIAS, "bookmark"),
                 new TableCommentSpec(
                         "회원 위시리스트(북마크) 테이블",
                         comments(
@@ -153,7 +170,7 @@ public class SchemaCommentInitializer {
         );
 
         specs.put(
-                new TableRef("fundingboost", "contributor"),
+                new TableRef(CURRENT_SCHEMA_ALIAS, "contributor"),
                 new TableCommentSpec(
                         "펀딩 참여(기여) 이력 테이블",
                         comments(
@@ -168,7 +185,7 @@ public class SchemaCommentInitializer {
         );
 
         specs.put(
-                new TableRef("fundingboost", "delivery"),
+                new TableRef(CURRENT_SCHEMA_ALIAS, "delivery"),
                 new TableCommentSpec(
                         "회원 배송지 정보 테이블",
                         comments(
@@ -186,7 +203,7 @@ public class SchemaCommentInitializer {
         );
 
         specs.put(
-                new TableRef("fundingboost", "friend_pay_barcode_token"),
+                new TableRef(CURRENT_SCHEMA_ALIAS, "friend_pay_barcode_token"),
                 new TableCommentSpec(
                         "친구 결제 바코드 토큰 테이블",
                         comments(
@@ -206,7 +223,7 @@ public class SchemaCommentInitializer {
         );
 
         specs.put(
-                new TableRef("fundingboost", "funding"),
+                new TableRef(CURRENT_SCHEMA_ALIAS, "funding"),
                 new TableCommentSpec(
                         "펀딩 본문 테이블",
                         comments(
@@ -226,7 +243,7 @@ public class SchemaCommentInitializer {
         );
 
         specs.put(
-                new TableRef("fundingboost", "funding_item"),
+                new TableRef(CURRENT_SCHEMA_ALIAS, "funding_item"),
                 new TableCommentSpec(
                         "펀딩 대상 상품 테이블",
                         comments(
@@ -243,7 +260,7 @@ public class SchemaCommentInitializer {
         );
 
         specs.put(
-                new TableRef("fundingboost", "gift_hub_item"),
+                new TableRef(CURRENT_SCHEMA_ALIAS, "gift_hub_item"),
                 new TableCommentSpec(
                         "장바구니(기프트허브) 상품 테이블",
                         comments(
@@ -258,7 +275,7 @@ public class SchemaCommentInitializer {
         );
 
         specs.put(
-                new TableRef("fundingboost", "member"),
+                new TableRef(CURRENT_SCHEMA_ALIAS, "member"),
                 new TableCommentSpec(
                         "회원 정보 테이블",
                         comments(
@@ -278,7 +295,7 @@ public class SchemaCommentInitializer {
         );
 
         specs.put(
-                new TableRef("fundingboost", "notice"),
+                new TableRef(CURRENT_SCHEMA_ALIAS, "notice"),
                 new TableCommentSpec(
                         "공지사항 테이블",
                         comments(
@@ -293,7 +310,7 @@ public class SchemaCommentInitializer {
         );
 
         specs.put(
-                new TableRef("fundingboost", "order_item"),
+                new TableRef(CURRENT_SCHEMA_ALIAS, "order_item"),
                 new TableCommentSpec(
                         "주문 상품 매핑 테이블",
                         comments(
@@ -306,7 +323,7 @@ public class SchemaCommentInitializer {
         );
 
         specs.put(
-                new TableRef("fundingboost", "orders"),
+                new TableRef(CURRENT_SCHEMA_ALIAS, "orders"),
                 new TableCommentSpec(
                         "주문 테이블",
                         comments(
@@ -326,7 +343,7 @@ public class SchemaCommentInitializer {
         );
 
         specs.put(
-                new TableRef("fundingboost", "relationship"),
+                new TableRef(CURRENT_SCHEMA_ALIAS, "relationship"),
                 new TableCommentSpec(
                         "회원 친구 관계 테이블",
                         comments(
@@ -340,7 +357,7 @@ public class SchemaCommentInitializer {
         );
 
         specs.put(
-                new TableRef("fundingboost", "review"),
+                new TableRef(CURRENT_SCHEMA_ALIAS, "review"),
                 new TableCommentSpec(
                         "상품 리뷰 테이블",
                         comments(
@@ -356,7 +373,7 @@ public class SchemaCommentInitializer {
         );
 
         specs.put(
-                new TableRef("fundingboost", "support_faq"),
+                new TableRef(CURRENT_SCHEMA_ALIAS, "support_faq"),
                 new TableCommentSpec(
                         "고객센터 FAQ 테이블",
                         comments(
@@ -427,8 +444,15 @@ public class SchemaCommentInitializer {
 
     private record TableRef(String schema, String table) {
         private TableRef {
-            schema = validateIdentifier(schema.toLowerCase(Locale.ROOT));
-            table = validateIdentifier(table.toLowerCase(Locale.ROOT));
+            schema = validateIdentifier(schema);
+            table = validateIdentifier(table);
+        }
+
+        private TableRef resolve(String currentSchema) {
+            if (CURRENT_SCHEMA_ALIAS.equals(schema)) {
+                return new TableRef(currentSchema, table);
+            }
+            return this;
         }
     }
 
