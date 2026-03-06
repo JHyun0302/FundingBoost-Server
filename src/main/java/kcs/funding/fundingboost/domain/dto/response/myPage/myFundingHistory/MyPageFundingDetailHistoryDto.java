@@ -28,7 +28,7 @@ public record MyPageFundingDetailHistoryDto(
                 .status(funding.getFundingItems().get(0).getFunding().isFundingStatus())
                 .contributorCount(contributor)
                 .fundingPercent(fundingPercent)
-                .tag(funding.getTag().getDisplayName())
+                .tag(funding.getDisplayTag())
                 .build();
     }
 }

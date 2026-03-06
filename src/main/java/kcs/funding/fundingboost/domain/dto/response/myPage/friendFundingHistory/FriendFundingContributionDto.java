@@ -29,7 +29,7 @@ public record FriendFundingContributionDto(Long friendMemberId,
                 .nickname(friendFunding.getMember().getNickName())
                 .price(contributor.getContributorPrice())
                 .friendProfileImg(friendFunding.getMember().getProfileImgUrl())
-                .tag(friendFunding.getTag().getDisplayName())
+                .tag(friendFunding.getDisplayTag())
                 .createdDate(friendFunding.getCreatedDate().format(DateTimeFormatter.ofPattern("yyyy-MM-dd")))
                 .itemImageUrl(fundingItem != null ? fundingItem.getItem().getItemImageUrl() : "")
                 .itemName(fundingItem != null ? fundingItem.getItem().getItemName() : "")

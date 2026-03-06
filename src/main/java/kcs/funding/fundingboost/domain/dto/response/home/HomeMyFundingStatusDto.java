@@ -19,7 +19,7 @@ public record HomeMyFundingStatusDto(Long fundingId,
                 .fundingId(funding.getFundingId())
                 .deadline(deadline)
                 .totalPercent(totalPercent)
-                .tag(funding.getTag().getDisplayName())
+                .tag(funding.getDisplayTag())
                 .homeMyFundingItemDtoList(homeMyFundingItemDtoList)
                 .build();
     }

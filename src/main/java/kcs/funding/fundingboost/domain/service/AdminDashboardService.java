@@ -254,7 +254,7 @@ public class AdminDashboardService {
                 funding.getFundingId(),
                 funding.getMember().getNickName(),
                 funding.getMember().getProfileImgUrl(),
-                funding.getTag() == null ? "-" : funding.getTag().getDisplayName(),
+                funding.getDisplayTag(),
                 totalPrice,
                 collectPrice,
                 progressPercent,

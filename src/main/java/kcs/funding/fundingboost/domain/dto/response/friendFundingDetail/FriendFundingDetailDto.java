@@ -23,7 +23,7 @@ public record FriendFundingDetailDto(List<FriendFundingItemDto> friendFundingIte
                 .friendFundingItemList(friendFundingItemList)
                 .friendName(funding.getMember().getNickName())
                 .friendProfileImgUrl(funding.getMember().getProfileImgUrl())
-                .fundingTag(funding.getTag().getDisplayName())
+                .fundingTag(funding.getDisplayTag())
                 .fundingMessage(funding.getMessage())
                 .contributorList(contributorList)
                 .deadline(funding.getDeadline().format(DateTimeFormatter.ofPattern("yyyy-MM-dd")))

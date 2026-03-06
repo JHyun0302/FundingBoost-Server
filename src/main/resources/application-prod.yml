@@ -25,6 +25,13 @@ spring:
       default_batch_fetch_size: 100
     open-in-view: false
 
+app:
+  payment:
+    schema-name: ${PAYMENT_DB_NAME:payment}
+    schema-bootstrap-enabled: ${PAYMENT_SCHEMA_BOOTSTRAP_ENABLED:true}
+    mock-pg:
+      provider: ${PAYMENT_MOCK_PROVIDER:MOCK-PG}
+      force-fail: ${PAYMENT_MOCK_FORCE_FAIL:false}
 
 logging:
   level:

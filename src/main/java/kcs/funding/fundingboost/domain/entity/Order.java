@@ -48,6 +48,9 @@ public class Order extends BaseTimeEntity {
     @Column(name = "source_funding_id")
     private Long sourceFundingId;
 
+    @Column(name = "payment_intent_key", length = 80)
+    private String paymentIntentKey;
+
 
     @ManyToOne(fetch = LAZY)
     @JoinColumn(name = "member_id")
@@ -67,6 +70,7 @@ public class Order extends BaseTimeEntity {
         order.directPaidAmount = 0;
         order.fundingSupportedAmount = 0;
         order.sourceFundingId = null;
+        order.paymentIntentKey = null;
         order.member = member;
         order.delivery = delivery;
         return order;
@@ -82,5 +86,9 @@ public class Order extends BaseTimeEntity {
         this.directPaidAmount = Math.max(directPaidAmount, 0);
         this.fundingSupportedAmount = Math.max(fundingSupportedAmount, 0);
         this.sourceFundingId = sourceFundingId;
+    }
+
+    public void linkPaymentIntentKey(String paymentIntentKey) {
+        this.paymentIntentKey = paymentIntentKey;
     }
 }

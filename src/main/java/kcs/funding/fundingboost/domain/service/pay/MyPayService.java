@@ -38,6 +38,10 @@ import kcs.funding.fundingboost.domain.repository.giftHubItem.GiftHubItemReposit
 import kcs.funding.fundingboost.domain.repository.item.ItemRepository;
 import kcs.funding.fundingboost.domain.repository.orderItem.OrderItemRepository;
 import kcs.funding.fundingboost.domain.service.utils.PayUtils;
+import kcs.funding.fundingboost.payment.application.PaymentExecutionCommand;
+import kcs.funding.fundingboost.payment.application.PaymentExecutionResult;
+import kcs.funding.fundingboost.payment.application.PaymentIntentOrchestrator;
+import kcs.funding.fundingboost.payment.domain.PaymentIntentType;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -57,6 +61,7 @@ public class MyPayService {
     private final OrderRepository orderRepository;
     private final OrderItemRepository orderItemRepository;
     private final GiftHubItemRepository giftHubItemRepository;
+    private final PaymentIntentOrchestrator paymentIntentOrchestrator;
 
     @Counted("MyPayService.myFundingPayView")
     public MyFundingPayViewDto myFundingPayView(Long fundingItemId, Long memberId) {
@@ -110,8 +115,7 @@ public class MyPayService {
         if (myPayDto.itemPayDtoList().isEmpty()) {
             throw new CommonException(BAD_REQUEST_PARAMETER);
         }
-
-        PayUtils.deductPointsIfPossible(member, myPayDto.usingPoint());
+        int requestedUsingPoint = sanitizeUsingPoint(myPayDto.usingPoint());
 
         List<Long> itemIds = myPayDto.itemPayDtoList().stream()
                 .map(ItemPayDto::itemId)
@@ -137,12 +141,24 @@ public class MyPayService {
         List<Long> giftHubIdList = myPayDto.itemPayDtoList().stream()
                 .map(ItemPayDto::giftHubId).toList();
 
-        int pointUsedAmount = Math.min(Math.max(myPayDto.usingPoint(), 0), order.getTotalPrice());
+        int pointUsedAmount = resolveApplicablePoint(member, requestedUsingPoint, order.getTotalPrice());
         int directPaidAmount = Math.max(order.getTotalPrice() - pointUsedAmount, 0);
+        PaymentExecutionResult paymentExecutionResult = executePayment(
+                memberId,
+                PaymentIntentType.ORDER_CART,
+                null,
+                order.getTotalPrice(),
+                pointUsedAmount,
+                directPaidAmount,
+                0
+        );
+        PayUtils.deductPointsIfPossible(member, pointUsedAmount);
         order.applyPaymentBreakdown(pointUsedAmount, directPaidAmount, 0, null);
+        order.linkPaymentIntentKey(paymentExecutionResult.intentKey());
 
         giftHubItemRepository.deleteAllById(giftHubIdList);
-		orderRepository.save(order);
+        orderRepository.save(order);
+        paymentIntentOrchestrator.attachOrderId(paymentExecutionResult.intentKey(), order.getOrderId());
         orderItemRepository.saveAll(orderItems);
 
         return CommonSuccessDto.fromEntity(true);
@@ -164,16 +180,27 @@ public class MyPayService {
         if (itemPayNowDto.quantity() == 0) {
             throw new CommonException(INVALID_ITEM_QUANTITY);
         }
-
-        PayUtils.deductPointsIfPossible(member, itemPayNowDto.usingPoint());
+        int requestedUsingPoint = sanitizeUsingPoint(itemPayNowDto.usingPoint());
         Item item = itemRepository.findById(itemPayNowDto.itemId()).orElseThrow(
                 () -> new CommonException(NOT_FOUND_ITEM));
         Order order = Order.createOrder(member, delivery);
         OrderItem orderItem = OrderItem.createOrderItem(order, item, itemPayNowDto.quantity());
-        int pointUsedAmount = Math.min(Math.max(itemPayNowDto.usingPoint(), 0), order.getTotalPrice());
+        int pointUsedAmount = resolveApplicablePoint(member, requestedUsingPoint, order.getTotalPrice());
         int directPaidAmount = Math.max(order.getTotalPrice() - pointUsedAmount, 0);
+        PaymentExecutionResult paymentExecutionResult = executePayment(
+                memberId,
+                PaymentIntentType.ORDER_NOW,
+                itemPayNowDto.itemId(),
+                order.getTotalPrice(),
+                pointUsedAmount,
+                directPaidAmount,
+                0
+        );
+        PayUtils.deductPointsIfPossible(member, pointUsedAmount);
         order.applyPaymentBreakdown(pointUsedAmount, directPaidAmount, 0, null);
+        order.linkPaymentIntentKey(paymentExecutionResult.intentKey());
         orderRepository.save(order);
+        paymentIntentOrchestrator.attachOrderId(paymentExecutionResult.intentKey(), order.getOrderId());
         orderItemRepository.save(orderItem);
         return CommonSuccessDto.fromEntity(true);
     }
@@ -192,23 +219,71 @@ public class MyPayService {
         } else {
             fundingItem.finishFundingItem();
         }
-
-        PayUtils.deductPointsIfPossible(member, payRemainDto.usingPoint());
+        int requestedUsingPoint = sanitizeUsingPoint(payRemainDto.usingPoint());
 
         Order order = Order.createOrder(member, delivery);
         OrderItem orderItem = OrderItem.createOrderItem(order, fundingItem.getItem(), 1);
-        int pointUsedAmount = Math.min(Math.max(payRemainDto.usingPoint(), 0), order.getTotalPrice());
         int fundingSupportedAmount = Math.min(fundingItem.getFunding().getCollectPrice(), order.getTotalPrice());
-        int directPaidAmount = Math.max(order.getTotalPrice() - pointUsedAmount - fundingSupportedAmount, 0);
+        int payableAfterFundingAmount = Math.max(order.getTotalPrice() - fundingSupportedAmount, 0);
+        int pointUsedAmount = resolveApplicablePoint(member, requestedUsingPoint, payableAfterFundingAmount);
+        int directPaidAmount = Math.max(payableAfterFundingAmount - pointUsedAmount, 0);
+        PaymentExecutionResult paymentExecutionResult = executePayment(
+                memberId,
+                PaymentIntentType.FUNDING_REMAIN,
+                fundingItem.getFundingItemId(),
+                order.getTotalPrice(),
+                pointUsedAmount,
+                directPaidAmount,
+                fundingSupportedAmount
+        );
+        PayUtils.deductPointsIfPossible(member, pointUsedAmount);
         order.applyPaymentBreakdown(
                 pointUsedAmount,
                 directPaidAmount,
                 fundingSupportedAmount,
                 fundingItem.getFunding().getFundingId()
         );
+        order.linkPaymentIntentKey(paymentExecutionResult.intentKey());
         orderRepository.save(order);
+        paymentIntentOrchestrator.attachOrderId(paymentExecutionResult.intentKey(), order.getOrderId());
         orderItemRepository.save(orderItem);
 
         return CommonSuccessDto.fromEntity(true);
+    }
+
+    private int sanitizeUsingPoint(int requestedPoint) {
+        if (requestedPoint < 0) {
+            throw new CommonException(BAD_REQUEST_PARAMETER);
+        }
+        return requestedPoint;
+    }
+
+    private int resolveApplicablePoint(Member member, int requestedPoint, int payableAmount) {
+        int safePayableAmount = Math.max(payableAmount, 0);
+        int safeMemberPoint = Math.max(member.getPoint(), 0);
+        return Math.min(Math.min(requestedPoint, safeMemberPoint), safePayableAmount);
+    }
+
+    private PaymentExecutionResult executePayment(
+            Long memberId,
+            PaymentIntentType paymentIntentType,
+            Long referenceId,
+            int totalAmount,
+            int pointAmount,
+            int pgAmount,
+            int fundingSupportedAmount
+    ) {
+        return paymentIntentOrchestrator.execute(
+                new PaymentExecutionCommand(
+                        memberId,
+                        paymentIntentType,
+                        referenceId,
+                        totalAmount,
+                        pointAmount,
+                        pgAmount,
+                        fundingSupportedAmount,
+                        "KRW"
+                )
+        );
     }
 }

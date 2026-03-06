@@ -91,10 +91,18 @@ public class FundingService {
 
         Member member = memberRepository.findById(memberId).orElseThrow(() -> new CommonException(NOT_FOUND_MEMBER));
 
+        String normalizedTag = Tag.normalizeRawTag(registerFundingDto.tag());
+        Tag resolvedTag = Tag.resolveOrCustom(normalizedTag);
+        String customTag = null;
+        if (resolvedTag == Tag.CUSTOM) {
+            customTag = normalizedTag.length() > 20 ? normalizedTag.substring(0, 20) : normalizedTag;
+        }
+
         Funding funding = Funding.createFunding(
                 member,
                 registerFundingDto.fundingMessage(),
-                Tag.getTag(registerFundingDto.tag()),
+                resolvedTag,
+                customTag,
                 registerFundingDto.deadline().atTime(23, 59, 59));
 
         fundingRepository.save(funding);
@@ -322,7 +330,7 @@ public class FundingService {
                     totalPercent,
                     funding.getDeadline().format(DateTimeFormatter.ofPattern("yyyy-MM-dd")),
                     deadlineDate,
-                    funding.getTag().getDisplayName(),
+                    funding.getDisplayTag(),
                     funding.getMessage()
             );
         }

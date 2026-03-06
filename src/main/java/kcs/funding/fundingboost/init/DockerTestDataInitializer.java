@@ -54,12 +54,13 @@ public class DockerTestDataInitializer {
     private static final String QA_PASSWORD = "Test1234!";
     private static final String ADMIN_SEED_EMAIL = "qa1@fundingboost.test";
     private static final long RANDOM_SEED = 20260228L;
+    private static final int DEFAULT_SEED_POINT = 50_000;
     private static final List<SeedMemberDefinition> SEED_MEMBERS = List.of(
-            new SeedMemberDefinition("마리오", "qa1@fundingboost.test", MemberGender.MAN, "seed_qa1", "/test-members/mario.png"),
-            new SeedMemberDefinition("루이지", "qa2@fundingboost.test", MemberGender.MAN, "seed_qa2", "/test-members/luigi.png"),
-            new SeedMemberDefinition("피치공주", "qa3@fundingboost.test", MemberGender.WOMAN, "seed_qa3", "/test-members/princess-peach.png"),
-            new SeedMemberDefinition("키노피오", "qa4@fundingboost.test", MemberGender.MAN, "seed_qa4", "/test-members/toad.png"),
-            new SeedMemberDefinition("요시", "qa5@fundingboost.test", MemberGender.WOMAN, "seed_qa5", "/test-members/yoshi.png")
+            new SeedMemberDefinition("마리오", "qa1@fundingboost.test", 100_000, MemberGender.MAN, "seed_qa1", "/test-members/mario.png"),
+            new SeedMemberDefinition("루이지", "qa2@fundingboost.test", 100_000, MemberGender.MAN, "seed_qa2", "/test-members/luigi.png"),
+            new SeedMemberDefinition("피치공주", "qa3@fundingboost.test", DEFAULT_SEED_POINT, MemberGender.WOMAN, "seed_qa3", "/test-members/princess-peach.png"),
+            new SeedMemberDefinition("키노피오", "qa4@fundingboost.test", DEFAULT_SEED_POINT, MemberGender.MAN, "seed_qa4", "/test-members/toad.png"),
+            new SeedMemberDefinition("요시", "qa5@fundingboost.test", DEFAULT_SEED_POINT, MemberGender.WOMAN, "seed_qa5", "/test-members/yoshi.png")
     );
     private static final List<Tag> FUNDING_TAGS = List.of(
             Tag.BIRTHDAY, Tag.GRADUATE, Tag.ETC, Tag.BIRTHDAY, Tag.ETC
@@ -157,7 +158,7 @@ public class DockerTestDataInitializer {
                     seedMember.email(),
                     encodedPassword,
                     seedMember.profileImgUrl(),
-                    50_000,
+                    seedMember.initialPoint(),
                     seedMember.kakaoId(),
                     seedMember.gender()
             );
@@ -579,6 +580,7 @@ public class DockerTestDataInitializer {
     private record SeedMemberDefinition(
             String name,
             String email,
+            int initialPoint,
             MemberGender gender,
             String kakaoId,
             String profileImgUrl

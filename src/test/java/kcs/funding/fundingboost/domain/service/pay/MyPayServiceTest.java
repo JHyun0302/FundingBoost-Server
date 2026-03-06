@@ -13,6 +13,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -50,10 +51,15 @@ import kcs.funding.fundingboost.domain.repository.fundingItem.FundingItemReposit
 import kcs.funding.fundingboost.domain.repository.giftHubItem.GiftHubItemRepository;
 import kcs.funding.fundingboost.domain.repository.item.ItemRepository;
 import kcs.funding.fundingboost.domain.repository.orderItem.OrderItemRepository;
+import kcs.funding.fundingboost.payment.application.PaymentExecutionCommand;
+import kcs.funding.fundingboost.payment.application.PaymentExecutionResult;
+import kcs.funding.fundingboost.payment.application.PaymentIntentOrchestrator;
+import kcs.funding.fundingboost.payment.domain.PaymentIntentStatus;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -80,6 +86,9 @@ class MyPayServiceTest {
 
     @Mock
     private OrderItemRepository orderItemRepository;
+
+    @Mock
+    private PaymentIntentOrchestrator paymentIntentOrchestrator;
 
     @InjectMocks
     private MyPayService myPayService;
@@ -117,6 +126,13 @@ class MyPayServiceTest {
         delivery1 = DeliveryFixture.address1(member1);
         delivery2 = DeliveryFixture.address1(member2);
         giftHubItem = GiftHubItemFixture.quantity1(item1, member1);
+        lenient().when(paymentIntentOrchestrator.execute(any(PaymentExecutionCommand.class)))
+                .thenReturn(new PaymentExecutionResult(
+                        "pi_test_key",
+                        PaymentIntentStatus.CAPTURED,
+                        "MOCK-PG",
+                        "mock_tx_1"
+                ));
     }
 
     @DisplayName("마이 페이 펀딩 페이지 조회 펀딩 종료된 펀딩 아이템에 대해서 배송지 입력하기, 전여 금액 결제하기 성공")
@@ -255,6 +271,59 @@ class MyPayServiceTest {
                 .deleteAllById(myPayDto.itemPayDtoList().stream().map(ItemPayDto::giftHubId).toList());
         verify(orderItemRepository, times(1)).saveAll(any(List.class));
         verify(orderRepository, times(1)).save(any(Order.class));
+    }
+
+    @DisplayName("상품 구매하기 성공 : 요청 포인트가 보유 포인트를 넘어도 보유 포인트까지만 사용하고 나머지는 직접 결제한다")
+    @Test
+    void payMyItem_Success_UsingPointOverMemberPointFallsBackToDirectPay() {
+        //given
+        List<Item> expectedItems = List.of(item1, item2);
+        List<ItemPayDto> itemPayDtoList = List.of(
+                new ItemPayDto(item1.getItemId(), giftHubItem.getGiftHubItemId(), 1),
+                new ItemPayDto(item2.getItemId(), giftHubItem.getGiftHubItemId(), 1));
+        Long deliveryId = delivery1.getDeliveryId();
+        int usingPoint = member1.getPoint() + 100_000;
+        MyPayDto myPayDto = new MyPayDto(itemPayDtoList, deliveryId, usingPoint);
+
+        List<Long> itemIds = myPayDto.itemPayDtoList().stream()
+                .map(ItemPayDto::itemId)
+                .toList();
+        when(memberRepository.findById(member1.getMemberId())).thenReturn(Optional.of(member1));
+        when(deliveryRepository.findById(delivery1.getDeliveryId())).thenReturn(Optional.of(delivery1));
+        when(itemRepository.findItemsByItemIds(itemIds)).thenReturn(expectedItems);
+
+        //when
+        CommonSuccessDto result = myPayService.payMyItem(myPayDto, member1.getMemberId());
+
+        //then
+        assertTrue(result.isSuccess());
+        ArgumentCaptor<Order> orderCaptor = ArgumentCaptor.forClass(Order.class);
+        verify(orderRepository, times(1)).save(orderCaptor.capture());
+        Order savedOrder = orderCaptor.getValue();
+
+        assertEquals(112000, savedOrder.getTotalPrice());
+        assertEquals(46000, savedOrder.getPointUsedAmount());
+        assertEquals(66000, savedOrder.getDirectPaidAmount());
+        assertEquals(0, member1.getPoint());
+    }
+
+    @DisplayName("상품 구매하기 실패 : 음수 포인트 요청은 허용하지 않는다")
+    @Test
+    void payMyItem_Fail_NegativeUsingPoint() {
+        //given
+        List<ItemPayDto> itemPayDtoList = List.of(
+                new ItemPayDto(item1.getItemId(), giftHubItem.getGiftHubItemId(), giftHubItem.getQuantity()));
+        Long deliveryId = delivery1.getDeliveryId();
+        MyPayDto myPayDto = new MyPayDto(itemPayDtoList, deliveryId, -1);
+        when(memberRepository.findById(member1.getMemberId())).thenReturn(Optional.of(member1));
+        when(deliveryRepository.findById(delivery1.getDeliveryId())).thenReturn(Optional.of(delivery1));
+
+        //when
+        CommonException exception = assertThrows(CommonException.class,
+                () -> myPayService.payMyItem(myPayDto, member1.getMemberId()));
+
+        //then
+        assertEquals(BAD_REQUEST_PARAMETER.getMessage(), exception.getMessage());
     }
 
     @DisplayName("상품 구매하기 실패 : 유저가 존재하지 않는 경우")
@@ -420,6 +489,31 @@ class MyPayServiceTest {
         verify(orderItemRepository, times(1)).save(any(OrderItem.class));
     }
 
+    @DisplayName("상품 즉시 구매하기 성공 : 요청 포인트가 보유 포인트보다 크면 보유 포인트까지만 사용한다")
+    @Test
+    void payMyItemNow_Success_UsingPointOverMemberPointFallsBackToDirectPay() {
+        //given
+        Long deliveryId = delivery1.getDeliveryId();
+        int usingPoint = member1.getPoint() + 5000;
+        ItemPayNowDto itemPayNowDto = new ItemPayNowDto(item1.getItemId(), 1, deliveryId, usingPoint);
+        when(memberRepository.findById(member1.getMemberId())).thenReturn(Optional.of(member1));
+        when(deliveryRepository.findById(delivery1.getDeliveryId())).thenReturn(Optional.of(delivery1));
+        when(itemRepository.findById(item1.getItemId())).thenReturn(Optional.of(item1));
+
+        //when
+        CommonSuccessDto result = myPayService.payMyItemNow(itemPayNowDto, member1.getMemberId());
+
+        //then
+        assertTrue(result.isSuccess());
+        ArgumentCaptor<Order> orderCaptor = ArgumentCaptor.forClass(Order.class);
+        verify(orderRepository, times(1)).save(orderCaptor.capture());
+        Order savedOrder = orderCaptor.getValue();
+
+        assertEquals(61000, savedOrder.getTotalPrice());
+        assertEquals(46000, savedOrder.getPointUsedAmount());
+        assertEquals(15000, savedOrder.getDirectPaidAmount());
+    }
+
     @DisplayName("상품 즉시 구매하기 실패 : 유저가 존재하지 않는 경우")
     @Test
     void payMyItemNow_Fail_MemberNotFound() {
@@ -519,6 +613,34 @@ class MyPayServiceTest {
         verify(deliveryRepository, times(1)).findById(payRemainDto.deliveryId());
         verify(orderRepository, times(1)).save(any(Order.class));
         verify(orderItemRepository, times(1)).save(any(OrderItem.class));
+    }
+
+    @DisplayName("펀딩 상품 구매하기 성공 : 포인트는 펀딩 지원금 제외한 잔여금에서만 차감한다")
+    @Test
+    void payMyFunding_Success_UsePointOnlyOnRemainingAmountAfterFundingSupport() {
+        //given
+        Long deliveryId = delivery1.getDeliveryId();
+        int usingPoint = 30000;
+        PayRemainDto payRemainDto = new PayRemainDto(usingPoint, deliveryId);
+        when(fundingItemRepository.findFundingItemAndItemByFundingItemId(fundingItem1.getFundingItemId())).thenReturn(
+                fundingItem1);
+        when(memberRepository.findById(member1.getMemberId())).thenReturn(Optional.of(member1));
+        when(deliveryRepository.findById(delivery1.getDeliveryId())).thenReturn(Optional.of(delivery1));
+
+        //when
+        CommonSuccessDto result = myPayService.payMyFunding(fundingItem1.getFundingItemId(), payRemainDto,
+                member1.getMemberId());
+
+        //then
+        assertTrue(result.isSuccess());
+        ArgumentCaptor<Order> orderCaptor = ArgumentCaptor.forClass(Order.class);
+        verify(orderRepository, times(1)).save(orderCaptor.capture());
+        Order savedOrder = orderCaptor.getValue();
+
+        assertEquals(61000, savedOrder.getTotalPrice());
+        assertEquals(50000, savedOrder.getFundingSupportedAmount());
+        assertEquals(11000, savedOrder.getPointUsedAmount());
+        assertEquals(0, savedOrder.getDirectPaidAmount());
     }
 
     @DisplayName("펀딩 상품 구매하기 실패 : 유저가 존재하지 않는 경우")

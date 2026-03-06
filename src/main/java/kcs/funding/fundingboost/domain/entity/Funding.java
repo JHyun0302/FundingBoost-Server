@@ -53,6 +53,9 @@ public class Funding extends BaseTimeEntity {
     @Enumerated(EnumType.STRING)
     private Tag tag;
 
+    @Column(name = "custom_tag", length = 20)
+    private String customTag;
+
     @NotNull
     @Column(name = "total_price")
     private int totalPrice;
@@ -96,12 +99,32 @@ public class Funding extends BaseTimeEntity {
         this.collectPrice += fundedPoint;
     }
 
+    public String getDisplayTag() {
+        if (tag == null) {
+            return "-";
+        }
+        if (tag == Tag.CUSTOM && customTag != null && !customTag.isBlank()) {
+            return "#" + customTag;
+        }
+        if (tag == Tag.CUSTOM) {
+            return Tag.ETC.getDisplayName();
+        }
+        return tag.getDisplayName();
+    }
+
     public static Funding createFunding(Member member, String message, Tag tag,
+                                        LocalDateTime deadline) {
+        return createFunding(member, message, tag, null, deadline);
+    }
+
+    public static Funding createFunding(Member member, String message, Tag tag,
+                                        String customTag,
                                         LocalDateTime deadline) {
         Funding funding = new Funding();
         funding.member = member;
         funding.message = message;
         funding.tag = tag;
+        funding.customTag = customTag;
         funding.totalPrice = 0;
         funding.collectPrice = 0;
         funding.deadline = deadline;
@@ -112,10 +135,17 @@ public class Funding extends BaseTimeEntity {
     public static Funding createFundingForTest(Member member, String message, Tag tag, int collectPrice,
                                                LocalDateTime deadline,
                                                boolean fundingStatus) {
+        return createFundingForTest(member, message, tag, null, collectPrice, deadline, fundingStatus);
+    }
+
+    public static Funding createFundingForTest(Member member, String message, Tag tag, String customTag, int collectPrice,
+                                               LocalDateTime deadline,
+                                               boolean fundingStatus) {
         Funding funding = new Funding();
         funding.member = member;
         funding.message = message;
         funding.tag = tag;
+        funding.customTag = customTag;
         funding.totalPrice = 0;
         funding.collectPrice = collectPrice;
         funding.deadline = deadline;
