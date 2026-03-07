@@ -18,6 +18,8 @@ public class SchemaCommentInitializer {
 
     private static final String CURRENT_SCHEMA_ALIAS = "__current_schema__";
     private static final String DEFAULT_APP_SCHEMA = "fundingboost";
+    private static final String ORDERS_PAYMENT_INTENT_UNIQUE_INDEX = "uk_orders_payment_intent_key";
+    private static final String ORDERS_PAYMENT_INTENT_COLUMN = "payment_intent_key";
     private static final Pattern IDENTIFIER_PATTERN = Pattern.compile("^[A-Za-z0-9_]+$");
     private static final Pattern CURRENT_TIMESTAMP_PATTERN =
             Pattern.compile("(?i)^CURRENT_TIMESTAMP(?:\\([0-9]+\\))?$");
@@ -38,6 +40,7 @@ public class SchemaCommentInitializer {
             applyTableComment(resolvedTableRef, spec.tableComment());
             applyColumnComments(resolvedTableRef, spec.columnComments());
         });
+        ensureUniqueIndexes(currentSchema);
         log.info("schema comment bootstrap completed: {} table(s)", COMMENT_SPECS.size());
     }
 
@@ -98,6 +101,56 @@ public class SchemaCommentInitializer {
             );
             jdbcTemplate.execute(sql);
         });
+    }
+
+    private void ensureUniqueIndexes(String currentSchema) {
+        TableRef orders = new TableRef(currentSchema, "orders");
+        if (!tableExists(orders)) {
+            return;
+        }
+        ensureUniqueIndex(
+                orders,
+                ORDERS_PAYMENT_INTENT_UNIQUE_INDEX,
+                ORDERS_PAYMENT_INTENT_COLUMN
+        );
+    }
+
+    private void ensureUniqueIndex(TableRef tableRef, String indexName, String columnName) {
+        if (uniqueIndexOnColumnExists(tableRef, columnName)) {
+            return;
+        }
+
+        String sql = """
+                ALTER TABLE `%s`.`%s`
+                ADD UNIQUE INDEX `%s` (`%s`)
+                """.formatted(
+                tableRef.schema(),
+                tableRef.table(),
+                validateIdentifier(indexName),
+                validateIdentifier(columnName)
+        );
+        jdbcTemplate.execute(sql);
+        log.info("added unique index {} on {}.{}({})",
+                indexName, tableRef.schema(), tableRef.table(), columnName);
+    }
+
+    private boolean uniqueIndexOnColumnExists(TableRef tableRef, String columnName) {
+        Integer count = jdbcTemplate.queryForObject(
+                """
+                        SELECT COUNT(*)
+                        FROM information_schema.STATISTICS
+                        WHERE TABLE_SCHEMA = ?
+                          AND TABLE_NAME = ?
+                          AND COLUMN_NAME = ?
+                          AND NON_UNIQUE = 0
+                          AND INDEX_NAME <> 'PRIMARY'
+                        """,
+                Integer.class,
+                tableRef.schema(),
+                tableRef.table(),
+                validateIdentifier(columnName)
+        );
+        return count != null && count > 0;
     }
 
     private ColumnMeta loadColumnMeta(TableRef tableRef, String columnName) {
