@@ -45,11 +45,19 @@ public class GiftHubItem extends BaseTimeEntity {
     @OnDelete(action = OnDeleteAction.CASCADE)
     private Member member;
 
+    @Column(name = "option_name", length = 500)
+    private String optionName;
+
     public static GiftHubItem createGiftHubItem(int quantity, Item item, Member member) {
+        return createGiftHubItem(quantity, item, member, item.getOptionName());
+    }
+
+    public static GiftHubItem createGiftHubItem(int quantity, Item item, Member member, String optionName) {
         GiftHubItem giftHubItem = new GiftHubItem();
         giftHubItem.quantity = quantity;
         giftHubItem.item = item;
         giftHubItem.member = member;
+        giftHubItem.optionName = optionName;
         return giftHubItem;
     }
 

@@ -36,7 +36,7 @@ public record OrderHistoryDetailDto(
                 .itemId(orderItem.getItem().getItemId())
                 .itemName(orderItem.getItem().getItemName())
                 .itemImageUrl(orderItem.getItem().getItemImageUrl())
-                .optionName(orderItem.getItem().getOptionName())
+                .optionName(resolveOptionName(orderItem))
                 .quantity(orderItem.getQuantity())
                 .totalPrice(orderItem.getItem().getItemPrice() * orderItem.getQuantity())
                 .createdDate(orderItem.getOrder().getCreatedDate().format(DateTimeFormatter.ofPattern("yyyy-MM-dd")))
@@ -51,5 +51,12 @@ public record OrderHistoryDetailDto(
                 .deliveryMemo(orderItem.getOrder().getDelivery().getDeliveryMemo())
                 .contributors(contributors)
                 .build();
+    }
+
+    private static String resolveOptionName(OrderItem orderItem) {
+        if (orderItem.getOptionName() != null && !orderItem.getOptionName().isBlank()) {
+            return orderItem.getOptionName();
+        }
+        return orderItem.getItem().getOptionName();
     }
 }

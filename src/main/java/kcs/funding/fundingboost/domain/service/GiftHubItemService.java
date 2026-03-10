@@ -59,7 +59,12 @@ public class GiftHubItemService {
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new CommonException(NOT_FOUND_MEMBER));
 
-        GiftHubItem giftHubItem = GiftHubItem.createGiftHubItem(addGiftHubDto.quantity(), item, member);
+        GiftHubItem giftHubItem = GiftHubItem.createGiftHubItem(
+                addGiftHubDto.quantity(),
+                item,
+                member,
+                resolveOptionName(addGiftHubDto.optionName(), item.getOptionName())
+        );
         giftHubItemRepository.save(giftHubItem);
 
         return CommonSuccessDto.fromEntity(true);
@@ -84,5 +89,12 @@ public class GiftHubItemService {
         }
         giftHubItemRepository.deleteById(giftHubItemId);
         return CommonSuccessDto.fromEntity(true);
+    }
+
+    private String resolveOptionName(String requestedOptionName, String fallbackOptionName) {
+        if (requestedOptionName != null && !requestedOptionName.isBlank()) {
+            return requestedOptionName;
+        }
+        return fallbackOptionName;
     }
 }

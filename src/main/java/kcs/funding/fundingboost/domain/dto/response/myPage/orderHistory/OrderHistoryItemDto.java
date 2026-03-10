@@ -20,10 +20,17 @@ public record OrderHistoryItemDto(
                 .orderItemId(orderItem.getId())
                 .itemName(orderItem.getItem().getItemName())
                 .itemImageUrl(orderItem.getItem().getItemImageUrl())
-                .optionName(orderItem.getItem().getOptionName())
+                .optionName(resolveOptionName(orderItem))
                 .quantity(orderItem.getQuantity())
                 .price(orderItem.getItem().getItemPrice() * orderItem.getQuantity()) // 총 가격을 반환
                 .createdDate(orderItem.getOrder().getCreatedDate())
                 .build();
+    }
+
+    private static String resolveOptionName(OrderItem orderItem) {
+        if (orderItem.getOptionName() != null && !orderItem.getOptionName().isBlank()) {
+            return orderItem.getOptionName();
+        }
+        return orderItem.getItem().getOptionName();
     }
 }

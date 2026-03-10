@@ -27,6 +27,7 @@ import kcs.funding.fundingboost.domain.dto.response.pay.myPay.MyFundingPayViewDt
 import kcs.funding.fundingboost.domain.dto.response.pay.myPay.MyOrderPayViewDto;
 import kcs.funding.fundingboost.domain.entity.Delivery;
 import kcs.funding.fundingboost.domain.entity.FundingItem;
+import kcs.funding.fundingboost.domain.entity.GiftHubItem;
 import kcs.funding.fundingboost.domain.entity.Item;
 import kcs.funding.fundingboost.domain.entity.Order;
 import kcs.funding.fundingboost.domain.entity.OrderItem;
@@ -133,6 +134,7 @@ public class MyPayService {
 
         Map<Long, Item> itemMap = itemRepository.findItemsByItemIds(itemIds).stream()
                 .collect(Collectors.toMap(Item::getItemId, item -> item));
+        Map<Long, GiftHubItem> giftHubItemMap = extractValidatedGiftHubItems(myPayDto.itemPayDtoList(), memberId);
 
         Order order = Order.createOrder(member, delivery);
         List<OrderItem> orderItems = myPayDto.itemPayDtoList().stream()
@@ -145,10 +147,30 @@ public class MyPayService {
                     if (quantity <= 0) {
                         throw new CommonException(BAD_REQUEST_PARAMETER);
                     }
-                    return OrderItem.createOrderItem(order, item, quantity);
+                    GiftHubItem giftHubItem = null;
+                    if (itemPayDto.giftHubId() != null) {
+                        giftHubItem = giftHubItemMap.get(itemPayDto.giftHubId());
+                        if (giftHubItem == null) {
+                            throw new CommonException(BAD_REQUEST_PARAMETER);
+                        }
+                        if (!Objects.equals(giftHubItem.getItem().getItemId(), itemPayDto.itemId())) {
+                            throw new CommonException(BAD_REQUEST_PARAMETER);
+                        }
+                    }
+
+                    return OrderItem.createOrderItem(
+                            order,
+                            item,
+                            quantity,
+                            resolveOptionName(
+                                    itemPayDto.optionName(),
+                                    giftHubItem != null ? giftHubItem.getOptionName() : null,
+                                    item.getOptionName()
+                            )
+                    );
                 }).toList();
 
-        List<Long> giftHubIdList = extractValidatedGiftHubItemIds(myPayDto.itemPayDtoList(), memberId);
+        List<Long> giftHubIdList = giftHubItemMap.keySet().stream().toList();
 
         int pointUsedAmount = resolveApplicablePoint(member, requestedUsingPoint, order.getTotalPrice());
         int directPaidAmount = Math.max(order.getTotalPrice() - pointUsedAmount, 0);
@@ -205,7 +227,12 @@ public class MyPayService {
         Item item = itemRepository.findById(itemPayNowDto.itemId()).orElseThrow(
                 () -> new CommonException(NOT_FOUND_ITEM));
         Order order = Order.createOrder(member, delivery);
-        OrderItem orderItem = OrderItem.createOrderItem(order, item, itemPayNowDto.quantity());
+        OrderItem orderItem = OrderItem.createOrderItem(
+                order,
+                item,
+                itemPayNowDto.quantity(),
+                resolveOptionName(itemPayNowDto.optionName(), null, item.getOptionName())
+        );
         int pointUsedAmount = resolveApplicablePoint(member, requestedUsingPoint, order.getTotalPrice());
         int directPaidAmount = Math.max(order.getTotalPrice() - pointUsedAmount, 0);
         PaymentExecutionResult paymentExecutionResult = executePayment(
@@ -347,19 +374,50 @@ public class MyPayService {
         return PaymentIntentKeyResolver.resolveFromIdempotencyKey(idempotencyKey);
     }
 
-    private List<Long> extractValidatedGiftHubItemIds(List<ItemPayDto> itemPayDtoList, Long memberId) {
+    private Map<Long, GiftHubItem> extractValidatedGiftHubItems(List<ItemPayDto> itemPayDtoList, Long memberId) {
         List<Long> giftHubItemIds = itemPayDtoList.stream()
                 .map(ItemPayDto::giftHubId)
                 .filter(Objects::nonNull)
                 .distinct()
                 .toList();
         if (giftHubItemIds.isEmpty()) {
-            return giftHubItemIds;
+            return Map.of();
         }
         long ownedCount = giftHubItemRepository.countByGiftHubItemIdInAndMember_MemberId(giftHubItemIds, memberId);
         if (ownedCount != giftHubItemIds.size()) {
             throw new CommonException(BAD_REQUEST_PARAMETER);
         }
-        return giftHubItemIds;
+        List<GiftHubItem> giftHubItems = giftHubItemRepository.findAllById(giftHubItemIds);
+        if (giftHubItems.size() != giftHubItemIds.size()) {
+            throw new CommonException(BAD_REQUEST_PARAMETER);
+        }
+        return giftHubItems.stream().collect(Collectors.toMap(GiftHubItem::getGiftHubItemId, giftHubItem -> giftHubItem));
+    }
+
+    private String resolveOptionName(String requestOptionName, String giftHubOptionName, String itemOptionName) {
+        String normalizedGiftHubOption = normalizeOptionName(giftHubOptionName);
+        if (normalizedGiftHubOption != null) {
+            return normalizedGiftHubOption;
+        }
+        String normalizedRequestOption = normalizeOptionName(requestOptionName);
+        if (normalizedRequestOption != null) {
+            return normalizedRequestOption;
+        }
+        String normalizedItemOption = normalizeOptionName(itemOptionName);
+        if (normalizedItemOption != null) {
+            return normalizedItemOption;
+        }
+        return "기본 옵션";
+    }
+
+    private String normalizeOptionName(String optionName) {
+        if (optionName == null) {
+            return null;
+        }
+        String trimmed = optionName.trim();
+        if (trimmed.isEmpty()) {
+            return null;
+        }
+        return trimmed;
     }
 }

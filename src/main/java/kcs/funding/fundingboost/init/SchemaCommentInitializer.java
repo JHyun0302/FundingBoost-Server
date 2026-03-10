@@ -321,6 +321,7 @@ public class SchemaCommentInitializer {
                                 "created_date", "생성 일시",
                                 "modified_date", "수정 일시",
                                 "quantity", "장바구니 담은 수량",
+                                "option_name", "사용자가 선택한 옵션명",
                                 "item_id", "상품 ID",
                                 "member_id", "회원 ID"
                         )
@@ -369,6 +370,7 @@ public class SchemaCommentInitializer {
                         comments(
                                 "order_item_id", "주문 상품 PK",
                                 "quantity", "주문 수량",
+                                "option_name", "주문 당시 선택 옵션명",
                                 "item_id", "주문한 상품 ID",
                                 "order_id", "소속 주문 ID"
                         )
@@ -421,6 +423,22 @@ public class SchemaCommentInitializer {
                                 "rating", "평점",
                                 "item_id", "대상 상품 ID",
                                 "member_id", "작성 회원 ID"
+                        )
+                )
+        );
+
+        specs.put(
+                new TableRef(CURRENT_SCHEMA_ALIAS, "search_keyword_log"),
+                new TableCommentSpec(
+                        "검색어 로그 테이블",
+                        comments(
+                                "search_keyword_log_id", "검색 로그 PK",
+                                "created_date", "생성 일시",
+                                "modified_date", "수정 일시",
+                                "raw_keyword", "사용자가 입력한 원문 검색어",
+                                "normalized_keyword", "정규화된 검색어",
+                                "result_count", "검색 결과 개수",
+                                "top_category", "검색 결과 최다 카테고리"
                         )
                 )
         );

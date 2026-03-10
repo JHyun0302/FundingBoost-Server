@@ -4,6 +4,10 @@ public record ItemPayNowDto(
         Long itemId,
         int quantity,
         Long deliveryId,
-        int usingPoint
+        int usingPoint,
+        String optionName
 ) {
+    public ItemPayNowDto(Long itemId, int quantity, Long deliveryId, int usingPoint) {
+        this(itemId, quantity, deliveryId, usingPoint, null);
+    }
 }

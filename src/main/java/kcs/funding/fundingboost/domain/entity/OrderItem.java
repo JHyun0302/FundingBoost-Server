@@ -41,11 +41,19 @@ public class OrderItem {
     @JoinColumn(name = "item_id", foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT))
     private Item item;
 
+    @Column(name = "option_name", length = 500)
+    private String optionName;
+
     public static OrderItem createOrderItem(Order order, Item item, int quantity) {
+        return createOrderItem(order, item, quantity, item.getOptionName());
+    }
+
+    public static OrderItem createOrderItem(Order order, Item item, int quantity, String optionName) {
         OrderItem orderItem = new OrderItem();
         orderItem.order = order;
         orderItem.item = item;
         orderItem.quantity = quantity;
+        orderItem.optionName = optionName;
         order.plusTotalPrice(item.getItemPrice() * quantity);
         return orderItem;
     }
